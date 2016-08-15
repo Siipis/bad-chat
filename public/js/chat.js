@@ -769,25 +769,6 @@ app.factory('Data', function ($rootScope) {
 
     return obj;
 });
-app.factory('Notifications', function() {
-    var obj = {};
-
-    obj.notifications = 0;
-
-    obj.set = function(value) {
-        obj.notifications = value;
-    };
-
-    obj.get = function() {
-        return obj.notifications;
-    };
-
-    obj.exists = function() {
-        return obj.notifications > 0;
-    };
-
-    return obj;
-});
 app.factory('Selectors', function() {
     var obj = {};
 
@@ -921,14 +902,15 @@ app.factory('Styling', function ($rootScope, Settings) {
     };
 
     var codes = {
-        '(^|\\s)(http[s]?://[^\\\s]+)': '$1<a href="$2" target="_blank">$2</a>',
+        '(http[s]?://[^\\\s]+)': '<a href="$1" target="_blank">$1</a>',
         '\\[b\\](.*)\\[\/b\\]': '<b>$1</b>',
         '\\[i\\](.*)\\[\/i\\]': '<em>$1</em>',
         '\\[u\\](.*)\\[\/u\\]': '<u>$1</u>',
         '\\[s\\](.*)\\[\/s\\]': '<s>$1</s>',
         '\\[url=(.*)\\](.*)\\[\/url\\]': '<a href="$1" target="_blank">$2</a>',
         '\\[url\\](.*)\\[\/url\\]': '<a href="$1" target="_blank">$1</a>',
-        '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>'
+        '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>',
+        '\n': '<br /><br />'
     };
 
 
@@ -1021,88 +1003,6 @@ app.factory('Styling', function ($rootScope, Settings) {
 
     $rootScope.selectedColor = function (index) {
         return index == Settings.get('color');
-    };
-
-    return obj;
-});
-app.factory('TabHelper', function (Data) {
-    var obj = {};
-
-    var isActive = false;
-    var origInput = null;
-    var tabIndex = -1;
-    var tabPattern = null;
-    var tabRemnant = null;
-    var tabList = [];
-
-    function getPattern(input) {
-        var split = input.split(' ');
-
-        return split[split.length - 1];
-    }
-
-    function getRemnant(input, pattern) {
-        return input.substr(0, input.length - pattern.length);
-    }
-
-    obj.init = function(input) {
-        if (isActive) {
-            return;
-        }
-
-        origInput = input;
-        tabIndex = -1;
-
-        tabPattern = getPattern(input);
-
-        tabList = obj.userList();
-        tabRemnant = getRemnant(input, tabPattern);
-
-        obj.setActive(true);
-    };
-
-    obj.next = function() {
-        if (!isActive) {
-            return;
-        }
-
-        if (tabList.length == 0) {
-            return origInput;
-        }
-
-        tabIndex++;
-
-        if (tabIndex == tabList.length) {
-            tabIndex = 0;
-        }
-
-        return tabRemnant + tabList[tabIndex];
-    };
-
-    obj.setActive = function(active) {
-        isActive = active;
-    };
-
-    obj.tabList = function() {
-        return tabList;
-    };
-
-    obj.userList = function() {
-        var array = [];
-
-        if (tabPattern == null) {
-            return array;
-        }
-
-        var pattern = new RegExp('^' + tabPattern, 'i');
-
-        $.each(Data.userList(), function(i, user) {
-            if (tabPattern.length == 0 || pattern.test(user.name)) {
-                array.push(user.name);
-            }
-        });
-
-        return array;
     };
 
     return obj;
@@ -1675,8 +1575,5 @@ app.controller('messageController', function($rootScope, $scope, Data, Styling) 
 
         return row.message;
     };
-});
-app.controller('soundController', function ($scope, $rootScope) {
-    // TODO: add sounds
 });
 //# sourceMappingURL=chat.js.map

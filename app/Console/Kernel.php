@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        // Commands\Inspire::class,
+        Commands\ChannelExpire::class,
     ];
 
     /**
@@ -42,15 +42,7 @@ class Kernel extends ConsoleKernel
         });
 
         $schedule->call(function() {
-            try {
-                foreach (Channel::expired()->get() as $channel) {
-                    \FrontLog::debug("Channel $channel->name has expired.");
-
-                    $channel->delete();
-                }
-            } catch (\Exception $e) {
-                \Log::error($e->getMessage(), $e->getTrace());
-            }
+            \Artisan::call('channel:expire');
         })->daily();
     }
 }

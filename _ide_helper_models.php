@@ -176,8 +176,10 @@ namespace App{
  * @property \Carbon\Carbon $updated_at
  * @property string $deleted_at
  * @property-read mixed $timestamp
+ * @property-read mixed $full_timestamp
  * @property-read mixed $name
  * @property-read mixed $receiver
+ * @property-read mixed $is_own_message
  * @method static \Illuminate\Database\Query\Builder|\App\Message whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Message whereType($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Message whereChannelId($value)
@@ -189,7 +191,7 @@ namespace App{
  * @method static \Illuminate\Database\Query\Builder|\App\Message whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Message whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Message whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel)
+ * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel, $includeNull = true)
  * @method static \Illuminate\Database\Query\Builder|\App\Message target($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Message public()
  */
@@ -212,8 +214,10 @@ namespace App\Models\Message{
  * @property \Carbon\Carbon $updated_at
  * @property string $deleted_at
  * @property-read mixed $timestamp
+ * @property-read mixed $full_timestamp
  * @property-read mixed $name
  * @property-read mixed $receiver
+ * @property-read mixed $is_own_message
  * @property-read \App\Channel $channel
  * @property-read \App\User $user
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Emote whereId($value)
@@ -227,7 +231,7 @@ namespace App\Models\Message{
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Emote whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Emote whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Emote whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel)
+ * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel, $includeNull = true)
  * @method static \Illuminate\Database\Query\Builder|\App\Message target($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Message public()
  */
@@ -251,7 +255,9 @@ namespace App\Models\Message{
  * @property string $deleted_at
  * @property-read mixed $name
  * @property-read mixed $timestamp
+ * @property-read mixed $full_timestamp
  * @property-read mixed $receiver
+ * @property-read mixed $is_own_message
  * @property-read \App\Channel $channel
  * @property-read \App\User $user
  * @property-read \App\User $target
@@ -266,7 +272,7 @@ namespace App\Models\Message{
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Info whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Info whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Info whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel)
+ * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel, $includeNull = true)
  * @method static \Illuminate\Database\Query\Builder|\App\Message target($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Message public()
  */
@@ -289,8 +295,10 @@ namespace App\Models\Message{
  * @property \Carbon\Carbon $updated_at
  * @property string $deleted_at
  * @property-read mixed $timestamp
+ * @property-read mixed $full_timestamp
  * @property-read mixed $name
  * @property-read mixed $receiver
+ * @property-read mixed $is_own_message
  * @property-read \App\Channel $channel
  * @property-read \App\User $user
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Post whereId($value)
@@ -304,7 +312,7 @@ namespace App\Models\Message{
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Post whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Post whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Post whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel)
+ * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel, $includeNull = true)
  * @method static \Illuminate\Database\Query\Builder|\App\Message target($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Message public()
  */
@@ -328,7 +336,9 @@ namespace App\Models\Message{
  * @property string $deleted_at
  * @property-read mixed $name
  * @property-read mixed $timestamp
+ * @property-read mixed $full_timestamp
  * @property-read mixed $receiver
+ * @property-read mixed $is_own_message
  * @property-read \App\Channel $channel
  * @property-read \App\User $user
  * @property-read \App\User $target
@@ -343,7 +353,7 @@ namespace App\Models\Message{
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\System whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\System whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\System whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel)
+ * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel, $includeNull = true)
  * @method static \Illuminate\Database\Query\Builder|\App\Message target($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Message public()
  */
@@ -365,9 +375,12 @@ namespace App\Models\Message{
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property string $deleted_at
+ * @property-read mixed $whisper_direction
  * @property-read mixed $timestamp
+ * @property-read mixed $full_timestamp
  * @property-read mixed $name
  * @property-read mixed $receiver
+ * @property-read mixed $is_own_message
  * @property-read \App\User $user
  * @property-read \App\User $target
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Whisper whereId($value)
@@ -381,7 +394,7 @@ namespace App\Models\Message{
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Whisper whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Whisper whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Message\Whisper whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel)
+ * @method static \Illuminate\Database\Query\Builder|\App\Message channel($channel, $includeNull = true)
  * @method static \Illuminate\Database\Query\Builder|\App\Message target($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Message public()
  */
@@ -415,12 +428,16 @@ namespace App{
  * @property string $highlight
  * @property integer $maxMessages
  * @property integer $interval
+ * @property string $timezone
+ * @property string $theme
  * @property-read \App\User $owner
  * @method static \Illuminate\Database\Query\Builder|\App\Settings whereUserId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Settings whereChannels($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Settings whereHighlight($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Settings whereMaxMessages($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Settings whereInterval($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Settings whereTimezone($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Settings whereTheme($value)
  */
 	class Settings extends \Eloquent {}
 }
