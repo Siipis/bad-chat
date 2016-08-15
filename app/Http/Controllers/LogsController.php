@@ -54,7 +54,7 @@ class LogsController extends Controller
 
         return CMS::render('logs.main', [
             'channel' => $channel,
-            'channels' => Channel::all()->sortByDesc('isDefault'),
+            'channels' => Channel::all()->sortBy('name'),
             'messages' => $messages,
         ]);
     }
