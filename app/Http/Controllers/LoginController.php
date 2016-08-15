@@ -21,8 +21,12 @@ class LoginController extends Controller
 
     public function getIndex()
     {
-        return CMS::render(Auth::check() ? 'chat.main' : 'auth.login', [
-            'app' => config('chat.name'),
+        if (Auth::check()) {
+            return CMS::render('chat.main');
+        }
+
+        return CMS::render('auth.login', [
+            'online' => Login::online()->get(),
         ]);
     }
 

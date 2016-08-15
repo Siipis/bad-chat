@@ -61,8 +61,6 @@ class Channel extends Model
 
     public function scopeExpired($query)
     {
-        // TODO: make sure this works
-
         $expires = Carbon::now()->subDays(config('chat.channels.expire'));
 
         return $query->where('expires', '<=', $expires);
@@ -105,6 +103,19 @@ class Channel extends Model
     */
 
     /**
+     * Returns true if a channel is public
+     *
+     * @return bool
+     */
+    public function isPublic() {
+        return $this->access == 'public';
+    }
+
+    public function isPrivate() {
+        return !$this->isPublic();
+    }
+
+    /**
      * Returns true if a channel has expired
      *
      * @return bool
@@ -120,8 +131,6 @@ class Channel extends Model
      */
     public function touchExpires($ignoreNull = false)
     {
-        // TODO: fix timestamps
-
         if (is_null($this->expires) && !$ignoreNull) {
             return;
         }

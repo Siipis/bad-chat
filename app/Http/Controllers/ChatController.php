@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Access;
 use App\Ban;
 use App\Channel;
 use App\Http\Requests;
@@ -25,7 +26,6 @@ use FrontLog;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Access;
 
 class ChatController extends Controller
 {
@@ -72,10 +72,13 @@ class ChatController extends Controller
         return [
             'whisper' => "/^(\/w|\/whisper|\/msg) $nick $any$/i",
             'emote' => "/^(\/me|\/emote|\/do) $any$/i",
+            'roll' => "/^(\/roll|\/dice|\/die) ([0-9]+)d([0-9]+)$/i",
             'join' => "/^(\/join|\/enter) $channel$/i",
             'part' => "/^(\/part|\/leave)( $channel)?$/i",
             'invite' => "/^(\/inv|\/invite) $nick( $channel)?+$/i",
             'uninvite' => "/^(\/uninv|\/uninvite) $nick( $channel)?+$/i",
+            'vouch' => "/^(\/vouch) $nick$/i",
+            'unvouch' => "/^(\/unvouch|\/devouch) $nick$/i",
             'promote' => "/^(\/promote) $nick$/i",
             'demote' => "/^(\/demote) $nick$/i",
             'topic' => "/^(\/topic|\/subject) $any+$/i",
@@ -87,8 +90,9 @@ class ChatController extends Controller
             'unban' => "/^(\/unban|\/revoke) $nick$/i",
             'kick' => "/^(\/kick|\/boot) $nick$/i",
             'whois' => "/^(\/who|\/whois|\/ip) $nick$/i",
+            'find' => "/^(\/find|\/where|\/channels) $nick$/i",
             'logout' => "/^(\/quit|\/logout|\/exit)$/i",
-            'afk' => "/^(\/afk)$/i",
+            'afk' => "/^(\/afk|\/away)$/i",
             'brb' => "/^(\/brb)$/i",
             'back' => "/^(\/back|\/online)$/i",
         ];
@@ -113,6 +117,13 @@ class ChatController extends Controller
     {
         try {
             $auth = Auth::user();
+
+            if ($auth->isSuspended()) {
+                Login::logout($auth);
+                
+                return response('Logging out.', 307);
+            }
+
             $settings = Settings::user($auth);
 
             if (!$settings instanceof Settings) {
@@ -162,7 +173,6 @@ class ChatController extends Controller
 
             // Compile the response
             $data = [
-                'latest' => 0,
                 'user' => $auth,
                 'channel' => $firstChannel,
                 'config' => [
@@ -175,8 +185,12 @@ class ChatController extends Controller
                 ],
             ];
 
+            $this->finish();
+
             return response()->json($data);
         } catch (\Exception $e) {
+            $this->finish();
+
             if (config('app.debug')) {
                 throw $e;
             }
@@ -195,6 +209,8 @@ class ChatController extends Controller
         if (!Login::logout()) {
             Auth::logout();
         }
+
+        $this->finish();
 
         return response('Logging out.', 307);
     }
@@ -215,7 +231,7 @@ class ChatController extends Controller
                 return response('Logging out.', 307);
             }
 
-            if ($login->channels->count() == 0) {
+            if ($login->channels->count() == 0 || $auth->isSuspended()) {
                 return response('Kicked.', 409);
             }
 
@@ -227,7 +243,9 @@ class ChatController extends Controller
             $channels = $this->getChannels($request);
             $latest = $this->getLatest($request);
 
-            $rows = Message::after($latest, $channel)->filter(function ($row) use ($auth, $ignored) {
+            $messages = $latest > 0 ? Message::after($latest, $channel) : Message::latest($channel, config('chat.channels.backtrack'));
+
+            $rows = $messages->filter(function ($row) use ($auth, $ignored) {
                 if (isset($row->user_id) && !is_null($row->user_id)) {
                     return !$ignored->contains($row->user);
                 }
@@ -266,17 +284,24 @@ class ChatController extends Controller
 
                 $obj->name = $c->name;
 
-                if ($c->name == $channel->name || $channels->isEmpty()) {
+                // Object is the current channel
+                if ($c->name == $channel->name) {
                     $obj->latest = $rows->count() > 0 ? $rows->last()->id : $latest;
                     $obj->changed = false;
 
                     return $obj;
                 }
 
+                // Object is some other channel
                 $item = $channels->where('name', $c->name)->first();
 
-                $obj->latest = isset($item['latest']) ? $item['latest'] : 0;
-                $obj->changed = Message::existsAfter($obj->latest, $c);
+                if (isset($item['latest']) && $item['latest'] > 0) {
+                    $obj->latest = $item['latest'];
+                    $obj->changed = Message::existsAfter($obj->latest, $c, false);
+                } else {
+                    $obj->latest = 0;
+                    $obj->changed = false;
+                }
 
                 return $obj;
             });
@@ -290,8 +315,12 @@ class ChatController extends Controller
 
             $data = collect($data)->toArray(); // prevent constant JSON errors
 
+            $this->finish();
+
             return response()->json($data);
         } catch (\Exception $e) {
+            $this->finish();
+
             if (config('app.debug')) {
                 throw $e;
             }
@@ -308,6 +337,8 @@ class ChatController extends Controller
         if (Access::can('control.registration')) {
             $notifications += User::where('is_active', false)->count();
         }
+
+        $this->finish();
 
         return response()->json($notifications);
     }
@@ -331,7 +362,7 @@ class ChatController extends Controller
                 return response('Kicked.', 409);
             }
 
-            if ($login->hasStatus()) {
+            if ($login->hasStatus() && !preg_match($this->commands['back'], $message)) {
                 $this->setStatus($channel, 'online');
             }
 
@@ -346,13 +377,13 @@ class ChatController extends Controller
             if (starts_with($message, '/')) {
                 $split = explode(' ', $message);
 
-                $command = trim($split[0], '/');
-
-                return $this->createInfo($channel, 'unknown_command', $command);
+                return $this->createInfo($channel, 'unknown_command', trim($message));
             }
 
             return $this->createPost($channel, $message, $request->input('color'));
         } catch (\Exception $e) {
+            $this->finish();
+
             if (config('app.debug')) {
                 throw $e;
             }
@@ -378,9 +409,9 @@ class ChatController extends Controller
 
         if ($message instanceof Message) {
             if ($message->user_id == $auth->id || $channel->isStaff($auth)) {
-            //    $message->delete();
+                $message->delete();
 
-                return $this->createSystem($channel, 'delete_row', $message->id);
+                return $this->createSystem($channel, 'delete_row', $message);
             }
         }
 
@@ -416,6 +447,8 @@ class ChatController extends Controller
         $post->user()->associate(Auth::user());
 
         $channel->messages()->save($post);
+
+        $this->finish();
 
         return response(null, 200);
     }
@@ -453,6 +486,8 @@ class ChatController extends Controller
 
         $whisper->save();
 
+        $this->finish();
+
         return response(null, 200);
     }
 
@@ -479,7 +514,48 @@ class ChatController extends Controller
 
         $channel->messages()->save($emote);
 
+        $this->finish();
+
         return response(null, 200);
+    }
+
+    /**
+     * Rolls a number of dice and returns the result
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return Response
+     */
+    private function createRoll(Channel $channel, $message) {
+        $split = explode(' ', $message);
+
+        $roll = preg_split('/[Dd]/', $split[1]);
+
+        $num = intval($roll[0]);
+        $dice = intval($roll[1]);
+
+        if ($num >= 1 && $num <= 20 && $dice >= 2 && $dice <= 99) {
+            $result = [];
+            $total = 0;
+
+            for ($r = 0; $r < $num; $r++) {
+                $roll = rand(1, $dice);
+
+                $total += $roll;
+                array_push($result, $roll);
+            }
+
+            sort($result);
+
+            return $this->createSystem($channel, 'roll', [
+                'user' => Auth::user()->name,
+                'roll' => strtolower($split[1]),
+                'result' => $result,
+                'total' => $total,
+            ]);
+        }
+
+        return $this->createInfo($channel, 'unknown_command', trim($message));
     }
 
     /**
@@ -509,6 +585,8 @@ class ChatController extends Controller
             $info->save();
         }
 
+        $this->finish();
+
         return response(null, 200);
     }
 
@@ -537,6 +615,8 @@ class ChatController extends Controller
         } else {
             $system->save();
         }
+
+        $this->finish();
 
         return response(null, 200);
     }
@@ -597,6 +677,10 @@ class ChatController extends Controller
             $channel = Channel::whereName($name)->firstOrFail();
         }
 
+        $this->createSystem($channel, 'part', [
+            'user' => Auth::user()->name
+        ]);
+
         Online::where('channel_id', $channel->id)->where('login_id', $login->id)->delete();
 
         $newChannel = $login->onlines->first(function ($key, $online) use ($channel) {
@@ -619,6 +703,9 @@ class ChatController extends Controller
     {
         $split = explode(' ', $message);
 
+        $auth = Auth::user();
+        $user = User::findByName($split[1]);
+
         if (isset($split[2])) {
             $channel = Channel::whereName($split[2])->first();
 
@@ -630,32 +717,32 @@ class ChatController extends Controller
         }
 
         if ($channel->access == 'public') {
-            return $this->createInfo($origChannel, 'public_channel');
+            if ($user instanceof User) {
+                if ($user == $auth) {
+                    return $this->createInfo($channel, 'self_target');
+                }
+
+                return $this->createInfo(null, 'invite', $channel->name, $user, $auth);
+            }
+
+            return $this->createInfo($origChannel, 'user_not_found', $split[1]);
         }
 
-        $auth = Auth::user();
-
         if ($channel->isStaff($auth)) {
-            $user = User::findByName($split[1]);
 
             if ($user instanceof User) {
                 if ($user == $auth) {
                     return $this->createInfo($channel, 'self_target');
                 }
 
-                if (Invite::exists($channel, $user)) {
-                    return $this->createInfo($channel, 'invite_exists', [
-                        'user' => $user->name,
-                        'channel' => $channel->name
-                    ]);
+                if (!Invite::exists($channel, $user)) {
+                    $invite = new Invite();
+
+                    $invite->user()->associate($auth);
+                    $invite->target()->associate($user);
+
+                    $channel->invites()->save($invite);
                 }
-
-                $invite = new Invite();
-
-                $invite->user()->associate($auth);
-                $invite->target()->associate($user);
-
-                $channel->invites()->save($invite);
 
                 return $this->createInfo(null, 'invite', $channel->name, $user, $auth);
             }
@@ -713,6 +800,96 @@ class ChatController extends Controller
         }
 
         return $this->createInfo($origChannel, 'not_permitted', 'uninvite');
+    }
+
+    /**
+     * Creates a vouch for an existing user
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return Response
+     */
+    private function createVouch(Channel $channel, $message)
+    {
+        $split = explode(' ', $message);
+
+        $auth = Auth::user();
+        $user = User::findByName($split[1]);
+
+        if ($user instanceof User) {
+            if ($user == $auth) {
+                return $this->createInfo($channel, 'self_target');
+            }
+        } else {
+            return $this->createInfo($channel, 'user_not_found', $split[1]);
+        }
+
+        if ($auth->canVouch()) {
+            // Look for existing vouches
+            $vouch = Vouch::where('email', $user->email)->where('user_id', $auth->id)->first();
+
+            // Check if a vouch already exists
+            if ($vouch instanceof Vouch) {
+                return $this->createInfo($channel, 'already_vouched', $user->name);
+            }
+
+            // Create a new vouch
+            $vouch = $auth->vouches()->create([
+                'email' => $user->email
+            ]);
+
+            FrontLog::info("$auth->name has vouched for $user->name.");
+
+            // Update the protegee's tier...
+            $vouch->protegee()->associate($user)->save();
+
+            $user->updateTier();
+
+            $this->createInfo(null, 'new_vouch', $auth->name, $user);
+
+            return $this->createInfo($channel, 'vouched', $user->name);
+        } else {
+            FrontLog::info("$auth->name attempted to vouch without permission", [
+                'User' => $auth->name,
+                'Target' => $user->name,
+            ]);
+
+            return $this->createInfo($channel, 'not_permitted', 'vouch');
+        }
+    }
+
+    private function createUnvouch(Channel $channel, $message)
+    {
+        $split = explode(' ', $message);
+
+        $auth = Auth::user();
+        $user = User::findByName($split[1]);
+
+        if ($user instanceof User) {
+            if ($user == $auth) {
+                return $this->createInfo($channel, 'self_target');
+            }
+        } else {
+            return $this->createInfo($channel, 'user_not_found', $split[1]);
+        }
+
+        $vouch = Vouch::where('email', $user->email)->where('user_id', $auth->id)->first();
+
+        // Check if a vouch already exists
+        if ($vouch instanceof Vouch) {
+            $vouch->delete();
+
+            $user->updateTier();
+
+            FrontLog::notice("$auth->name no longer vouches for $user->name.", [
+                'Former protector' => $auth->name,
+                'Protegee' => $user->name,
+            ]);
+
+            return $this->createInfo($channel, 'vouch_removed', $user->name);
+        } else {
+            return $this->createInfo($channel, 'vouch_not_found', $user->name);
+        }
     }
 
     /**
@@ -872,7 +1049,7 @@ class ChatController extends Controller
             ];
 
             if (!isset($allow[$command]) || !in_array($opt, $allow[$command]) && $allow[$command] != ['*']) {
-                return $this->createInfo($channel, 'unknown_command', trim($message, '/'));
+                return $this->createInfo($channel, 'unknown_command', trim($message));
             }
 
             if ($command == 'access') {
@@ -1239,6 +1416,47 @@ class ChatController extends Controller
     }
 
     /**
+     * Returns the channels a user is on
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return Response
+     */
+    private function createFind(Channel $channel, $message) {
+        $split = explode(' ', $message);
+
+        $name = $split[1];
+
+        $user = User::findByName($name);
+
+        if ($user instanceof User) {
+            $login = Login::active($user);
+
+            if ($login instanceof Login) {
+                $isStaff = Auth::user()->isStaff();
+
+                $channels = [];
+
+                foreach ($login->channels as $c) {
+                    if ($c->isPublic() || $isStaff) {
+                        array_push($channels, $c->name);
+                    }
+                }
+
+                return $this->createInfo($channel, 'find', [
+                    'user' => $user->name,
+                    'channels' => $channels,
+                ]);
+            }
+
+            return $this->createInfo($channel, 'user_not_found', $name);
+        }
+
+        return $this->createInfo($channel, 'user_not_found', $name);
+
+    }
+
+    /**
      * Logs a user out
      *
      * @param Channel $channel
@@ -1476,10 +1694,14 @@ class ChatController extends Controller
             }
         }
 
-        $since = Carbon::now()->subMinutes(config('chat.channels.backtrack'));
+        return 0;
+    }
 
-        $message = Message::since($since, $this->getChannel($request))->first();
-
-        return is_null($message) ? 1 : $message->id;
+    /**
+     * Closes the database connection
+     */
+    private function finish()
+    {
+        DB::disconnect('mysql');
     }
 }

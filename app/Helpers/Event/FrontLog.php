@@ -117,7 +117,7 @@ class FrontLog
     {
         $code = $this->levels[$level];
         $url = \Request::fullUrl();
-        $ip = $_SERVER['REMOTE_ADDR'];
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
 
         if ($code >= config('chat.errors.minLevel')) {
             $emails = config('chat.errors.emails');

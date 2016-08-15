@@ -233,7 +233,7 @@ class User extends Authenticatable
         return true;
     }
 
-    public function updateTier($forceCascade = false)
+    public function updateTier($forceCascade = false, $sendEmail = true)
     {
         // Don't update the root user
         if ($this->id == 1) {
@@ -253,11 +253,11 @@ class User extends Authenticatable
             $this->role = 'member';
             $this->tier = $this->ranks['suspended'];
 
-            if ($oldTier > $this->ranks['suspended']) {
+            if ($oldTier > $this->ranks['suspended'] && $sendEmail) {
                 $this->sendUninvitation();
             }
         } else {
-            if ($oldTier == $this->ranks['suspended']) {
+            if ($oldTier == $this->ranks['suspended'] && $sendEmail) {
                 $this->sendReinvitation();
             }
 

@@ -28,13 +28,29 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function() {
-            Login::clearChannels();
-            
-            Online::clearOnline();
-        })->everyMinute();
+            try {
+                Login::clearChannels();
+
+                Online::clearOnline();
+
+                \DB::disconnect('mysql');
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage(), $e->getTrace());
+            }
+        })->everyMinute()->when(function() {
+            return Online::count('id') > 0;
+        });
 
         $schedule->call(function() {
-            Channel::expired()->delete();
+            try {
+                foreach (Channel::expired()->get() as $channel) {
+                    \FrontLog::debug("Channel $channel->name has expired.");
+
+                    $channel->delete();
+                }
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage(), $e->getTrace());
+            }
         })->daily();
     }
 }

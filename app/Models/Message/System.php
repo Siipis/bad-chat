@@ -35,8 +35,12 @@ class System extends Message
             return 'Topic';
         }
 
+        if ($this->attributes['message'] == 'roll') {
+            return 'Roll';
+        }
+
         if ($this->attributes['message'] == 'delete_row') {
-            return $this->context;
+            return $this->attributes['message'];
         }
 
         return config('chat.names.system');
@@ -163,11 +167,15 @@ class System extends Message
             return "$user demoted $target to $role.";
         }
 
+        if ($message == 'suspended') {
+            return "$this->context has been suspended from chat.";
+        }
+
         if ($message == 'banned') {
             $user = $this->context['user'];
             $target = $this->context['target'];
 
-            if (Auth::user()->isStaff()) {
+            if (Auth::user()->isStaff() && !is_null($user)) {
                 return "$user banned $target from chat.";
             }
 
@@ -202,6 +210,44 @@ class System extends Message
             }
 
             return "$target was kicked from the channel.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Actions
+        |--------------------------------------------------------------------------
+        |
+        | Action specific messages
+        |
+        */
+
+        if ($message == 'roll') {
+            $user = $this->context['user'];
+            $roll = $this->context['roll'];
+            $result = $this->context['result'];
+            $total = $this->context['total'];
+
+            if (count($result) == 1) {
+                return "$user rolled $roll and got $total.";
+            }
+
+            $resultList = implode(', ', $result);
+
+            return "$user rolled $roll and got $total. (The rolls were $resultList.)";
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data
+        |--------------------------------------------------------------------------
+        |
+        | Data messages used for backend
+        |
+        */
+
+        if ($message == 'delete_row') {
+            return $this->context;
         }
 
         return $message;

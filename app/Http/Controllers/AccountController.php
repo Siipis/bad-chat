@@ -152,7 +152,7 @@ class AccountController extends Controller
     {
         Login::logout();
 
-        return redirect('/');
+        return redirect('account');
     }
 
     /**
@@ -168,22 +168,7 @@ class AccountController extends Controller
 
             $user = Auth::user();
             $email = $request->input('email');
-
-            if (Vouch::where('email', $email)->count() > 0) {
-                FrontLog::critical("$user->name tried to use an existing email", [
-                    'Email' => $email,
-                ]);
-
-                return redirect()->back()->withErrors([
-                    'email' => 'The email has already been taken.',
-                ])->withInput();
-            }
-
-            // Update dependencies
-            Vouch::where('email', $user->email)->update([
-                'email' => $email
-            ]);
-
+            
             // Log changes
             if ($user->name != $request->input('name')) {
                 $newName = $request->input('name');
@@ -192,6 +177,11 @@ class AccountController extends Controller
             }
 
             if ($user->email != $request->input('email')) {
+                // Update dependencies
+                Vouch::where('email', $user->email)->update([
+                    'email' => $email
+                ]);
+                
                 FrontLog::info("$user->name has changed their email.", [
                     'Old email' => $user->email,
                     'New email' => $request->input('email'),

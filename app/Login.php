@@ -6,7 +6,6 @@ use App\Models\Message\System;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Request;
 
 class Login extends Model
 {
@@ -60,7 +59,7 @@ class Login extends Model
     public function scopeExpired($query)
     {
         $expires = Carbon::now()->subMinutes(config('chat.login.timeout'));
-        
+
         return $query->where('updated_at', '<=', $expires)->whereNull('logout_at');
     }
 
@@ -166,7 +165,9 @@ class Login extends Model
                 ]));
             }
 
-            $login->onlines()->getQuery()->delete();
+            foreach ($login->onlines as $online) {
+                $online->delete();
+            }
 
             $login->touchLogout();
 
@@ -210,14 +211,14 @@ class Login extends Model
 
     /**
      * Returns true if the login has been ended
-     * 
+     *
      * @return bool
      */
     public function isLoggedOut()
     {
         return !is_null($this->logout_at);
     }
-    
+
     /**
      * Sets the logout timestamp
      */
@@ -235,17 +236,21 @@ class Login extends Model
         foreach (self::expired()->get() as $login) {
             $login->touchLogout();
 
-            if (self::isChatting($login->user)) {
-                $login->onlines->delete();
+            foreach ($login->onlines as $online) {
+                if ($online instanceof Online) {
+                    $channel = $online->channel;
 
-                $system = new System([
-                    'message' => 'timeout',
-                    'context' => [
-                        'user' => $login->user->name
-                    ],
-                ]);
+                    $system = new System([
+                        'message' => 'timeout',
+                        'context' => [
+                            'user' => $login->user->name
+                        ],
+                    ]);
 
-                $system->save();
+                    $channel->messages()->save($system);
+
+                    $online->delete();
+                }
             }
         }
     }

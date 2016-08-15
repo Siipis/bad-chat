@@ -17,7 +17,7 @@ class ConfigController extends Controller
     {
         $this->middleware('access:config');
 
-        $this->configPath = storage_path('app/config.json');
+        $this->configPath = config('chat.configPath');
     }
 
     public function getIndex()

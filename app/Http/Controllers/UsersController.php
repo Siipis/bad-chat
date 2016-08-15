@@ -49,7 +49,7 @@ class UsersController extends Controller
     public function getIndex()
     {
         return CMS::render('users.main', [
-            'users' => User::active()->where('id', '!=', '1')->orderBy('role', 'desc')->orderBy('name')->get(),
+            'users' => User::active()->where('id', '!=', '1')->orderBy('name')->get(),
         ]);
     }
 

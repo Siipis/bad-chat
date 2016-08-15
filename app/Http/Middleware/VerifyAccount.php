@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Auth;
+use App\Login;
+use App\Models\Message\System;
 
 class VerifyAccount
 {
@@ -22,7 +24,27 @@ class VerifyAccount
     public function handle($request, Closure $next)
     {
         if (!is_null($user = Auth::user())) {
-            if (!$user->is_active || $user->isBanned()) {
+            if (!$user->is_active || $user->isBanned() || $user->isSuspended()) {
+                // Logs the user out from channels
+
+                if (!is_null($login = Login::active($user))) {
+                    $message = $user->isSuspended() ? 'suspended' : 'banned';
+
+                    foreach ($login->channels as $channel) {
+                        $channel->messages()->save(new System([
+                            'message' => $message,
+                            'context' => [
+                                'user' => $user->name,
+                            ]
+                        ]));
+                    }
+
+                    foreach ($login->onlines as $online) {
+                        $online->delete();
+                    }
+                }
+
+                // Redirects or sends a 307 response
                 if (!in_array($request->path(), $this->except)) {
                     if ($request->ajax()) {
                         return response('Banned.', 307);

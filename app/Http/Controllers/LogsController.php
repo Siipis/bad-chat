@@ -44,7 +44,7 @@ class LogsController extends Controller
             $channel = Channel::defaults()->first();
         }
 
-        $messages = Message::channel($channel)->public()->simplePaginate(50);
+        $messages = Message::channel($channel)->public()->orderBy('id', 'desc')->paginate(50);
 
         $messages->setPath('logs?channel='. trim($channel->name, '#'));
 
@@ -69,14 +69,25 @@ class LogsController extends Controller
     public function getVisits()
     {
         return CMS::render('logs.visits', [
-            'visits' => Login::simplePaginate(50),
+            'visits' => Login::orderBy('id', 'desc')->simplePaginate(50),
         ]);
     }
 
     public function getEvents()
     {
         return CMS::render('logs.events', [
-            'events' => Event::simplePaginate(50),
+            'events' => Event::orderBy('id', 'desc')->simplePaginate(50),
+        ]);
+    }
+
+    public function getErrors()
+    {
+        $log = \File::get(storage_path('logs/laravel.log'));
+
+        $log = preg_replace('/[\n]/', '<br />', $log);
+
+        return CMS::render('logs.errors', [
+            'log' => $log
         ]);
     }
 }

@@ -1,8 +1,10 @@
 <?php
 return [
+    'configPath' => storage_path('app/config.json'),
+
     'login' => [
         'url' => env('APP_URL'),
-        'timeout' => 3, // minutes
+        'timeout' => env('SESSION_TIMEOUT', 3), // minutes
     ],
 
     'names' => [
@@ -13,7 +15,7 @@ return [
     ],
 
     'channels' => [
-        'backtrack' => 60 * 3, // minutes to backtrack when joining a channel
+        'backtrack' => 20, // messages to backtrack when joining a channel
         'access' => 'private', // default access
         'expire' => 7, // days
     ],
@@ -30,7 +32,7 @@ return [
     'interval' => [
         'minimum' => 5, // seconds
         'messages' => 5, // seconds
-        'notifications' => 600, // 10 minutes
+        'notifications' => 300, // 5 minutes
     ],
 
     'input' => [

@@ -16,7 +16,7 @@ class Whisper extends Message
     protected $require = ['user_id', 'target_id'];
 
     protected $appends = [
-        'timestamp', 'name', 'receiver', 'whisperDirection'
+        'timestamp', 'name', 'receiver', 'isOwnMessage', 'whisperDirection'
     ];
 
     protected $attributes = [
@@ -26,7 +26,7 @@ class Whisper extends Message
 
     public function getWhisperDirectionAttribute()
     {
-        return $this->user->id == \Auth::id() ? 'to' : 'from';
+        return $this->user->id == \Auth::id() ? 'from' : 'to';
     }
 
     /*

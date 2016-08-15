@@ -72,7 +72,7 @@ class Info extends Message
         if ($message == 'unknown_command') {
             $command = $this->context;
 
-            return "Unknown or wrongly worded command $command.";
+            return "Unknown or wrongly worded command: $command";
         }
 
         if ($message == 'not_permitted') {
@@ -90,6 +90,9 @@ class Info extends Message
                     break;
                 case 'kick':
                     $action = "kick that user here";
+                    break;
+                case 'vouch' :
+                    $action = "vouch at the moment";
                     break;
                 case 'promote':
                     $action = "promote that user";
@@ -203,6 +206,15 @@ class Info extends Message
             return "The channel is private.";
         }
 
+        if ($message == 'find') {
+            $user = $this->context['user'];
+            $channels = $this->context['channels'];
+
+            $channelList = implode(', ', $channels);
+
+            return "$user is chatting in $channelList.";
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Statuses
@@ -254,6 +266,35 @@ class Info extends Message
             } else {
                 return "You have revoked $target's invite to $channel.";
             }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vouches
+        |--------------------------------------------------------------------------
+        |
+        | Vouch specific messages
+        |
+        */
+
+        if ($message == 'vouched') {
+            return "$this->context is now your protegee!";
+        }
+
+        if ($message == 'already_vouched') {
+            return "You have already vouched for $this->context.";
+        }
+
+        if ($message == 'vouch_not_found') {
+            return "No vouch was found for $this->context.";
+        }
+
+        if ($message == 'vouch_removed') {
+            return "You no longer vouch for $this->context.";
+        }
+
+        if ($message == 'new_vouch') {
+            return "$this->context just vouched for you. Congratulations!";
         }
 
         /*

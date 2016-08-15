@@ -109,6 +109,7 @@ return [
     */
 
     'log' => env('APP_LOG', 'single'),
+    'log_max_files' => 30,
 
     /*
     |--------------------------------------------------------------------------
@@ -159,6 +160,7 @@ return [
         /*
          * Project Service Providers...
          */
+        App\Providers\ViewComposerProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Siipis\CMS\ServiceProvider::class,
 

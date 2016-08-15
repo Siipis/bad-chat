@@ -19,6 +19,7 @@ class Access
         'logs' => 'moderator',
         'visits' => 'moderator',
         'events' => 'moderator',
+        'errors' => 'admin',
     ];
 
     const config = 'admin';

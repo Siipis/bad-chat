@@ -26,7 +26,7 @@ class AccountRequest extends Request
     {
         return [
             'name' => 'required|alpha_dash|unique:users,name,'. Auth::id(),
-            'email' => 'required|email|unique:users,email,'. Auth::id(),
+            'email' => 'required|email|unique:users,email,'. Auth::id() . '|unique:vouches,email,' . Auth::id() .',protegee_id',
             'password' => 'required|confirmed|min:8',
         ];
     }

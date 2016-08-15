@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Auth;
 use App\Settings;
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -19,11 +19,11 @@ class Message extends Model
     protected $require = [];
 
     protected $visible = [
-        'id', 'timestamp', 'type', 'name', 'receiver', 'message', 'color', 'whisperDirection'
+        'id', 'timestamp', 'type', 'name', 'receiver', 'message', 'color', 'whisperDirection', 'isOwnMessage'
     ];
 
     protected $appends = [
-        'timestamp', 'name', 'receiver'
+        'timestamp', 'name', 'receiver', 'isOwnMessage'
     ];
 
     protected $casts = [
@@ -39,12 +39,16 @@ class Message extends Model
     |
     */
 
-    public function scopeChannel($query, $channel)
+    public function scopeChannel($query, Channel $channel, $includeNull = true)
     {
-        return $query->whereNull('channel_id')->orWhere('channel_id', $channel->id);
+        if ($includeNull) {
+            return $query->whereNull('channel_id')->orWhere('channel_id', $channel->id);
+        }
+
+        return $query->where('channel_id', $channel->id);
     }
 
-    public function scopeTarget($query, $user)
+    public function scopeTarget($query, User $user)
     {
         return $query->where('target_id', $user->id)->orWhereNull('target_id')->orWhere('user_id', $user->id);
     }
@@ -76,13 +80,7 @@ class Message extends Model
 
     public function getFullTimestampAttribute()
     {
-        if (Auth::check()) {
-            $settings = Settings::user(Auth::user());
-
-            $this->created_at = $this->created_at->timezone($settings->timezone);
-        }
-
-        return $this->created_at->toDayDateTimeString();
+        return $this->created_at->diffForHumans();
     }
 
     public function getNameAttribute()
@@ -93,6 +91,10 @@ class Message extends Model
     public function getReceiverAttribute()
     {
         return is_null($this->target) ? null : $this->target->name;
+    }
+
+    public function getIsOwnMessageAttribute() {
+        return !is_null($this->user) && $this->user->id == Auth::id();
     }
 
     /*
@@ -176,7 +178,7 @@ class Message extends Model
     {
         $instance = new static;
 
-        return $instance->channel($channel)->target(\Auth::user())->where('created_at', '>', $timestamp)->ount() > 0;
+        return $instance->channel($channel)->target(\Auth::user())->where('created_at', '>', $timestamp)->count() > 0;
     }
 
     /**
@@ -206,11 +208,47 @@ class Message extends Model
      * @param Channel $channel
      * @return bool
      */
-    public static function existsAfter($id, Channel $channel)
+    public static function existsAfter($id, Channel $channel, $allowDuplicates = true)
     {
         $instance = new static;
 
-        return $instance->channel($channel)->target(\Auth::user())->where('id', '>', $id)->count() > 0;
+        return $instance->channel($channel, $allowDuplicates)->target(\Auth::user())->where('id', '>', $id)->count() > 0;
+    }
+
+    /**
+     * Returns a certain number of records
+     *
+     * @param Channel $channel
+     * @param int $take
+     * @return mixed
+     */
+    public static function latest(Channel $channel, $take = 0)
+    {
+        $id = static::latestId($channel, $take);
+
+        return static::after($id, $channel);
+    }
+
+    /**
+     * Returns a the last id of a certain number of records
+     *
+     * @param Channel $channel
+     * @param int $take
+     * @return mixed
+     */
+    public static function latestId(Channel $channel, $take = 0)
+    {
+        $instance = new static;
+
+        $latest = $instance->channel($channel)->target(\Auth::user())->orderBy('id', 'desc');
+
+        if ($take > 0) {
+            $latest = $latest->take($take + 1)->get()->last();
+        } else {
+            $latest = $latest->first();
+        }
+
+        return !is_null($latest) ? $latest->id : 0;
     }
 
     /**
