@@ -1,0 +1,228 @@
+layout: chat
+title: "{{ appName }}"
+
+===
+
+<audio preload="metadata">
+    <source src="{{ asset('audio/notification.mp3') }}" type="audio/mpeg">
+    <source src="{{ asset('audio/notification.ogg') }}" type="audio/ogg">
+    <source src="{{ asset('audio/notification.wav') }}" type="audio/wav">
+    <source src="{{ asset('audio/notification.m4a') }}" type="audio/m4a">
+</audio>
+
+<!-- Begin: Loading overlay -->
+<div id="overlay">
+    <i class="glyphicon glyphicon-refresh rotating"></i>
+
+    <h3>Loading...</h3>
+</div>
+<!-- End: Loading overlay -->
+
+<div class="fade-in" ng-app="chat" id="chat-body">
+    <!-- Begin: Navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top" ng-controller="menuController">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#menubar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="menubar-collapse">
+                <ul class="nav navbar-nav" id="icons">
+                    <li>
+                        <a href="{{ url('/account') }}" title="Account">
+                            <span class="badge" ng-if="hasNotifications()">{{ '{{ notificationCount() }}' }}</span>
+                            <i class="glyphicon glyphicon-home"></i>
+                            <span class="icon-label">Account</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url('/account/settings') }}" title="Settings">
+                            <i class="glyphicon glyphicon-cog"></i>
+                            <span class="icon-label">Settings</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="javascript:void(0);" title="Commands" ng-click="showCommands()">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                            <span class="icon-label">Commands</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="javascript:void(0);" title="Show/hide formatting"
+                           ng-click="toggleSetting('formatting')">
+                            <i class="glyphicon" ng-class="formattingIcon()"></i>
+                            <span class="icon-label">Show / hide formatting</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="javascript:void(0);" title="Sounds on/off" ng-click="toggleSetting('sound')">
+                            <i class="glyphicon" ng-class="soundIcon()"></i>
+                            <span class="icon-label">Sounds on / off</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="javascript:void(0);" title="Scroll on/off" ng-click="toggleSetting('scroll')">
+                            <i class="glyphicon" ng-class="scrollIcon()"></i>
+                            <span class="icon-label">Scroll on / off</span>
+                        </a>
+
+                    </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="{{ url('logout') }}">
+                            <i class="glyphicon glyphicon-off"></i>
+                            Logout [{{ auth_user().name }}]
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End: Navbar -->
+
+    {% partial 'alert' %}
+
+    <div class="container-fluid" id="chat-container" ng-controller="chatController">
+        <div class="row">
+            <div class="col-md-10" id="chat-frame">
+                <!-- Begin: Channels -->
+                <div id="chat-channels">
+                    <ul class="nav nav-tabs" ng-if="isEnabled">
+                        <li role="tab"
+                            ng-repeat="channel in channels()" ng-click="openChannel(channel)"
+                            ng-class="{ active: activeChannel() == channel.name, changed: channel.changed }">
+                            <a href="javascript:void(0);">{{ '{{ channel.name }}' }}</a>
+                        </li>
+                        <li role="option" ng-click="joinChannel()">
+                            <a href="javascript:void(0);">
+                                <i class="glyphicon glyphicon-plus"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- End: Channels -->
+
+                <!-- Begin: Chat window -->
+                <div id="chat-window" ng-if="isEnabled">
+                    <div class="{{ '{{ row.type }}' }}" data-id="{{ '{{ row.id }}' }}" ng-class="addClasses(row)"
+                         ng-repeat="row in rows()"
+                         ng-controller="messageController">
+                        {% if auth_user().isStaff() %}
+                            <div class="dropdown" ng-if="dropdown(row)">
+                                <button id="row-{{ '{{ row.id }}' }}" class="btn btn-xs btn-default" type="button"
+                                        data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="row-{{ '{{ row.id }}' }}">
+                                    <li>
+                                        <a href="javascript:void(0);" ng-click="deleteMessage(row)">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                            Delete message
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <span class="timestamp">[{{ '{{  row.timestamp }}' }}]</span>
+                    <span class="identifier" ng-class="{ colon: colon(row) }">
+                        <span class="name">{{ '{{ name(row) }}' }}</span>
+                    </span>
+                    <span class="message" ng-class="color(row)"
+                          ng-bind-html="stylize(row)">{{ '{{  stylize(row) }}' }}</span>
+                    </div>
+                </div>
+                <!-- End: Chat window -->
+
+                <!-- Begin: Error window -->
+                <div class="text-center" ng-if="!isEnabled">
+                    <h3>{{ '{{  error.title }}' }}</h3>
+                    <p ng-bind-html="error.message"></p>
+
+                    <br />
+                    <a href="{{ url('/') }}" class="text-info">Reload the page</a>
+                </div>
+                <!-- End: Error window -->
+
+                <!-- Begin: Emoji list -->
+                <div id="emojilist" ng-if="isEnabled && displayFormatting()">
+                    <div class="codeSelectors col-md-3">
+                        <button class="btn btn-xs btn-default" ng-click="addCode('b')">b</button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('i')">i</button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('u')">u</button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('s')">s</button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('url')">url</button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('img')">img</button>
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="emojiSelector" ng-repeat="emoji in emojis" ng-click="addInput(emoji.code, true)"
+                             title="{{ '{{  emoji.code }}' }}" ng-bind-html="emoji.img">{{ emoji.img }}</div>
+
+                        <a href="http://emoji.codes/" target="_blank">More</a>
+                    </div>
+                </div>
+                <!-- End: Emoji list -->
+
+                <!-- Begin: Chat input -->
+                <div id="chat-input" ng-controller="inputController">
+                    <form class="form-inline" action="{{ url('/') }}" method="post">
+                        {{ csrf_field() }}
+
+                        <div class="form-group col-xs-11">
+                        <textarea class="form-control" ng-class="currentColor()"
+                                  ng-disabled="!isEnabled"></textarea>
+                        </div>
+
+                        <div class="form-group col-xs-1">
+                            <button class="btn btn-default" title="Say">
+                                <i class="glyphicon glyphicon-share-alt"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End: Chat input -->
+            </div>
+            <!-- Begin: Sidebar -->
+            <div class="col-md-2" id="chat-sidebar">
+                <div id="topic" ng-if="isEnabled" ng-bind-html="channelTopic()"></div>
+
+                <div id="userlist" ng-if="isEnabled">
+                    <div ng-repeat="user in users()" ng-click="whisperTo(user.name)" class="{{ '{{ user.role }}' }}"
+                         ng-class="{ignored: user.ignored}">
+                        {{ '{{ user.name }}' }}
+
+                        <span class="status-{{ '{{ user.status }}' }}">{{ '{{ user.status }}' }}</span>
+
+                        <span class="pull-right hover-icon">
+                            <i class="glyphicon glyphicon-envelope"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="colorlist" ng-if="isEnabled && displayFormatting()">
+                    {% for i in 0..17 %}
+                        <div class="color-swatch color-{{ i }}" ng-class="{ selected: selectedColor({{ i }}) }"
+                             ng-click="selectSetting('color', {{ i }})"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- End: Sidebar -->
+        </div>
+    </div>
+</div>
+
+{% partial 'commands' %}

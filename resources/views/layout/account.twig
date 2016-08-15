@@ -1,0 +1,149 @@
+data:
+- count
+
+===
+
+{% extends 'layout.default' %}
+
+{% block css %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('css/slate/account.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#mainbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="{{ url('/') }}" class="navbar-brand" title="Back to chat">
+                    <i class="glyphicon glyphicon-chevron-left"></i>
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="mainbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="{{ url('account/logout') }}">
+                            <i class="glyphicon glyphicon-off"></i>
+                            Logout [{{ auth_user().name }}]
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid with-navbar">
+        <div class="col-sm-3">
+            <ul class="nav nav-stacked sidebar">
+                <li>
+                    <a href="{{ url('account') }}">
+                        <i class="glyphicon glyphicon-home"></i>
+                        Account settings
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('account/settings') }}">
+                        <i class="glyphicon glyphicon-cog"></i>
+                        Chat settings
+                    </a>
+                </li>
+                <li class="divider" role="separator"></li>
+                {% if can('control.registration') %}
+                    <li>
+                        <a href="{{ url('/users/pending') }}">
+                            <i class="glyphicon glyphicon-flag"></i>
+                            Pending users ({{ count.pending }})
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('control.bans') %}
+                    <li>
+                        <a href="{{ url('users/banned') }}">
+                            <i class="glyphicon glyphicon-ban-circle"></i>
+                            Banned users ({{ count.banned }})
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('control.users') or can('view.users') %}
+                    <li>
+                        <a href="{{ url('users') }}">
+                            <i class="glyphicon glyphicon-list"></i>
+                            Registered users ({{ count.users }})
+                        </a>
+                    </li>
+                {% endif %}
+                {% if auth_user().protegees.count() > 0 or auth_user().canVouch() %}
+                    <li>
+                        <a href="{{ url('/users/vouched') }}">
+                            <i class="glyphicon glyphicon-thumbs-up"></i>
+                            Vouched users ({{ count.vouches }})
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('view.logs') or can('view.visits') or can('view.events') %}
+                    <li class="divider" role="separator"></li>
+                {% endif %}
+                {% if can('view.logs') %}
+                    <li>
+                        <a href="{{ url('logs') }}">
+                            <i class="glyphicon glyphicon-time"></i>
+                            Conversation logs
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('view.visits') %}
+                    <li>
+                        <a href="{{ url('logs/visits') }}">
+                            <i class="glyphicon glyphicon-sunglasses"></i>
+                            Visitor logs
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('view.events') %}
+                    <li>
+                        <a href="{{ url('logs/events') }}">
+                            <i class="glyphicon glyphicon-warning-sign"></i>
+                            Warnings and events
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('view.errors') %}
+                    <li>
+                        <a href="{{ url('logs/errors') }}">
+                            <i class="glyphicon glyphicon-list-alt"></i>
+                            Server error log
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('config') %}
+                    <li class="divider" role="separator"></li>
+                    <li>
+                        <a href="{{ url('config') }}">
+                            <i class="glyphicon glyphicon-wrench"></i>
+                            Chat configuration
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="col-sm-9 content">
+            {% page %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/account.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,53 @@
+layout: account
+title: "{{ appName }}: Vouched users"
+
+===
+
+{% partial 'form.vouch' %}
+
+<h3>Vouched users</h3>
+
+{% partial 'alert' %}
+
+<table class="table table-striped table-hover">
+<thead>
+<tr>
+    <th>#</th>
+    {% if auth_user().isStaff() %}
+        <th>Email</th>
+    {% endif %}
+    <th>Username</th>
+    <th>Invited / Joined</th>
+    <th></th>
+</tr>
+</thead>
+<tbody>
+{% set i = 1 %}
+
+{% for vouch in vouches %}
+<tr>
+    <td>{{ i }}</td>
+    {% if auth_user().isStaff() %}
+        <td>{{ vouch.email }}</td>
+    {% endif %}
+    <td>{{ vouch.protegee is not null ? vouch.protegee.name : '--' }}</td>
+    <td>{{ vouch.protegee.joined is not null ? vouch.protegee.joined : vouch.created_at }}</td>
+    <td class="text-right">
+        <form class="form-inline" action="{{ url('account/uninvite') }}" method="post">
+            {{ csrf_field() }}
+
+            <input type="hidden" name="vouch_id" value="{{ vouch.id }}" />
+
+            <div class="form-group">
+                <button class="btn btn-xs btn-default" data-confirmation="delete">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </div>
+        </form>
+    </td>
+</tr>
+{% set i = (i + 1) %}
+
+{% endfor %}
+</tbody>
+</table>

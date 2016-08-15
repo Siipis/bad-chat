@@ -1,0 +1,105 @@
+layout: account
+title: "{{ appName }}: Configuration"
+
+===
+
+<h3>Configuration</h3>
+
+{% partial 'alert' %}
+
+<form class="form" action="{{ url('config') }}" method="post">
+    {{ csrf_field() }}
+
+    <table class="table table-bordered border-inner table-striped">
+        <tbody>
+        <tr>
+            <th>
+                <label for="name">Site name</label>
+            </th>
+            <td>
+                <input type="text" id="name" name="name" class="form-control col-xs-12" value="{{ config.name }}" />
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="allowLogins">Logins</label>
+            </th>
+            <td>
+                <label>
+                    <input type="checkbox" id="allowLogins" name="allowLogins" value="true" {{ config.allowLogins ? 'checked' : '' }} />
+
+                    Enabled
+                </label>
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="allowRegistration">Registration</label>
+            </th>
+            <td>
+                <label>
+                    <input type="checkbox" id="allowRegistration" name="allowRegistration" value="true" {{ config.allowRegistration ? 'checked' : '' }} />
+
+                    Enabled
+                </label>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="vouching_maxTier">Maximum voucher tier</label>
+            </th>
+            <td>
+                <select id="vouching_maxTier" name="vouching_maxTier" class="form-control">
+                    {% for i in 0..10 %}
+                        <option{{ i == config.vouching.maxTier ? ' selected' : '' }}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="errors_minLevel">Minimum alert level</label>
+            </th>
+            <td>
+                <select id="errors_minLevel" name="errors_minLevel" class="form-control">
+                    {% for level, code in levels %}
+                        <option value="{{ code }}"{{ code == config.errors.minLevel ? ' selected' : '' }}>{{ level|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="errors_emails">Send alerts to email(s)</label>
+            </th>
+            <td>
+                <textarea id="errors_emails" name="errors_emails" class="form-control">{{ config.errors.emails }}</textarea>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <button class="btn btn-default">Save config</button>
+    </div>
+</form>

@@ -1,0 +1,229 @@
+<!-- Commands info -->
+<div class="modal fade" id="commands-overlay" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">List of all commands</h5>
+            </div>
+            <div class="modal-body">
+                <h4>General commands</h4>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Alternate</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>/whisper [username] [message]</td>
+                        <td>/w /msg</td>
+                        <td>Sends a private message.</td>
+                        <td>/whisper Dummy Hello there!</td>
+                    </tr>
+                    <tr>
+                        <td>/persist [username]</td>
+                        <td>/p</td>
+                        <td>Automatically appends /whisper before messages until removed.</td>
+                        <td>/persist Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/me [message]</td>
+                        <td>/emote /do</td>
+                        <td>Describe an action.</td>
+                        <td>/me dances with Dummy.</td>
+                    </tr>
+                    <tr>
+                        <td>/logout</td>
+                        <td>/exit /quit</td>
+                        <td>Logs out from the chat.</td>
+                        <td>/logout</td>
+                    </tr>
+                    <tr>
+                        <td>/away</td>
+                        <td>/afk</td>
+                        <td>Sets your status to AFK (away from keyboard).</td>
+                        <td>/afk</td>
+                    </tr>
+                    <tr>
+                        <td>/brb</td>
+                        <td></td>
+                        <td>Sets your status to BRB (be right back).</td>
+                        <td>/brb</td>
+                    </tr>
+                    <tr>
+                        <td>/back</td>
+                        <td>/online</td>
+                        <td>Removes your status (if it exists).</td>
+                        <td>/back</td>
+                    </tr>
+                    <tr>
+                        <td>/join [channel]</td>
+                        <td>/enter</td>
+                        <td>Joins or creates a channel.</td>
+                        <td>/join #public</td>
+                    </tr>
+                    <tr>
+                        <td>/part (channel)</td>
+                        <td>/leave</td>
+                        <td>Leaves a channel. If no channel is specified, leaves the current channel.</td>
+                        <td>/part | /part #public</td>
+                    </tr>
+                    <tr>
+                        <td>/info (channel)</td>
+                        <td>/about</td>
+                        <td>Displays the channel information.</td>
+                        <td>/info | /info #public</td>
+                    </tr>
+                    <tr>
+                        <td>/vouch [username]</td>
+                        <td></td>
+                        <td>Vouches for an existing user, becoming their protector.</td>
+                        <td>/vouch Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/unvouch [username]</td>
+                        <td>/devouch</td>
+                        <td>Removes your vouch and protection from an existing user.</td>
+                        <td>/unvouch Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/ignore [username]</td>
+                        <td>/mute /silence</td>
+                        <td>Filter out a user's messages.</td>
+                        <td>/ignore Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/unignore [username]</td>
+                        <td>/unmute /unsilence</td>
+                        <td>Stops filtering out a user's messages.</td>
+                        <td>/unignore Dummy</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h4>Channel staff commands</h4>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Alternate</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>/invite [username] (channel)</td>
+                        <td>/inv</td>
+                        <td>Invites a user to a private channel. If no channel is specified, the invite is send to the
+                            current channel.
+                        </td>
+                        <td>/invite Dummy | /invite Dummy #public</td>
+                    </tr>
+                    <tr>
+                        <td>/uninvite [username] (channel)</td>
+                        <td>/uninv</td>
+                        <td>Uninvites a user from a private channel.</td>
+                        <td>/uninvite Dummy | /uninvite Dummy #public</td>
+                    </tr>
+                    <tr>
+                        <td>/promote [username]</td>
+                        <td></td>
+                        <td>Promotes the user to moderator or admin for the channel.</td>
+                        <td>/promote Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/demote [username]</td>
+                        <td></td>
+                        <td>Demotes the one rank lower on the channel, e.g. moderator to user.</td>
+                        <td>/demote Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/topic [message]</td>
+                        <td>/subject</td>
+                        <td>Sets the topic (or a welcome message) for the channel.</td>
+                        <td>/topic Has anyone seen Dummy?</td>
+                    </tr>
+                    <tr>
+                        <td>/settings [setting] [option]</td>
+                        <td>/set</td>
+                        <td>
+                            Changes the channel settings.
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Setting</th>
+                                    <th>Options</th>
+                                    <th>Description</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>access</td>
+                                    <td>public / private</td>
+                                    <td>Sets the channel visibility.</td>
+                                </tr>
+                                <tr>
+                                    <td>persist</td>
+                                    <td>on / off</td>
+                                    <td>Persists the channel settings and ownership.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        <td>/settings access private</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h4 class="">Chat staff commands</h4>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Alternate</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>/ban [username]</td>
+                        <td>/remove</td>
+                        <td>Bans a user from the chat. (Use the <a href="{{ url('account') }}" target="_blank">account
+                                panel</a> for long bans.)
+                        </td>
+                        <td>/ban Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/unban [username]</td>
+                        <td>/revoke</td>
+                        <td>Revokes a user's ban in the chat.</td>
+                        <td>/unban Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/kick [username]</td>
+                        <td>/boot</td>
+                        <td>(Channel staff only.) Kicks a user from the channel.</td>
+                        <td>/kick Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/whois [username]</td>
+                        <td>/ip /who</td>
+                        <td>Displays a user's IP address.</td>
+                        <td>/whois Dummy</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary">Got it!</button>
+            </div>
+        </div>
+    </div>
+</div>

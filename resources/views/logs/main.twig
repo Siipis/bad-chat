@@ -1,0 +1,57 @@
+layout: account
+title: "{{ appName }}: Conversation logs"
+
+===
+
+<h3>Conversation logs: {{ channel.name }}</h3>
+
+<form class="form form-inline" action="{{ url('logs') }}" method="post">
+    {{ csrf_field() }}
+
+    <div class="form-group{{ errors.has('channel') ? ' has-error' : '' }}">
+        <label for="inputChannel">Channel</label>
+
+        <select name="channel" id="inputChannel" class="form-control">
+            {% for c in channels %}
+                <option value="{{ c.name|trim('#') }}"{{ c.name == channel.name ? ' selected' : '' }}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+
+        {% if errors.has('channel') %}
+            <span class="help-block">
+                <strong>{{ errors.first('channel') }}</strong>
+            </span>
+        {% endif %}
+    </div>
+
+
+    <div class="form-group">
+        <button class="btn btn-default">Display</button>
+    </div>
+</form>
+
+<hr />
+
+{{ messages.links()|raw }}
+
+<table class="table table-striped table-hover" id="channel-logs">
+    <thead>
+    <tr>
+        <th>Timestamp</th>
+        <th>Message</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for m in messages if m.name is not same as('delete_row') %}
+    <tr class="{{ m.type }}">
+        <td>{{ m.fullTimestamp }}</td>
+        <td>
+            <span class="name">{{ m.name }}</span>
+            {{ m.message|join() }}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{{ messages.links()|raw }}

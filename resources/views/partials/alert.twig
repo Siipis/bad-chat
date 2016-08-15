@@ -1,0 +1,5 @@
+{% set key = key is defined ? key : 'alert' %}
+
+{% if session(key) %}
+    <div class="alert fade-out alert-{{ session(key).type }}">{{ session(key).message }}</div>
+{% endif %}

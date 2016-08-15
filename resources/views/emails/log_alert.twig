@@ -1,0 +1,9 @@
+<h3>{{ level|capitalize }}: {{ event }}</h3>
+
+{% if context is not empty %}
+<pre style="background: #dddddd">{{ context }}</pre>
+{% endif %}
+
+<p><strong>URL:</strong> {{ url }}</p>
+
+<p><strong>IP:</strong> {{ ip }}</p>

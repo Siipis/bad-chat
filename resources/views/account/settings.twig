@@ -1,0 +1,72 @@
+layout: account
+title: "{{ appName }}: Chat settings"
+
+===
+
+<h3>Chat settings</h3>
+
+{% partial 'alert' %}
+
+<form class="form" action="{{ url('account/settings') }}" method="post">
+    {{ csrf_field() }}
+
+    <table class="table table-bordered border-inner table-striped">
+        <tbody>
+        <tr>
+            <th>
+                <label for="channels">Auto-join channels</label>
+            </th>
+            <td>
+                <textarea id="channels" name="channels" class="form-control">{{ settings.channels|join('\n') }}</textarea>
+                <p class="help-block">One channel per line. Leave empty to auto-join the default channel(s).</p>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <label for="highlight">Highlight</label>
+            </th>
+            <td>
+                <textarea id="highlight" name="highlight" class="form-control">{{ settings.highlight|join('\n') }}</textarea>
+                <p class="help-block">One highlight entry per line (case sensitive).</p>
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="maxMessages">Max messages on screen</label>
+            </th>
+            <td>
+                <input type="number" id="maxMessages" name="maxMessages" class="form-control col-xs-12" min="0" step="50" value="{{ settings.maxMessages }}" />
+                <p class="help-block">Set 0 to disable the message limit.</p>
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="interval">Update speed (seconds)</label>
+            </th>
+            <td>
+                <input type="number" id="interval" name="interval" class="form-control col-xs-12" min="0" value="{{ settings.interval }}" />
+                <p class="help-block">Minimum: {{ config('chat.interval.minimum') }}. Leave empty to use the default speed.</p>
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                <label for="timezone">Local timezone</label>
+            </th>
+            <td>
+                <select name="timezone" id="timezone" class="form-control">
+                    {% for timezone in timezones %}
+                        <option value="{{ timezone }}"{{ settings.timezone == timezone ? ' selected' : '' }}>{{ timezone }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <button class="btn btn-default">Save settings</button>
+    </div>
+</form>

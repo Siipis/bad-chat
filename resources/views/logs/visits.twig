@@ -1,0 +1,35 @@
+layout: account
+title: "{{ appName }}: Visits"
+
+===
+
+<h3>Visits</h3>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th class="col-xs-3">User</th>
+        <th>IP</th>
+        <th>Timestamp</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for visit in visits %}
+        <tr class="collapse-header" data-id="{{ visit.id }}">
+            <th>{{ visit.user.name ? visit.user.name : '[Deleted user]' }}</th>
+            <td>{{ visit.ip }}</td>
+            <td>{{ visit.timestamp }}</td>
+            <td class="text-right">
+                <i class="glyphicon glyphicon-zoom-in"></i>
+            </td>
+        </tr>
+        <tr class="active" data-id="{{ visit.id }}">
+            <th class="text-right">User agent</th>
+            <td colspan="3">{{ visit.agent }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{{ visits.links()|raw }}

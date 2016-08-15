@@ -1,0 +1,9 @@
+<p><strong>{{ user }},</strong></p>
+<p>Welcome to {{ app }}! We are happy to see you join us.</p>
+
+<p><strong>Your password is: </strong> <code>{{ password }}</code></p>
+
+{% if inactive %}
+    <p>Please wait while a moderator activates your account. We will send you another email when the registration is complete.</p>
+{% endif %}
+<p>Regards,<br />the Staff</p>

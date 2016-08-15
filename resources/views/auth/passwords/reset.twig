@@ -1,0 +1,49 @@
+layout: default
+title: Recover your password
+
+===
+
+<div class="col-sm-6 col-sm-offset-3">
+    <h3>Select a new password</h3>
+
+    <form class="form" action="{{ url('password/reset') }}" method="post">
+        {{ csrf_field() }}
+
+        <input type="hidden" name="token" value="{{ token }}" />
+
+        <input type="hidden" name="email" value="{{ email }}" />
+
+        <div class="form-group">
+            <label>Username</label>
+            <p class="form-control-static">{{ name }}</p>
+        </div>
+
+        <div class="form-group{{ errors.has('password') ? ' has-error' : '' }}">
+            <label for="inputPassword">Password</label>
+            <input type="password" name="password" class="form-control" id="inputPassword" value="{{ old('password') }}" placeholder="Password" />
+
+            {% if errors.has('password') %}
+                <span class="help-block">
+                    <strong>{{ errors.first('password') }}</strong>
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="form-group{{ errors.has('password_confirmation') ? ' has-error' : '' }}">
+            <label for="inputPasswordConfirmation">Repeat password</label>
+            <input type="password" name="password_confirmation" class="form-control" id="inputPasswordConfirmation" value="{{ old('password_confirmation') }}" placeholder="Repeat password" />
+
+            {% if errors.has('password_confirmation') %}
+                <span class="help-block">
+                    <strong>{{ errors.first('password_confirmation') }}</strong>
+                </span>
+            {% endif %}
+        </div>
+
+
+        <div class="form-group">
+            <button class="btn btn-default">Submit</button>
+        </div>
+    </form>
+</div>
+

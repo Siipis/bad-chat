@@ -1,0 +1,61 @@
+layout: account
+title: "{{ appName }}: Pending users"
+
+===
+
+<h3>Pending users</h3>
+
+{% partial 'alert' %}
+
+{% if users is empty %}
+    <h4>No pending users at the moment.</h4>
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Voucher(s)</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <form class="form-inline" action="{{ url('users/activate') }}" method="post">
+                            {{ csrf_field() }}
+
+                            <input type="hidden" name="user_id" value="{{ user.id }}"/>
+
+                            <button class="btn btn-xs btn-success">
+                                <i class="glyphicon glyphicon-ok"></i>
+                            </button>
+                        </form>
+                    </td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td class="comma-separated">
+                        {% for protector in user.protectors %}
+                            <span>{{ protector.name }}</span>
+                        {% endfor %}
+                    </td>
+                    <td class="text-right">
+                        <form class="form-inline" action="{{ url('users/delete') }}" method="post">
+                            {{ csrf_field() }}
+
+                            <input type="hidden" name="user_id" value="{{ user.id }}"/>
+
+                            <button class="btn btn-xs btn-default" data-confirmation="delete">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

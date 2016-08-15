@@ -1,0 +1,73 @@
+layout: default
+title: "{{ appName }}: Create account"
+
+===
+
+{% if config('chat.allowRegistration') == false %}
+    <div class="message-container">
+        <h3>Registration is closed!</h3>
+
+        <p>We aren't accepting new users at the moment. Please try again later.</p>
+    </div>
+{% else %}
+    <form class="form-horizontal" action="{{ url('account/create') }}" method="post">
+        {{ csrf_field() }}
+
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-6">
+                <h3>Create Account</h3>
+            </div>
+        </div>
+
+        <input type="hidden" name="id" value="{{ id }}"/>
+        <input type="hidden" name="token" value="{{ token }}"/>
+
+        <div class="form-group{{ errors.has('name') ? ' has-error' : '' }}">
+            <label for="inputName" class="col-sm-3 control-label">Name</label>
+            <div class="col-sm-6">
+                <input type="text" name="name" class="form-control" id="inputName" value="{{ old('name') }}"
+                       placeholder="Name"/>
+
+                {% if errors.has('name') %}
+                    <span class="help-block">
+                    <strong>{{ errors.first('name') }}</strong>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group{{ errors.has('password') ? ' has-error' : '' }}">
+            <label for="inputPassword" class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-6">
+                <input type="password" name="password" class="form-control" id="inputPassword"
+                       value="{{ old('password') }}" placeholder="Password"/>
+
+                {% if errors.has('password') %}
+                    <span class="help-block">
+                    <strong>{{ errors.first('password') }}</strong>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group{{ errors.has('password_confirmation') ? ' has-error' : '' }}">
+            <label for="inputPasswordConfirmation" class="col-sm-3 control-label">Repeat password</label>
+            <div class="col-sm-6">
+                <input type="password" name="password_confirmation" class="form-control" id="inputPasswordConfirmation"
+                       value="{{ old('password_confirmation') }}" placeholder="Repeat password"/>
+
+                {% if errors.has('password_confirmation') %}
+                    <span class="help-block">
+                    <strong>{{ errors.first('password_confirmation') }}</strong>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-6">
+                <button class="btn btn-default">Create</button>
+            </div>
+        </div>
+    </form>
+{% endif %}

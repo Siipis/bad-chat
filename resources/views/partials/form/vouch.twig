@@ -1,0 +1,50 @@
+{% if auth_user().canVouch() %}
+    <div class="row">
+        <div class="col-md-9">
+            <h3>
+                <i class="glyphicon glyphicon-thumbs-up"></i>
+                Invite a friend
+            </h3>
+
+            <p>
+                <strong>The more the merrier!</strong> Vouch for a friend to join the chat room. Just remember that your
+                choice of company may also affect your own standing in the room. Don't vouch for strangers!
+            </p>
+
+            {% if config('chat.allowRegistration') == false %}
+                <p class="text-danger">
+                    <strong>Warning:</strong> Registration is closed at the moment! You may still vouch for your
+                    friends, but they won't be able to create an account before registration has been enabled again.
+                </p>
+            {% endif %}
+            {% partial 'alert' with {'key' : 'alert_friend'} %}
+
+            {% if errors.has('friend_email') %}
+                <div class="alert alert-danger">
+                    {{ errors.first('friend_email') }}
+                </div>
+            {% endif %}
+
+            <form class="form-inline well" action="{{ url('account/invite') }}" method="post">
+                {{ csrf_field() }}
+
+                <div class="form-group{{ errors.has('friend_email') ? ' has-error' : '' }}">
+                    <label for="inputFriendEmail">Friend's email</label>
+
+                    <div class="input-group">
+                        <input type="email" name="friend_email" class="form-control" id="inputFriendEmail"
+                               value="{{ old('friend_email') }}" placeholder="email@address.com"/>
+
+                        <div class="input-group-btn">
+                            <button class="btn btn-{{ errors.has('friend_email') ? 'danger' : 'default' }}">Send
+                                invitation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr/>
+{% endif %}

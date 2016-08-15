@@ -1,0 +1,47 @@
+layout: account
+title: "{{ appName }}: Warnings and events"
+
+===
+
+<h3>Warnings and events</h3>
+
+<table class="table" id="eventLog">
+    <thead>
+    <tr>
+        <th>Timestamp</th>
+        <th>Level</th>
+        <th>Message</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for event in events %}
+        <tr class="text-{{ event.level }} collapse-header" data-id="{{ event.id }}">
+            <td>{{ event.created_at.diffForHumans() }}</td>
+            <th>{{ event.level|capitalize }}</th>
+            <td>{{ event.event }}</td>
+            <td class="text-right">
+                <i class="glyphicon glyphicon-zoom-in"></i>
+            </td>
+        </tr>
+        {% if context is not empty %}
+            <tr data-id="{{ event.id }}">
+                <th class="text-right">Context</th>
+                <td colspan="2">
+                    <pre>{{ event.context }}</pre>
+                </td>
+            </tr>
+        {% endif %}
+        <tr data-id="{{ event.id }}">
+            <th class="text-right">IP</th>
+            <td colspan="2">{{ event.ip }}</td>
+        </tr>
+        <tr data-id="{{ event.id }}">
+            <th class="text-right">URL</th>
+            <td colspan="2">{{ event.url }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{{ events.links()|raw }}

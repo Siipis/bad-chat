@@ -1,0 +1,97 @@
+layout: account
+title: "{{ appName }}: View | {{ user.name }}"
+
+===
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <td class="col-sm-3"></td>
+        <td>
+            <h3>{{ user.name }}</h3>
+            <h4>{{ user.email }}</h4>
+        </td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th>Joined</th>
+        <td>{{ user.joined }}</td>
+    </tr>
+
+    <tr>
+        <th>Last seen</th>
+        <td>Never</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <th>Standing</th>
+        <td>
+            {% partial 'alert' %}
+
+            {{ (user.isBanned() ? '<span class="text-danger">Banned until '~ user.ban.until ~ '</span>': user.role|capitalize ~ '(#' ~ user.tier ~')') | raw }}
+
+            {% if can('control.users') %}
+            <form class="form-inline" action="{{ url('users/role') }}" method="post">
+                {{ csrf_field() }}
+
+                <input type="hidden" name="user_id" value="{{ user.id }}"/>
+
+                <button class="btn btn-xs btn-success" name="action" value="promote" title="Promote"{{ user.role == 'admin' ? 'disabled' : '' }}>
+                    <i class="glyphicon glyphicon-thumbs-up"></i>
+                </button>
+
+                <button class="btn btn-xs btn-warning" name="action" value="demote" title="Demote"{{ user.role == 'member' ? ' disabled' : '' }}>
+                    <i class="glyphicon glyphicon-thumbs-down"></i>
+                </button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+
+    {% if user.expiredBans.count() > 0 %}
+        <tr>
+            <th>Previous bans</th>
+            <td>Banned {{ user.expiredBans.count() }} times for a total of {{ user.banTotals }}</td>
+        </tr>
+    {% endif %}
+
+    <tr>
+        <td></td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <th>Protectors</th>
+        <td class="comma-delimited">
+            {{ user.protectors.count() == 0 ? '--' : '' }}
+
+            {% for protector in user.protectors %}
+                <span>{{ protector.name }} (#{{ protector.tier }})</span>
+            {% endfor %}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Protegees</th>
+        <td class="comma-delimited">
+            {{ user.protegees.count() == 0 ? '--' : '' }}
+
+            {% for protegee in user.protegees %}
+                <span>{{ protegee.name }} (#{{ protegee.tier }})</span>
+            {% endfor %}
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<hr />
+
+<a href="{{ url('users') }}" class="text-larger">
+    &laquo; Previous
+</a>

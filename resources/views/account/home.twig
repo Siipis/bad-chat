@@ -1,0 +1,86 @@
+layout: account
+title: "{{ appName }}: Account"
+
+===
+
+<div class="container-fluid">
+    {% if auth_user().isSuspended() %}
+        <div class="row">
+            <div class="col-md-9">
+                {% partial 'alert.suspended' %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% partial 'form.vouch' %}
+
+    <div class="row">
+        <div class="col-md-9">
+            <form class="form" action="{{ url('account/save') }}" method="post">
+                {{ csrf_field() }}
+
+                <h3>
+                    <i class="glyphicon glyphicon-cog"></i>
+                    Account settings
+                </h3>
+
+                <div class="form-group{{ errors.has('name') ? ' has-error' : '' }}">
+                    {% partial 'alert' %}
+
+                    <label for="inputName">Name</label>
+                    <input type="text" name="name" class="form-control" id="inputName"
+                           value="{{ old('name') ? old('name') : user.realName }}"
+                           placeholder="Name" autocomplete="off"/>
+
+                    {% if errors.has('name') %}
+                        <span class="help-block">
+                            <strong>{{ errors.first('name') }}</strong>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group{{ errors.has('email') ? ' has-error' : '' }}">
+                    <label for="inputEmail">Email</label>
+                    <input type="email" name="email" class="form-control" id="inputEmail"
+                           value="{{ old('email') ? old('email') : user.email }}" placeholder="email@address.com"/>
+
+                    {% if errors.has('email') %}
+                        <span class="help-block">
+                            <strong>{{ errors.first('email') }}</strong>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group{{ errors.has('password') ? ' has-error' : '' }}">
+                    <label for="inputPassword">Password</label>
+                    <input type="password" name="password" class="form-control" id="inputPassword"
+                           value="{{ old('password') }}" placeholder="Password" autocomplete="off"/>
+
+                    {% if errors.has('password') %}
+                        <span class="help-block">
+                            <strong>{{ errors.first('password') }}</strong>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group{{ errors.has('password_confirmation') ? ' has-error' : '' }}">
+                    <label for="inputPasswordConfirmation">Repeat password</label>
+                    <input type="password" name="password_confirmation" class="form-control"
+                           id="inputPasswordConfirmation" value="{{ old('password_confirmation') }}"
+                           placeholder="Repeat password" autocomplete="off"/>
+
+                    {% if errors.has('password_confirmation') %}
+                        <span class="help-block">
+                            <strong>{{ errors.first('password_confirmation') }}</strong>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-lg btn-default">Save settings</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

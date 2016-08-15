@@ -1,0 +1,104 @@
+layout: account
+title: "{{ appName }}: Banned users"
+
+===
+
+<h3>Banned users</h3>
+
+{% partial 'alert' %}
+
+{% if bans.count() == 0 %}
+    <h4>No users are banned, yay!</h4>
+{% else %}
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Expires</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ban in bans %}
+            <tr{{ ban.deleted_at is not null ? ' class="text-muted text-strikethrough"' : '' }}>
+                <td>{{ ban.user.name }}</td>
+                <td>{{ ban.until }}</td>
+                <td class="text-right">
+                    {% if ban.deleted_at is null %}
+                    <form class="form-inline" action="{{ url('users/unban') }}" method="post">
+                        {{ csrf_field() }}
+
+                        <input type="hidden" name="user_id" value="{{ ban.user.id }}"/>
+
+                        <button class="btn btn-xs btn-default">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<hr/>
+
+<form class="form-inline" action="{{ url('users/ban') }}" method="post">
+    {{ csrf_field() }}
+
+    <h4>Issue a new ban</h4>
+
+    <div class="well">
+        {% partial 'alert' with {'key' : 'alert_ban'} %}
+
+        <div class="form-group{{ errors.has('name') ? ' has-error' : '' }}">
+            <select name="name" class="form-control" id="inputName">
+                <option value="">Select user...</option>
+                {% for user in users %}
+                    <option value="{{ user.name }}">{{ user.name }}</option>
+                {% endfor %}
+            </select>
+
+            {% if errors.has('name') %}
+                <span class="help-block">
+                <strong>{{ errors.first('name') }}</strong>
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="form-group{{ errors.has('duration') ? ' has-error' : '' }}">
+            <label for="inputDuration">for</label>
+
+            <input type="text" name="duration" size="1" class="form-control" id="inputDuration"
+                   value="{{ old('duration') ? old('duration') : ban.default.duration }}" placeholder="{{ ban.default.duration }}"/>
+
+            <select name="units" class="form-control">
+                {% for unit in ban.units %}
+                    <option value="{{ unit }}"{{ ban.default.unit == unit ? ' selected' : '' }}>{{ unit|capitalize }}</option>
+                {% endfor %}
+            </select>
+
+            {% if errors.has('duration') %}
+                <span class="help-block">
+                <strong>{{ errors.first('duration') }}</strong>
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-danger">
+                <i class="glyphicon glyphicon-ban-circle"></i>
+                Ban
+            </button>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="revoke_vouches" value="true" />
+
+                Also revoke all vouches for the user
+            </label>
+        </div>
+
+    </div>
+</form>

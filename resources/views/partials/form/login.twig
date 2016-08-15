@@ -1,0 +1,52 @@
+<form class="form" action="{{ url(url) }}" method="post">
+{{ csrf_field() }}
+
+{% if config('chat.allowLogins') == false %}
+    <div class="row">
+        <p class="col-sm-offset-3 col-sm-6 text-danger">
+            <strong>Warning!</strong> Logins are disabled at the moment. Please try again later.
+        </p>
+    </div>
+{% endif %}
+
+{% if errors.has('login') %}
+    <div class="form-group{{ errors.has('login') ? ' has-error' : '' }}">
+        <span class="help-block">
+            <strong>{{ errors.first('login') }}</strong>
+        </span>
+    </div>
+{% endif %}
+
+<div class="form-group{{ errors.has('name') ? ' has-error' : '' }}">
+    <label for="inputName">Username</label>
+    <input type="text" name="name" class="form-control" id="inputName" value="{{ old('name') }}"
+           placeholder="Username"/>
+
+    {% if errors.has('name') %}
+        <span class="help-block">
+                <strong>{{ errors.first('name') }}</strong>
+            </span>
+    {% endif %}
+</div>
+
+<div class="form-group{{ errors.has('password') ? ' has-error' : '' }}">
+    <label for="inputPassword">Password</label>
+    <input type="password" name="password" class="form-control" id="inputPassword" value="{{ old('password') }}"
+           placeholder="Password"/>
+
+    {% if errors.has('password') %}
+        <span class="help-block">
+            <strong>{{ errors.first('password') }}</strong>
+        </span>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    <button class="btn btn-default">
+        <i class="glyphicon glyphicon-log-in"></i>
+        Log in
+    </button>
+
+    <a href="{{ url('password/email') }}" class="pull-right btn btn-link">Forgot your password?</a>
+</div>
+</form>
