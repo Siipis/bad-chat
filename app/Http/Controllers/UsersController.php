@@ -325,4 +325,9 @@ class UsersController extends Controller
             'vouches' => \Auth::user()->vouches
         ]);
     }
+
+    public function getPatrons()
+    {
+        return CMS::render('users.patrons');
+    }
 }
