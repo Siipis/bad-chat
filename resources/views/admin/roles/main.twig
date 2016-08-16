@@ -1,0 +1,79 @@
+layout: account
+title: "{{ appName }}: Public roles"
+
+===
+
+<h3>Public roles</h3>
+
+{% partial 'alert' %}
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Role name</th>
+        <th>Icon</th>
+        <th>Members</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    {% for role in roles %}
+        <td>{{ role.title }}</td>
+        <td>
+            <i class="glyphicon glyphicon-{{ role.icon }}"></i>
+        </td>
+        <td>{{ role.users|length }}</td>
+        <td class="text-right">
+            <a href="{{ url('roles/edit/' ~ role.id) }}" class="btn btn-xs btn-default">
+                <i class="glyphicon glyphicon-pencil"></i>
+            </a>
+        </td>
+    {% endfor %}
+    </tr>
+</tbody>
+</table>
+
+<hr />
+
+<form class="form-horizontal" action="{{ url('roles/create') }}" method="post">
+    {{ csrf_field() }}
+
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-6">
+            <h3>Create a new role</h3>
+        </div>
+    </div>
+
+    <div class="form-group{{ errors.has('title') ? ' has-error' : '' }}">
+        <label for="inputTitle" class="col-sm-3 control-label">Title</label>
+        <div class="col-sm-6">
+            <input type="text" name="title" class="form-control" id="inputTitle" value="{{ old('title') }}" placeholder="Title" />
+
+            {% if errors.has('title') %}
+                <span class="help-block">
+                    <strong>{{ errors.first('title') }}</strong>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-group{{ errors.has('icon') ? ' has-error' : '' }}">
+        <label for="inputIcon" class="col-sm-3 control-label">Icon</label>
+        <div class="col-sm-6">
+            <input type="text" name="icon" class="form-control" id="inputIcon" value="{{ old('icon') }}" placeholder="Icon" />
+
+            {% if errors.has('icon') %}
+                <span class="help-block">
+                    <strong>{{ errors.first('icon') }}</strong>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-6">
+            <button class="btn btn-default">Create role</button>
+        </div>
+    </div>
+</form>

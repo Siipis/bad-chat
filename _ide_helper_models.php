@@ -421,6 +421,21 @@ namespace App{
 
 namespace App{
 /**
+ * App\Role
+ *
+ * @property integer $id
+ * @property string $title
+ * @property string $icon
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $users
+ * @method static \Illuminate\Database\Query\Builder|\App\Role whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Role whereTitle($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Role whereIcon($value)
+ */
+	class Role extends \Eloquent {}
+}
+
+namespace App{
+/**
  * App\Settings
  *
  * @property integer $user_id
@@ -465,11 +480,13 @@ namespace App{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Ban[] $bans
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Channel[] $channels
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Ignore[] $ignores
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Role[] $publicRoles
  * @property-read mixed $real_name
  * @property-read mixed $joined
  * @property-read mixed $ban
  * @property-read mixed $expired_bans
  * @property-read mixed $ban_totals
+ * @property mixed $public_role
  * @property-read mixed $role_num
  * @method static \Illuminate\Database\Query\Builder|\App\User whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\User whereName($value)

@@ -26,7 +26,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $visible = [
-        'name', 'role', 'status', 'ignored'
+        'name', 'role', 'publicRole', 'status', 'ignored'
+    ];
+
+    protected $appends = [
+        'publicRole',
     ];
 
     /*
@@ -71,6 +75,11 @@ class User extends Authenticatable
     public function ignores()
     {
         return $this->hasMany('App\Ignore');
+    }
+
+    public function publicRoles()
+    {
+        return $this->belongsToMany('App\Role');
     }
 
     /*
@@ -133,6 +142,23 @@ class User extends Authenticatable
         }
 
         return $string;
+    }
+
+    public function getPublicRoleAttribute()
+    {
+        return Role::leftJoin('role_user', 'role_user.role_id', '=', 'roles.id')
+            ->where('user_id', $this->id)
+            ->where('is_active', true)
+            ->first();
+    }
+
+    public function setPublicRoleAttribute(Role $role = null)
+    {
+        \DB::table('role_user')->where('user_id', $this->id)->where('is_active', true)->update(['is_active' => false]);
+
+        if ($role instanceof Role) {
+            \DB::table('role_user')->where('user_id', $this->id)->where('role_id', $role->id)->update(['is_active' => true]);
+        }
     }
 
     /*
@@ -301,6 +327,15 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->attributes['role'] == $this->ranks['admin'];
+    }
+
+    public function hasPublicRole(Role $role = null)
+    {
+        if(is_null($role)) {
+            return \DB::table('role_user')->where('user_id', $this->id)->count() > 0;
+        }
+
+        return \DB::table('role_user')->where('user_id', $this->id)->where('role_id', $role->id)->count() > 0;
     }
 
     /*

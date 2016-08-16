@@ -1,4 +1,8 @@
 $(document).ready(function() {
+    $('.modal').modal({
+        show: false
+    });
+
     $("[data-confirmation]").click(function(e) {
         e.preventDefault();
 
@@ -6,7 +10,7 @@ $(document).ready(function() {
         var form = $(e.currentTarget).parents('form');
         var button = $("[data-trigger]", dialog);
 
-        dialog.modal();
+        dialog.modal('toggle');
 
         button.off();
 

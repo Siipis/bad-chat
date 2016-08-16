@@ -1,0 +1,140 @@
+layout: account
+title: "{{ appName }}: Public roles"
+
+===
+
+<h3>
+    Public roles: {{ role.title }}
+    <button class="btn btn-default" data-toggle="modal" data-target="#edit-modal">
+        <i class="glyphicon glyphicon-pencil"></i>
+    </button>
+</h3>
+
+{% partial 'alert' %}
+
+<hr/>
+
+<h4>Role members</h4>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for user in role.users %}
+            <td>{{ user.name }}</td>
+            <td class="text-right">
+                <form class="form-inline" action="{{ url('roles/remove') }}" method="post">
+                    {{ csrf_field() }}
+
+                    <input type="hidden" name="role" value="{{ role.id }}" />
+                    <input type="hidden" name="user" value="{{ user.id }}" />
+
+                    <button class="btn btn-xs btn-default">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                </form>
+            </td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
+
+<hr/>
+
+<form class="form-horizontal" action="{{ url('roles/add') }}" method="post">
+    {{ csrf_field() }}
+
+    <input type="hidden" name="role" value="{{ role.id }}"/>
+
+    <div class="form-group{{ errors.has('user') ? ' has-error' : '' }}">
+        <label for="inputUser" class="col-sm-3 control-label">Add user</label>
+        <div class="col-sm-6">
+            <select name="user" id="inputUser" class="form-control">
+                <option>Select user</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.name }}</option>
+                {% endfor %}
+            </select>
+
+            {% if errors.has('user') %}
+                <span class="help-block">
+                    <strong>{{ errors.first('user') }}</strong>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-6">
+            <button class="btn btn-default">Add to role</button>
+        </div>
+    </div>
+</form>
+
+<hr/>
+
+<a href="{{ url('roles') }}" class="text-larger">
+    &laquo; Previous
+</a>
+
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="edit-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="edit-modal">Update role</h4>
+            </div>
+            <div class="modal-body">
+
+                <form class="form-horizontal" action="{{ url('roles/update') }}" method="post">
+                    {{ csrf_field() }}
+
+                    <input type="hidden" name="role" value="{{ role.id }}"/>
+
+                    <div class="form-group{{ errors.has('title') ? ' has-error' : '' }}">
+                        <label for="inputTitle" class="col-sm-3 control-label">Title</label>
+                        <div class="col-sm-6">
+                            <input type="text" name="title" class="form-control" id="inputTitle"
+                                   value="{{ old('title') ? old('title') : role.title }}" placeholder="Title"/>
+
+                            {% if errors.has('title') %}
+                                <span class="help-block">
+                                    <strong>{{ errors.first('title') }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{{ errors.has('icon') ? ' has-error' : '' }}">
+                        <label for="inputIcon" class="col-sm-3 control-label">Icon</label>
+                        <div class="col-sm-6">
+                            <input type="text" name="icon" class="form-control" id="inputIcon"
+                                   value="{{ old('icon') ? old('icon') : role.icon }}" placeholder="Icon"/>
+
+                            {% if errors.has('icon') %}
+                                <span class="help-block">
+                                    <strong>{{ errors.first('icon') }}</strong>
+                               </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-6">
+                            <button class="btn btn-default">Update role</button>
+
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

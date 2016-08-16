@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Channel;
 use App\Login;
+use App\Role;
 use App\Settings;
 use Illuminate\Http\Request;
 
@@ -25,6 +26,8 @@ class AccountController extends Controller
             'only' => [
                 'getSettings',
                 'postSettings',
+                'getRoles',
+                'postRoles',
                 'getLogout',
                 'postSave',
                 'postInvite',
@@ -139,6 +142,61 @@ class AccountController extends Controller
             'alert' => [
                 'type' => 'success',
                 'message' => "Your chat settings have been saved!",
+            ]
+        ]);
+    }
+
+    public function getRoles()
+    {
+        return CMS::render('account.roles', [
+            'currentRole' => Auth::user()->publicRole,
+            'roles' => Auth::user()->publicRoles,
+        ]);
+    }
+
+    public function postRole(Request $request)
+    {
+        $user = Auth::user();
+
+        if (empty($request->input('role'))) {
+            $user->publicRole = null;
+            $user->save();
+
+            return redirect()->back()->with([
+                'alert' => [
+                    'type' => 'success',
+                    'message' => "Public role removed.",
+                ]
+            ]);
+        }
+
+        $role = Role::find($request->input('role'));
+
+        if ($role instanceof Role) {
+            if ($user->hasPublicRole($role)) {
+                $user->publicRole = $role;
+                $user->save();
+
+                return redirect()->back()->with([
+                    'alert' => [
+                        'type' => 'success',
+                        'message' => "You now publicly belong to $role->title.",
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with([
+                'alert' => [
+                    'type' => 'danger',
+                    'message' => "You do not have access to $role->title.",
+                ]
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'alert' => [
+                'type' => 'danger',
+                'message' => "The role was not found.",
             ]
         ]);
     }

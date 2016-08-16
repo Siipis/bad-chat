@@ -207,6 +207,10 @@ title: "{{ appName }}"
 
                         <span class="status-{{ '{{ user.status }}' }}">{{ '{{ user.status }}' }}</span>
 
+                        <span ng-if="hasPublicRole(user)" class="text-smaller">
+                            <i class="glyphicon glyphicon-{{ '{{ publicRole(user).icon }}' }}" title="Proud member of {{ '{{ publicRole(user).title }}' }}!"></i>
+                        </span>
+
                         <span class="pull-right hover-icon">
                             <i class="glyphicon glyphicon-envelope"></i>
                         </span>

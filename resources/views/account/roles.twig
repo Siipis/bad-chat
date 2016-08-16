@@ -1,0 +1,72 @@
+layout: account
+title: "{{ appName }}: Public roles"
+
+===
+
+<h3>Public roles</h3>
+<h4>Current role: {{ currentRole ? currentRole.title : 'No role' }}</h4>
+
+{% partial 'alert' %}
+
+<hr/>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4 class="panel-title">What are public roles?</h4>
+    </div>
+    <div class="panel-body">
+        Public roles entitle you to show off your achievements to the community. They can be attained by anyone, as long
+        as they match the role criteria. For example <strong><a href="http://patreon.com/badchat" target="_blank">becoming a
+                patron</a></strong> may reward you with a public role.
+    </div>
+</div>
+
+<h3>Available roles</h3>
+{% if roles %}
+    <form class="form form-horizontal" action="{{ url('account/role') }}" method="post">
+        {{ csrf_field() }}
+
+        {% set class = 'active' %}
+
+        <table class="table table-striped table-hover radio-table" data-class="{{ class }}">
+            <thead>
+            <tr>
+                <td class="hidden"></td>
+                <th>Role name</th>
+                <th>Icon</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr{{ currentRole == null ? ' class=' ~ class : '' }}>
+                <td class="hidden">
+                    <input type="radio" name="role" id="role_none"
+                           value="" {{ currentRole == null ? ' checked' : '' }} />
+                </td>
+                <td>
+                    <label for="role_none" style="display: block;">No role</label>
+                </td>
+                <td></td>
+            </tr>
+            {% for role in roles %}
+                <tr{{ currentRole.id == role.id ? ' class=' ~ class : '' }}>
+                    <td class="hidden">
+                        <input type="radio" name="role" id="role_{{ role.id }}"
+                               value="{{ role.id }}" {{ currentRole.id == role.id ? ' checked' : '' }} />
+                    </td>
+                    <td>
+                        <label for="role_{{ role.id }}"
+                               style="display: block;">{{ role.title }}</label>
+                    </td>
+                    <td>
+                        <i class="glyphicon glyphicon-{{ role.icon }}"></i>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="btn btn-default">Save selection</button>
+    </form>
+{% else %}
+    <h5>No roles available.</h5>
+{% endif %}

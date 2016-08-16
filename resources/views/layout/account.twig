@@ -56,6 +56,12 @@ data:
                         Chat settings
                     </a>
                 </li>
+                <li>
+                    <a href="{{ url('account/roles') }}">
+                        <i class="glyphicon glyphicon-star"></i>
+                        Public roles
+                    </a>
+                </li>
                 <li class="divider" role="separator"></li>
                 {% if can('control.registration') %}
                     <li>
@@ -124,12 +130,22 @@ data:
                         </a>
                     </li>
                 {% endif %}
-                {% if can('config') %}
+                {% if can('config') or can('control.roles') %}
                     <li class="divider" role="separator"></li>
+                {% endif %}
+                {% if can('config') %}
                     <li>
                         <a href="{{ url('config') }}">
                             <i class="glyphicon glyphicon-wrench"></i>
                             Chat configuration
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can('control.roles') %}
+                    <li>
+                        <a href="{{ url('roles') }}">
+                            <i class="glyphicon glyphicon-star-empty"></i>
+                            Edit public roles
                         </a>
                     </li>
                 {% endif %}

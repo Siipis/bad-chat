@@ -12,6 +12,7 @@ class Access
         'registration' => 'moderator',
         'bans' => 'moderator',
         'users' => 'admin',
+        'roles' => 'admin',
     ];
 
     const view = [

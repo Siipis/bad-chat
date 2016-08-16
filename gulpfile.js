@@ -21,13 +21,12 @@ elixir(function(mix) {
         .copy('node_modules/bootstrap/dist/fonts', 'public/fonts')
         .copy('node_modules/font-awesome/fonts', 'public/fonts');
 
-    /*
     mix.scripts([
         'resources/assets/js/alert.js',
         'resources/assets/js/modal.js',
-        'resources/assets/js/collapse-list.js'
+        'resources/assets/js/collapse-list.js',
+        'resources/assets/js/radio-table.js'
     ], 'public/js/account.js');
-    */
 
     mix.scripts([
         'resources/assets/js/alert.js',

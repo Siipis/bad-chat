@@ -16,7 +16,7 @@ title: "{{ appName }}: Account"
 
     <div class="row">
         <div class="col-md-9">
-            <form class="form" action="{{ url('account/save') }}" method="post">
+            <form class="form-horizontal" action="{{ url('account/save') }}" method="post">
                 {{ csrf_field() }}
 
                 <h3>

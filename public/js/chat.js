@@ -1144,6 +1144,14 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         return Data.userList();
     };
 
+    $scope.hasPublicRole = function(user) {
+        return angular.isObject(user.publicRole);
+    };
+
+    $scope.publicRole = function(user) {
+        return user.publicRole;
+    };
+
     $scope.displayFormatting = function () {
         return Settings.get('formatting');
     };
