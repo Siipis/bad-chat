@@ -38,15 +38,14 @@ app.factory('Styling', function ($rootScope, Settings) {
     };
 
     var codes = {
-        '(http[s]?://[^\\\s]+)': '<a href="$1" target="_blank">$1</a>',
+        '(^| )(http[s]?://[^\\\s]+)': '$1<a href="$2" target="_blank">$2</a>',
         '\\[b\\](.*)\\[\/b\\]': '<b>$1</b>',
         '\\[i\\](.*)\\[\/i\\]': '<em>$1</em>',
         '\\[u\\](.*)\\[\/u\\]': '<u>$1</u>',
         '\\[s\\](.*)\\[\/s\\]': '<s>$1</s>',
         '\\[url=(.*)\\](.*)\\[\/url\\]': '<a href="$1" target="_blank">$2</a>',
         '\\[url\\](.*)\\[\/url\\]': '<a href="$1" target="_blank">$1</a>',
-        '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>',
-        '\n': '<br /><br />'
+        '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>'
     };
 
 
