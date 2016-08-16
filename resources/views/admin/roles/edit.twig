@@ -24,8 +24,8 @@ title: "{{ appName }}: Public roles"
     </tr>
     </thead>
     <tbody>
-    <tr>
-        {% for user in role.users %}
+    {% for user in role.users %}
+        <tr>
             <td>{{ user.name }}</td>
             <td class="text-right">
                 <form class="form-inline" action="{{ url('roles/remove') }}" method="post">
@@ -39,8 +39,8 @@ title: "{{ appName }}: Public roles"
                     </button>
                 </form>
             </td>
-        {% endfor %}
-    </tr>
+        </tr>
+    {% endfor %}
     </tbody>
 </table>
 
