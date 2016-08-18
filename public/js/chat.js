@@ -1301,7 +1301,11 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
      * Submits the form
      */
     function submit() {
-        $scope.$emit('submit', getInput());
+        var input = getInput().trim();
+
+        if (input.length > 0) {
+            $scope.$emit('submit', input);
+        }
 
         clearInput();
     }
