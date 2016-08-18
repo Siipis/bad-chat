@@ -1221,7 +1221,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
 
             scrollTimeout = window.setTimeout(function() {
                 if (Settings.get('scroll')) {
-                    var scrollTop = chatWindow[0].scrollHeight;
+                    var scrollTop = chatWindow[0].scrollHeight * 1.2;
 
                     chatWindow.animate({
                         scrollTop: scrollTop
