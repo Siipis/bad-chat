@@ -1,4 +1,4 @@
-app.factory('Ajax', function ($rootScope, $q, $interval, $http, Data, Settings) {
+app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
     var obj = {};
 
     var refreshInterval = null;
@@ -24,6 +24,12 @@ app.factory('Ajax', function ($rootScope, $q, $interval, $http, Data, Settings) 
      */
     function handleError(response) {
         obj.stopAjax();
+
+        if (response.status == -1) {
+            $rootScope.$broadcast('error', 'Timeout', 'The connection was closed or the server didn\'t respond.');
+
+            return;
+        }
 
         if (response.status == 401) {
             $http.get('/chat/logout').then(function (response) {
@@ -66,10 +72,8 @@ app.factory('Ajax', function ($rootScope, $q, $interval, $http, Data, Settings) 
      */
 
     obj.startAjax = function () {
-        var promise = obj.refresh();
+        obj.refresh();
         obj.notifications();
-
-        promise.resolve();
     };
 
     obj.startRefresh = function () {
@@ -177,18 +181,16 @@ app.factory('Ajax', function ($rootScope, $q, $interval, $http, Data, Settings) 
      * Updates the chat
      */
     obj.refresh = function () {
-        var httpTimeout = $q.defer();
-
-        obj.abortRefresh();
+        obj.stopRefresh();
 
         var request = $http.post('/chat/update', {
             channel: Data.channel(),
             channels: Data.channelList(),
             async: false,
-            timeout: httpTimeout.promise
+            timeout: 10000
         });
 
-        var handler = request.then(function (response) {
+        request.then(function (response) {
             if (response.status != 200) {
                 handleError(response);
 
@@ -198,25 +200,9 @@ app.factory('Ajax', function ($rootScope, $q, $interval, $http, Data, Settings) 
             Data.storeRefreshResponse(response.data);
 
             obj.startRefresh();
-
-            cancelRefresh = null;
         }, function (response) {
             handleError(response);
-
-            cancelRefresh = null;
         });
-
-        return httpTimeout;
-    };
-
-    obj.abortRefresh = function () {
-        obj.stopRefresh();
-
-        if (refreshPromise && refreshPromise._httpTimeout && refreshPromise._httpTimeout.resolve) {
-            console.log('Cancel promise: ', refreshPromise);
-
-            refreshPromise._httpTimeout.resolve();
-        }
     };
 
     obj.notifications = function () {
