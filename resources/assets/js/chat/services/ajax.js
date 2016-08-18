@@ -53,7 +53,7 @@ app.factory('Ajax', function ($rootScope, $q, $interval, $http, Data, Settings) 
             return;
         }
 
-        $rootScope.$broadcast('error', 'Unknown error', 'An unknown error occurred. Try reloading the page.');
+        $rootScope.$broadcast('error', response.status + ' Error', 'An unexpected error occurred. Try reloading the page.');
     }
 
     /*
