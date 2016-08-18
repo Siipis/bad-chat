@@ -1435,52 +1435,56 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
      */
 
     Selectors.textarea.keypress(function (e) {
-        // Enter
-        if (e.which == 13 && !e.shiftKey || e.keyCode == 13 && !e.shiftKey) {
-            e.preventDefault();
+        try {
+            // Enter
+            if (e.which == 13 && !e.shiftKey || e.keyCode == 13 && !e.shiftKey) {
+                e.preventDefault();
 
-            var input = getInput();
+                var input = getInput();
 
-            if (input.length == 0) {
+                if (input.length == 0) {
+                    return;
+                }
+
+                if (input == '/clear') {
+                    $rootScope.$broadcast('clearWindow');
+
+                    clearInput();
+
+                    return;
+                }
+
+                var persistCommand = new RegExp('^\/(persist|p) ([0-9a-z_-]+)$', 'i');
+                var whisperCommand = new RegExp('^\/(whisper|w|msg) ([0-9a-z_-]+)', 'i');
+
+                if (persistCommand.test(input)) {
+                    var nick = input.split(' ')[1];
+
+                    preFill = '/whisper ' + nick + ' ';
+
+                    clearInput();
+
+                    return;
+                } else if (whisperCommand.test(input) == false) {
+                    preFill = null;
+                }
+
+                submit();
                 return;
             }
 
-            if (input == '/clear') {
-                $rootScope.$broadcast('clearWindow');
+            // Tab
+            if (e.which == 9 || e.keyCode == 9) {
+                e.preventDefault();
 
-                clearInput();
+                TabHelper.init(getInput());
 
-                return;
+                setInput(TabHelper.next());
+            } else {
+                TabHelper.setActive(false);
             }
-
-            var persistCommand = new RegExp('^\/(persist|p) ([0-9a-z_-]+)$', 'i');
-            var whisperCommand = new RegExp('^\/(whisper|w|msg) ([0-9a-z_-]+)', 'i');
-
-            if (persistCommand.test(input)) {
-                var nick = input.split(' ')[1];
-
-                preFill = '/whisper ' + nick + ' ';
-
-                clearInput();
-
-                return;
-            } else if (whisperCommand.test(input) == false) {
-                preFill = null;
-            }
-
-            submit();
-            return;
-        }
-
-        // Tab
-        if (e.which == 9 || e.keyCode == 9) {
-            e.preventDefault();
-
-            TabHelper.init(getInput());
-
-            setInput(TabHelper.next());
-        } else {
-            TabHelper.setActive(false);
+        } catch (error) {
+            $rootScope.$broadcast('error', 'An input error occurred', error);
         }
     });
 
