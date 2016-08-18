@@ -41,7 +41,7 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
             return;
         }
 
-        if (response.status == 307) {
+        if (response.status == 307 || response.status == 308) {
             $rootScope.$broadcast('reload');
 
             return;

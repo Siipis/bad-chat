@@ -27,10 +27,16 @@ class VerifyCsrfToken extends BaseVerifier
             return $this->addCookieToResponse($request, $next($request));
         }
 
+        if ($request->ajax()) {
+            $request->session()->flash('request', $request->all());
+
+            return response('Security token mismatch.', 408);
+        }
+
         return \Redirect::back()->with([
             'alert' => [
                 'type' => 'danger',
-                'message' => 'Your session expired. Please try again!',
+                'message' => 'Security token mismatch. Please try again!',
             ]
         ]);
     }

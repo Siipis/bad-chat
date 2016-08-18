@@ -184,7 +184,7 @@ title: "{{ appName }}"
 
                         <div class="form-group col-xs-11">
                         <textarea class="form-control" ng-class="currentColor()"
-                                  ng-disabled="!isEnabled"></textarea>
+                                  ng-disabled="!isEnabled">{{ session('request.message') }}</textarea>
                         </div>
 
                         <div class="form-group col-xs-1">
