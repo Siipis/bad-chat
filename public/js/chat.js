@@ -683,7 +683,11 @@ app.factory('Data', function ($rootScope) {
         var rows = rowList[channelKey] === undefined ? [] : rowList[channelKey];
         var maxMessages = config.settings.maxMessages;
 
-        rows.push(row);
+        var previousRow = rows[rows.length - 1];
+
+        if (previousRow === undefined || previousRow.id != row.id) { // prevent duplicates
+            rows.push(row);
+        }
 
         if (rows.length > maxMessages) {
             rows = rows.slice(-maxMessages);
@@ -1199,6 +1203,8 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
      |
      */
 
+    var scrollTimeout;
+
     $scope.$watch(function () {
         var chatWindow = $(Selectors.chatWindowSelector);
 
@@ -1211,15 +1217,19 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         var chatWindow = $(Selectors.chatWindowSelector);
 
         if (newCount > 0 && newCount != oldCount) {
-            if (Settings.get('scroll')) {
-                var lastRow = $('div:last-child', chatWindow).last();
+            window.clearTimeout(scrollTimeout);
 
-                var scrollTop = chatWindow.scrollTop() + lastRow.offset().top + lastRow.outerHeight();
+            scrollTimeout = window.setTimeout(function() {
+                if (Settings.get('scroll')) {
+                    var lastRow = $('div:last-child', chatWindow).last();
 
-                chatWindow.animate({
-                    scrollTop: scrollTop
-                });
-            }
+                    var scrollTop = chatWindow.scrollTop() + lastRow.offset().top + lastRow.outerHeight();
+
+                    chatWindow.animate({
+                        scrollTop: scrollTop
+                    });
+                }
+            }, 50);
         }
     });
 

@@ -121,7 +121,11 @@ app.factory('Data', function ($rootScope) {
         var rows = rowList[channelKey] === undefined ? [] : rowList[channelKey];
         var maxMessages = config.settings.maxMessages;
 
-        rows.push(row);
+        var previousRow = rows[rows.length - 1];
+
+        if (previousRow === undefined || previousRow.id != row.id) { // prevent duplicates
+            rows.push(row);
+        }
 
         if (rows.length > maxMessages) {
             rows = rows.slice(-maxMessages);
