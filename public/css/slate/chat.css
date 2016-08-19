@@ -194,6 +194,9 @@ body,
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
 }
+#chat-container #chat-frame #chat-window > div a {
+  word-wrap: break-word;
+}
 #chat-container #chat-frame #chat-window > div.highlight {
   background: #202328;
   border-color: #474e57;
@@ -252,7 +255,6 @@ body,
 }
 #chat-container #chat-frame #chat-window .post .message {
   white-space: pre-wrap;
-  word-break: break-all;
 }
 #chat-container #chat-frame #chat-window .post .message.color-1 {
   color: #22cbc1;
