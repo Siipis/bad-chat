@@ -23,6 +23,12 @@ class UsersController extends Controller
             ]
         ]);
 
+        $this->middleware('access:control.discouragement', [
+            'only' => [
+                'postDiscouragement',
+            ]
+        ]);
+
         $this->middleware('access:control.registration', [
             'only' => [
                 'getPending',
@@ -130,6 +136,20 @@ class UsersController extends Controller
         } else {
             throw new \Exception("Fatal error: Unknown action [$action].");
         }
+    }
+
+    public function postDiscouragement(Request $request)
+    {
+        $this->validate($request, [
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($request->input('user_id'));
+
+        $user->discouraged = !$user->discouraged;
+        $user->save();
+
+        return redirect()->back();
     }
 
     public function getPending()

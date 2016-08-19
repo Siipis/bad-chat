@@ -29,6 +29,8 @@ return [
         ],
     ],
 
+    'discourage' => 200, // once every ... request
+
     'interval' => [
         'minimum' => 5, // seconds
         'messages' => 5, // seconds

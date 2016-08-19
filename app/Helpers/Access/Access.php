@@ -11,12 +11,14 @@ class Access
     const control = [
         'registration' => 'moderator',
         'bans' => 'moderator',
+        'discouragement' => 'admin',
         'users' => 'admin',
         'roles' => 'admin',
     ];
 
     const view = [
         'users' => 'moderator',
+        'discouragement' => 'admin',
         'logs' => 'moderator',
         'visits' => 'moderator',
         'events' => 'moderator',

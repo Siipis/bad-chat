@@ -54,6 +54,12 @@ class ChatController extends Controller
             ]
         ]);
 
+        $this->middleware('discourage', [
+            'except' => [
+                'getLogout',
+            ]
+        ]);
+
         $this->commands = $this->getCommands();
     }
 

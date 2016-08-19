@@ -34,7 +34,7 @@ title: "{{ appName }}: View | {{ user.name }}"
         <td>
             {% partial 'alert' %}
 
-            {{ (user.isBanned() ? '<span class="text-danger">Banned until '~ user.ban.until ~ '</span>': user.role|capitalize ~ '(#' ~ user.tier ~')') | raw }}
+            {{ (user.isBanned() ? '<span class="text-danger">Banned until '~ user.ban.until ~ '</span>': user.role|capitalize ~ ' (#' ~ user.tier ~')') | raw }}
 
             {% if can('control.users') %}
             <form class="form-inline" action="{{ url('users/role') }}" method="post">
@@ -53,6 +53,29 @@ title: "{{ appName }}: View | {{ user.name }}"
             {% endif %}
         </td>
     </tr>
+
+    {% if can('view.discouragement') %}
+        <tr>
+            <th>Discouragement</th>
+            <td>
+                {% if can('control.discouragement') %}
+                    <form class="form-inline" action="{{ url('users/discouragement') }}" method="post">
+                        {{ csrf_field() }}
+
+                        <input type="hidden" name="user_id" value="{{ user.id }}"/>
+
+                        {{ user.discouraged ? 'Active' : 'Inactive' }}
+
+                        <button class="btn btn-xs {{ user.discouraged ? 'btn-danger' : 'btn-success' }}" title="Toggle">
+                            <i class="glyphicon glyphicon-{{ user.discouraged ? 'remove-circle' : 'ok-circle' }}"></i>
+                        </button>
+                    </form>
+                {% else %}
+                    {{ user.discouraged ? 'Active' : 'Inactive' }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endif %}
 
     {% if user.expiredBans.count() > 0 %}
         <tr>
