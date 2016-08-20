@@ -63,7 +63,7 @@ class Channel extends Model
     {
         $expires = Carbon::now()->subDays(config('chat.channels.expire'));
 
-        return $query->where('expires', '<=', $expires);
+        return $query->where('expires', '<=', $expires)->whereNull('deleted_at');
     }
 
     /*
