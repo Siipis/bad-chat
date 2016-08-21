@@ -1430,78 +1430,86 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
     };
 
     $rootScope.addCode = function (code) {
-        var url;
+        try {
+            var url;
 
-        function hasUrl(url) {
-            if (url === undefined || url == null) {
-                return false;
+            function hasUrl(url) {
+                if (url === undefined || url == null) {
+                    return false;
+                }
+
+                return url.length > 0;
             }
 
-            return url.length > 0;
-        }
+            function needsUrl(code) {
+                return code === 'url' || code === 'img';
+            }
 
-        function needsUrl(code) {
-            return code === 'url' || code === 'img';
-        }
+            var textarea = Selectors.textarea[0];
 
-        var textarea = Selectors.textarea[0];
+            var value = getInput();
+            var selectionStart = textarea.selectionStart;
+            var selectionEnd = textarea.selectionEnd;
 
-        var value = getInput();
-        var selectionStart = textarea.selectionStart;
-        var selectionEnd = textarea.selectionEnd;
+            var selectedText = value.substring(selectionStart, selectionEnd);
+            var beforeText = value.substring(0, selectionStart);
+            var afterText = value.substring(selectionEnd, value.length);
 
-        var selectedText = value.substring(selectionStart, selectionEnd);
-        var beforeText = value.substring(0, selectionStart);
-        var afterText = value.substring(selectionEnd, value.length);
+            if (code === 'url' || code === 'img' && selectedText.length == 0) {
+                url = prompt('Where do you want to link to?');
+            }
 
-        if (code === 'url' || code === 'img' && selectedText.length == 0) {
-            url = prompt('Where do you want to link to?');
-        }
+            var wrapText;
+            var appendCode;
+            var prependCode;
+            var goIntoCode = false;
 
-        if (needsUrl(code)) {
-            if (hasUrl(url)) {
+            if (needsUrl(code)) {
                 if (code === 'url') {
-                    value = beforeText + '[' + code + '=' + url + ']' + (selectedText.length > 0 ? selectedText : url) + '[/' + code + ']' + afterText;
-                } else if (code == 'img') {
-                    value = beforeText + '[' + code + ']' + (selectedText.length > 0 ? selectedText : url) + '[/' + code + ']' + afterText;
+                    appendCode = '[' + code + '=' + url + ']';
+                } else if (code === 'img') {
+                    appendCode = '[' + code + ']';
                 }
             }
-        } else {
-            value = beforeText + '[' + code + ']' + selectedText + '[/' + code + ']' + afterText;
-        }
 
-        setInput(value);
+            if (!appendCode) {
+                appendCode = '[' + code + ']';
+            }
 
-        var unbindWatch = $scope.$watch('input', function (input) {
+            if (!prependCode) {
+                prependCode = '[/' + code + ']';
+            }
+
+            if (selectedText.length == 0) {
+                if (hasUrl(url)) {
+                    wrapText = url;
+                } else {
+                    goIntoCode = true;
+                    wrapText = '';
+                }
+            } else {
+                wrapText = selectedText;
+            }
+
+            value = beforeText + appendCode + wrapText + prependCode + afterText;
+
+            setInput(value);
+
+            // Set caret position
             focus();
 
-            var caretStart = input.length;
+            var caretStart = value.length;
             var caretStop = caretStart;
 
-            if (code === 'url' && hasUrl(url)) {
-                if (selectedText.length === 0) {
-                    caretStart = selectionStart + 6 + url.length;
-                    caretStop = caretStart + url.length;
-                }
-            }
-            if (code === 'img' && hasUrl(url)) {
-                caretStart = selectionEnd + selectedText.length + url.length + 5 + (code.length * 2);
-                caretStop = caretStart;
-            } else {
-                if (selectedText.length > 0) {
-                    caretStart = selectionStart + selectedText.length + 5 + (code.length * 2);
-                } else {
-                    caretStart = selectionStart + 2 + code.length;
-                }
-
-                caretStop = caretStart;
+            if (goIntoCode) {
+                caretStart = beforeText.length + appendCode.length;
+                caretStop = caretStart + wrapText.length;
             }
 
             textarea.setSelectionRange(caretStart, caretStop);
-
-            unbindWatch();
-        });
-
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     $rootScope.whisperTo = function (username) {
@@ -1527,11 +1535,11 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         focus();
     });
 
-    $scope.$on('sent', function() {
+    $scope.$on('sent', function () {
         focus();
     });
 
-    $scope.$on('setInputLength', function(event, maxLength) {
+    $scope.$on('setInputLength', function (event, maxLength) {
         Selectors.textarea.attr('maxlength', maxLength);
     });
 
