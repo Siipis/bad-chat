@@ -26,14 +26,30 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
      */
 
     $rootScope.enable = function () {
-        $scope.isEnabled = true;
+        if (!$scope.isEnabled) {
+            $scope.isEnabled = true;
+
+            Selectors.fadeIn.fadeIn('slow', function () {
+                $scope.$broadcast('focusInput');
+            });
+
+            Selectors.overlay.fadeOut('slow');
+        }
     };
 
     $rootScope.disable = function () {
-        $scope.isEnabled = false;
+        if ($scope.isEnabled) {
+            $scope.isEnabled = false;
+
+            Selectors.overlay.fadeIn('slow');
+
+            Selectors.fadeIn.fadeOut('slow');
+        }
     };
 
     $rootScope.reload = function () {
+        $rootScope.disable();
+
         document.location.reload(true);
     };
 
@@ -80,7 +96,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
 
     $rootScope.deleteMessage = function (row) {
         row.hidden = true; // Assume the row will be deleted
-        $('[data-id="'+ row.id + '"]').detach();
+        $('[data-id="' + row.id + '"]').detach();
 
         Ajax.remove(row);
     };
@@ -94,6 +110,8 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
             }
 
             Data.channel(channel);
+
+            Ajax.abortRefresh();
 
             Ajax.refresh();
 
@@ -135,11 +153,11 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         return Data.userList();
     };
 
-    $scope.hasPublicRole = function(user) {
+    $scope.hasPublicRole = function (user) {
         return angular.isObject(user.publicRole);
     };
 
-    $scope.publicRole = function(user) {
+    $scope.publicRole = function (user) {
         return user.publicRole;
     };
 
@@ -173,13 +191,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     });
 
     $scope.$on('loggedIn', function (e) {
-        $scope.isEnabled = true;
-
-        Selectors.fadeIn.fadeIn('slow', function () {
-            $scope.$broadcast('focusInput');
-        });
-
-        Selectors.overlay.fadeOut('slow');
+        $rootScope.enable();
     });
 
     $scope.$on('clearWindow', function (e) {
@@ -205,8 +217,6 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
      |
      */
 
-    var scrollTimeout;
-
     $scope.$watch(function () {
         var chatWindow = $(Selectors.chatWindowSelector);
 
@@ -219,17 +229,15 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         var chatWindow = $(Selectors.chatWindowSelector);
 
         if (newCount > 0 && newCount != oldCount) {
-            window.clearTimeout(scrollTimeout);
+            chatWindow.finish();
 
-            scrollTimeout = window.setTimeout(function() {
-                if (Settings.get('scroll')) {
-                    var scrollTop = chatWindow[0].scrollHeight * 1.2;
+            if (Settings.get('scroll')) {
+                var scrollTop = chatWindow[0].scrollHeight * 1.2;
 
-                    chatWindow.animate({
-                        scrollTop: scrollTop
-                    });
-                }
-            }, 50);
+                chatWindow.animate({
+                    scrollTop: scrollTop
+                });
+            }
         }
     });
 
@@ -249,8 +257,6 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     });
 
     $(window).unload(function () {
-        isUnloading = true;
-
-        Selectors.overlay.fadeIn();
+        $rootScope.disable();
     });
 });

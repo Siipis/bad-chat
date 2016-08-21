@@ -248,15 +248,66 @@ app.factory('TabHelper', function (Data) {
 
     return obj;
 });
-app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
+app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, Settings) {
     var obj = {};
 
+    var disableAjax = false;
+
+    var ajaxTimeout = 10000;
+    var maxTimeouts = 10;
+
+    var connectionAttempts = 0;
+    var previousResponseStatus = null;
+
+    var refreshTimer = null;
     var refreshInterval = null;
     var refreshPromise = null;
-    var cancelRefresh = null;
 
+    var notificationTimer = null;
     var notificationInterval = null;
-    var notificationPromise = null;
+
+    $(window).unload(function () {
+        disableAjax = true;
+        console.log('Exiting...');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Timeouts and disconnects
+    |--------------------------------------------------------------------------
+    |
+    | Handlers for cancelling AJAX
+    |
+    */
+
+    var xhrPool = [];
+    $(document).ajaxSend(function (e, jqXHR, options) {
+        xhrPool.push(jqXHR);
+    });
+    $(document).ajaxComplete(function (e, jqXHR, options) {
+        xhrPool = $.grep(xhrPool, function (x) {
+            return x != jqXHR
+        });
+    });
+
+    obj.abortRefresh = function() {
+        if (refreshPromise) {
+            refreshPromise.resolve();
+        }
+    };
+
+    obj.abortAllRequests = function () {
+        disableAjax = true;
+
+        $.each(xhrPool, function (idx, jqXHR) {
+            jqXHR.abort();
+        });
+    };
+
+    $(window).unload(function() {
+        obj.abortAllRequests();
+    });
+
 
     /*
      |--------------------------------------------------------------------------
@@ -267,19 +318,35 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
      |
      */
 
+    function storeResponseStatus(status) {
+        if (status == -1) {
+            connectionAttempts++;
+            $rootScope.$broadcast('disable');
+        } else {
+            connectionAttempts = 0;
+            $rootScope.$broadcast('enable');
+        }
+
+        previousResponseStatus = status;
+    }
+
     /**
      * Handles HTTP responses
      *
      * @param {int} response
      */
     function handleError(response) {
-        obj.stopAjax();
-
         if (response.status == -1) {
-            $rootScope.$broadcast('error', 'Timeout', 'The connection was closed or the server didn\'t respond.');
+            if (connectionAttempts >= maxTimeouts) {
+                $rootScope.$broadcast('reload');
+            } else if (refreshInterval) {
+                obj.startAjax();
+            }
 
             return;
         }
+
+        obj.stopAjax();
 
         if (response.status == 401) {
             $http.get('/chat/logout').then(function (response) {
@@ -322,24 +389,36 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
      */
 
     obj.startAjax = function () {
+        if (disableAjax) {
+            return;
+        }
+
         obj.refresh();
         obj.notifications();
     };
 
     obj.startRefresh = function () {
+        if (disableAjax) {
+            return;
+        }
+
         obj.stopRefresh();
 
-        refreshPromise = $interval(function () {
+        refreshInterval = $interval(function () {
             obj.refresh();
-        }, refreshInterval);
+        }, refreshTimer);
     };
 
     obj.startNotifications = function () {
+        if (disableAjax) {
+            return;
+        }
+
         obj.stopNotifications();
 
-        notificationPromise = $interval(function () {
+        notificationInterval = $interval(function () {
             obj.notifications();
-        }, notificationInterval);
+        }, notificationTimer);
     };
 
     obj.stopAjax = function () {
@@ -348,11 +427,11 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
     };
 
     obj.stopRefresh = function () {
-        $interval.cancel(refreshPromise);
+        $interval.cancel(refreshInterval);
     };
 
     obj.stopNotifications = function () {
-        $interval.cancel(notificationPromise);
+        $interval.cancel(notificationInterval);
     };
 
     /*
@@ -364,20 +443,20 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
      |
      */
 
-    obj.refreshInterval = function (newInterval) {
-        if (newInterval !== undefined) {
-            refreshInterval = newInterval;
+    obj.refreshTimer = function (newTimer) {
+        if (newTimer !== undefined) {
+            refreshTimer = newTimer;
         }
 
-        return refreshInterval;
+        return refreshTimer;
     };
 
-    obj.notificationInterval = function (newInterval) {
-        if (newInterval !== undefined) {
-            notificationInterval = newInterval;
+    obj.notificationTimer = function (newTimer) {
+        if (newTimer !== undefined) {
+            notificationTimer = newTimer;
         }
 
-        return notificationInterval;
+        return notificationTimer;
     };
 
     /*
@@ -408,13 +487,15 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
      */
     obj.login = function () {
         $http.post('/chat/login').then(function (response) {
+            storeResponseStatus(response.status);
+
             Data.storeLoginResponse(response.data);
 
             var config = response.data.config.interval;
 
             // Store the AJAX config
-            obj.refreshInterval(config.messages);
-            obj.notificationInterval(config.notifications);
+            obj.refreshTimer(config.messages);
+            obj.notificationTimer(config.notifications);
 
             // Init the application
             $rootScope.$broadcast('loggedIn');
@@ -423,6 +504,8 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
             obj.startAjax();
 
         }, function (response) {
+            storeResponseStatus(response.status);
+
             handleError(response);
         });
     };
@@ -433,14 +516,23 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
     obj.refresh = function () {
         obj.stopRefresh();
 
+        var canceller = $q.defer();
+
         var request = $http.post('/chat/update', {
             channel: Data.channel(),
-            channels: Data.channelList(),
+            channels: Data.channelList()
+        }, {
             async: false,
-            timeout: 10000
+            timeout: canceller.promise
         });
 
+        var requestTimeout = $timeout(function() {
+            canceller.resolve();
+        }, ajaxTimeout);
+
         request.then(function (response) {
+            storeResponseStatus(response.status);
+
             if (response.status != 200) {
                 handleError(response);
 
@@ -451,14 +543,26 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
 
             obj.startRefresh();
         }, function (response) {
+            storeResponseStatus(response.status);
+
             handleError(response);
         });
+
+        request.finally(function() {
+            $timeout.cancel(requestTimeout);
+        });
+
+        refreshPromise = canceller;
     };
 
     obj.notifications = function () {
         obj.stopNotifications();
 
-        $http.post('/chat/notifications').then(function (response) {
+        $http.post('/chat/notifications', null, {
+            timeout: ajaxTimeout
+        }).then(function (response) {
+            storeResponseStatus(response.status);
+
             if (response.status != 200) {
                 handleError(response);
             }
@@ -490,6 +594,8 @@ app.factory('Ajax', function ($rootScope, $interval, $http, Data, Settings) {
             message: message,
             color: Settings.get('color')
         }).then(function (response) {
+            storeResponseStatus(response.status);
+
             if (response.status != 200) {
                 handleError(response);
 
@@ -1024,14 +1130,30 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
      */
 
     $rootScope.enable = function () {
-        $scope.isEnabled = true;
+        if (!$scope.isEnabled) {
+            $scope.isEnabled = true;
+
+            Selectors.fadeIn.fadeIn('slow', function () {
+                $scope.$broadcast('focusInput');
+            });
+
+            Selectors.overlay.fadeOut('slow');
+        }
     };
 
     $rootScope.disable = function () {
-        $scope.isEnabled = false;
+        if ($scope.isEnabled) {
+            $scope.isEnabled = false;
+
+            Selectors.overlay.fadeIn('slow');
+
+            Selectors.fadeIn.fadeOut('slow');
+        }
     };
 
     $rootScope.reload = function () {
+        $rootScope.disable();
+
         document.location.reload(true);
     };
 
@@ -1078,7 +1200,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
 
     $rootScope.deleteMessage = function (row) {
         row.hidden = true; // Assume the row will be deleted
-        $('[data-id="'+ row.id + '"]').detach();
+        $('[data-id="' + row.id + '"]').detach();
 
         Ajax.remove(row);
     };
@@ -1092,6 +1214,8 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
             }
 
             Data.channel(channel);
+
+            Ajax.abortRefresh();
 
             Ajax.refresh();
 
@@ -1133,11 +1257,11 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         return Data.userList();
     };
 
-    $scope.hasPublicRole = function(user) {
+    $scope.hasPublicRole = function (user) {
         return angular.isObject(user.publicRole);
     };
 
-    $scope.publicRole = function(user) {
+    $scope.publicRole = function (user) {
         return user.publicRole;
     };
 
@@ -1171,13 +1295,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     });
 
     $scope.$on('loggedIn', function (e) {
-        $scope.isEnabled = true;
-
-        Selectors.fadeIn.fadeIn('slow', function () {
-            $scope.$broadcast('focusInput');
-        });
-
-        Selectors.overlay.fadeOut('slow');
+        $rootScope.enable();
     });
 
     $scope.$on('clearWindow', function (e) {
@@ -1203,8 +1321,6 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
      |
      */
 
-    var scrollTimeout;
-
     $scope.$watch(function () {
         var chatWindow = $(Selectors.chatWindowSelector);
 
@@ -1217,17 +1333,15 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         var chatWindow = $(Selectors.chatWindowSelector);
 
         if (newCount > 0 && newCount != oldCount) {
-            window.clearTimeout(scrollTimeout);
+            chatWindow.finish();
 
-            scrollTimeout = window.setTimeout(function() {
-                if (Settings.get('scroll')) {
-                    var scrollTop = chatWindow[0].scrollHeight * 1.2;
+            if (Settings.get('scroll')) {
+                var scrollTop = chatWindow[0].scrollHeight * 1.2;
 
-                    chatWindow.animate({
-                        scrollTop: scrollTop
-                    });
-                }
-            }, 50);
+                chatWindow.animate({
+                    scrollTop: scrollTop
+                });
+            }
         }
     });
 
@@ -1247,9 +1361,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     });
 
     $(window).unload(function () {
-        isUnloading = true;
-
-        Selectors.overlay.fadeIn();
+        $rootScope.disable();
     });
 });
 app.controller('inputController', function ($scope, $rootScope, Data, TabHelper, Selectors) {
