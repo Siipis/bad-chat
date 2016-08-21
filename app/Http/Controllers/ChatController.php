@@ -191,11 +191,11 @@ class ChatController extends Controller
                 ],
             ];
 
-            $this->finish();
+            $this->closeConnection();
 
             return response()->json($data);
         } catch (\Exception $e) {
-            $this->finish();
+            $this->closeConnection();
 
             if (config('app.debug')) {
                 throw $e;
@@ -212,11 +212,11 @@ class ChatController extends Controller
      */
     public function getLogout()
     {
-        if (!Login::logout()) {
-            Auth::logout();
-        }
+        Login::logout();
 
-        $this->finish();
+        Auth::logout();
+
+        $this->closeConnection();
 
         return response('Logging out.', 307);
     }
@@ -321,11 +321,11 @@ class ChatController extends Controller
 
             $data = collect($data)->toArray(); // prevent constant JSON errors
 
-            $this->finish();
+            $this->closeConnection();
 
             return response()->json($data);
         } catch (\Exception $e) {
-            $this->finish();
+            $this->closeConnection();
 
             if (config('app.debug')) {
                 throw $e;
@@ -344,7 +344,7 @@ class ChatController extends Controller
             $notifications += User::where('is_active', false)->count();
         }
 
-        $this->finish();
+        $this->closeConnection();
 
         return response()->json($notifications);
     }
@@ -388,7 +388,7 @@ class ChatController extends Controller
 
             return $this->createPost($channel, $message, $request->input('color'));
         } catch (\Exception $e) {
-            $this->finish();
+            $this->closeConnection();
 
             if (config('app.debug')) {
                 throw $e;
@@ -454,7 +454,7 @@ class ChatController extends Controller
 
         $channel->messages()->save($post);
 
-        $this->finish();
+        $this->closeConnection();
 
         return response(null, 200);
     }
@@ -492,7 +492,7 @@ class ChatController extends Controller
 
         $whisper->save();
 
-        $this->finish();
+        $this->closeConnection();
 
         return response(null, 200);
     }
@@ -520,7 +520,7 @@ class ChatController extends Controller
 
         $channel->messages()->save($emote);
 
-        $this->finish();
+        $this->closeConnection();
 
         return response(null, 200);
     }
@@ -591,7 +591,7 @@ class ChatController extends Controller
             $info->save();
         }
 
-        $this->finish();
+        $this->closeConnection();
 
         return response(null, 200);
     }
@@ -622,7 +622,7 @@ class ChatController extends Controller
             $system->save();
         }
 
-        $this->finish();
+        $this->closeConnection();
 
         return response(null, 200);
     }
@@ -1706,7 +1706,7 @@ class ChatController extends Controller
     /**
      * Closes the database connection
      */
-    private function finish()
+    private function closeConnection()
     {
         DB::disconnect('mysql');
     }

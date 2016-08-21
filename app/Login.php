@@ -149,9 +149,7 @@ class Login extends Model
             $user = Auth::user();
         }
 
-        if (Auth::check()) {
-            Auth::logout();
-        }
+        Auth::logout();
 
         $login = Login::active($user);
 
@@ -172,8 +170,6 @@ class Login extends Model
             $login->touchLogout();
 
             return true;
-        } else {
-            // TODO: log suspicious behaviour
         }
 
         return false;

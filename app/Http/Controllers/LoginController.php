@@ -22,6 +22,14 @@ class LoginController extends Controller
     public function getIndex()
     {
         if (Auth::check()) {
+            if (!is_null($login = Login::active(Auth::user()))) {
+                if (!Login::verify()) {
+                    Login::logout();
+
+                    return redirect('/');
+                }
+            }
+
             return CMS::render('chat.main');
         }
 
@@ -49,6 +57,8 @@ class LoginController extends Controller
     public function getLogout()
     {
         Login::logout();
+
+        Auth::logout();
 
         return redirect('/');
     }
