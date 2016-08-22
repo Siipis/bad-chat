@@ -132,10 +132,13 @@ app.factory('Data', function ($rootScope) {
         }
 
         rowList[channelKey] = rows;
+
+        rows = null; // free up memory
     };
 
     obj.addRows = function (channelKey, rows) {
         var soundWasPlayed = false;
+        var addedRows = 0;
 
         $.each(rows, function (i, row) {
             // Handle special rows
@@ -166,7 +169,12 @@ app.factory('Data', function ($rootScope) {
 
             // Add the row
             obj.addRow(channelKey, row);
+            addedRows++;
         });
+
+        if (addedRows > 0) {
+            $rootScope.$broadcast('scroll');
+        }
     };
 
     /*

@@ -208,36 +208,17 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         Audio.playDing();
     });
 
-    /*
-     |--------------------------------------------------------------------------
-     | Watchers
-     |--------------------------------------------------------------------------
-     |
-     | Angular watchers
-     |
-     */
+    $scope.$on('scroll', function(e) {
+        if (Settings.get('scroll')) {
+            var chatWindow = $(Selectors.chatWindowSelector);
 
-    $scope.$watch(function () {
-        var chatWindow = $(Selectors.chatWindowSelector);
-
-        if (chatWindow.length) {
-            return chatWindow.children().length;
-        }
-
-        return 0;
-    }, function (newCount, oldCount) {
-        var chatWindow = $(Selectors.chatWindowSelector);
-
-        if (newCount > 0 && newCount != oldCount) {
             chatWindow.finish();
 
-            if (Settings.get('scroll')) {
-                var scrollTop = chatWindow[0].scrollHeight * 1.2;
+            var scrollTop = chatWindow[0].scrollHeight;
 
-                chatWindow.animate({
-                    scrollTop: scrollTop
-                });
-            }
+            chatWindow.animate({
+                scrollTop: scrollTop
+            });
         }
     });
 
