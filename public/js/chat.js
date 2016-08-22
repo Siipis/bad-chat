@@ -1422,9 +1422,15 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
             withSpace = false;
         }
 
-        var value = getInput() + (withSpace ? ' ' + input : input);
+        var value = getInput();
 
-        setInput(value.trim());
+        if (value.slice(-1) === ' ') { // prevent duplicate spaces
+            withSpace = false;
+        }
+
+        value += (withSpace ? ' ' + input : input);
+
+        setInput(value);
 
         focus();
     };
