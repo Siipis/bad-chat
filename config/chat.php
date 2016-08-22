@@ -29,7 +29,7 @@ return [
         ],
     ],
 
-    'discourage' => 200, // once every ... request
+    'discourage' => 150, // once every ... request
 
     'interval' => [
         'minimum' => 5, // seconds
