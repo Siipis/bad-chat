@@ -27,6 +27,8 @@ class Access
 
     const config = 'admin';
 
+    const messaging = 'moderator';
+
     public function __construct()
     {
         $this->user = \Auth::user();

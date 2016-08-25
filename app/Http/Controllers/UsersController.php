@@ -50,6 +50,13 @@ class UsersController extends Controller
                 'postRetier',
             ]
         ]);
+
+        $this->middleware('access:messaging', [
+            'only' => [
+                'getMessage',
+                'postMessage',
+            ]
+        ]);
     }
 
     public function getIndex()
@@ -150,6 +157,47 @@ class UsersController extends Controller
         $user->save();
 
         return redirect()->back();
+    }
+
+    public function getMessage()
+    {
+        return CMS::render('users.message');
+    }
+
+    public function postMessage(Request $request)
+    {
+        $this->validate($request, [
+            'title' => 'required',
+            'message' => 'required',
+        ]);
+
+        $auth = Auth::user();
+        $title = $request->input('title');
+        $message = $request->input('message');
+
+        try {
+            foreach (User::active()->where('id', '!=', '1')->get() as $user) {
+                $user->sendEmail($title, $message);
+            }
+
+            FrontLog::notice("$auth->name has emailed all members: $title.", $message);
+
+            return redirect()->back()->with([
+                'alert' => [
+                    'type' => 'success',
+                    'message' => 'Your email was successfully sent!',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            throw $e;
+
+/*            return redirect()->back()->with([
+                'alert' => [
+                    'type' => 'danger',
+                    'message' => 'An error occurred! Please try again later.',
+                ]
+            ]); */
+        }
     }
 
     public function getPending()

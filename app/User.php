@@ -402,4 +402,30 @@ class User extends Authenticatable
             $m->to($email);
         });
     }
+
+    public function sendEmail($title, $text)
+    {
+        $email = $this->email;
+        $app = config('chat.name');
+
+        $format = '';
+        $paragraphs = preg_split("/\\r\\n|\\r|\\n/", trim($text));
+
+        foreach ($paragraphs as $p) {
+            if (empty($p)) {
+                continue;
+            }
+
+            $format .= "<p>$p</p>\n";
+        }
+
+        Mail::send('emails.general', [
+            'text' => $format
+        ], function ($m) use ($title, $email, $app) {
+            $m->replyTo('no-reply@varjohovi.net');
+            $m->subject("[$app] $title");
+
+            $m->to($email);
+        });
+    }
 }

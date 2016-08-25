@@ -44,15 +44,29 @@ title: "{{ appName }}: Registered users"
 </table>
 </div>
 
-{% if can('control.users') %}
+{% if can('messaging') or can('control.users') %}
 <hr />
 
-<form class="form-inline text-right" action="{{ url('users/retier') }}" method="post">
-    {{ csrf_field() }}
-    
-    <button class="btn btn-default">
-        <i class="glyphicon glyphicon-refresh"></i>
-        Reload tiers
-    </button>
-</form>
+<div class="row">
+    <div class="col-xs-6">
+        {% if can('messaging') %}
+            <a href="{{ url('users/message') }}" class="btn btn-default">
+                <i class="glyphicon glyphicon-envelope"></i>
+                Message members
+            </a>
+        {% endif %}
+    </div>
+    <div class="col-xs-6">
+        {% if can('control.users') %}
+            <form class="form-inline text-right" action="{{ url('users/retier') }}" method="post">
+                {{ csrf_field() }}
+
+                <button class="btn btn-default">
+                    <i class="glyphicon glyphicon-refresh"></i>
+                    Reload tiers
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
 {% endif %}
