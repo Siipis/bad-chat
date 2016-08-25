@@ -30,6 +30,8 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
             $scope.isEnabled = true;
 
             Selectors.fadeIn.fadeIn('slow', function () {
+                $rootScope.scroll();
+
                 $scope.$broadcast('focusInput');
             });
 
@@ -92,6 +94,20 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
             clearInterval(interval);
             document.title = pageTitle;
         });
+    };
+
+    $rootScope.scroll = function () {
+        if (Settings.get('scroll')) {
+            var chatWindow = $(Selectors.chatWindowSelector);
+
+            chatWindow.finish();
+
+            var scrollTop = chatWindow[0].scrollHeight;
+
+            chatWindow.animate({
+                scrollTop: scrollTop
+            });
+        }
     };
 
     $rootScope.deleteMessage = function (row) {
@@ -209,15 +225,25 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     });
 
     $scope.$on('scroll', function(e) {
-        if (Settings.get('scroll')) {
-            var chatWindow = $(Selectors.chatWindowSelector);
+        $rootScope.scroll();
+    });
 
-            chatWindow.finish();
+    /*
+    |--------------------------------------------------------------------------
+    | Watchers
+    |--------------------------------------------------------------------------
+    |
+    | Scope watchers
+    |
+    */
 
-            var scrollTop = chatWindow[0].scrollHeight;
-
-            chatWindow.animate({
-                scrollTop: scrollTop
+    // Fix faulty scrolling when image is loading
+    $scope.$watch(function() {
+        return $(Selectors.chatWindowSelector).children().last().data('id');
+    }, function(newValue, oldValue) {
+        if (newValue !== oldValue) {
+            $('.embed-image').one('load', function() {
+                $rootScope.scroll();
             });
         }
     });
