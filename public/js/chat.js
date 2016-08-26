@@ -541,6 +541,8 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
 
             Data.storeRefreshResponse(response.data);
 
+            $rootScope.$broadcast('refreshed');
+
             obj.startRefresh();
         }, function (response) {
             storeResponseStatus(response.status);
@@ -1208,13 +1210,19 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         });
     };
 
+    var scrollTop = 0;
+
     $rootScope.scroll = function () {
         if (Settings.get('scroll')) {
             var chatWindow = $(Selectors.chatWindowSelector);
 
             chatWindow.finish();
 
-            var scrollTop = chatWindow[0].scrollHeight;
+            try {
+                scrollTop = chatWindow[0].scrollHeight;
+            } catch (e) {
+                console.log(e);
+            }
 
             chatWindow.animate({
                 scrollTop: scrollTop
@@ -1242,6 +1250,13 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
             Ajax.abortRefresh();
 
             Ajax.refresh();
+
+            // Scroll after the refresh has finished
+            var offRefresh = $scope.$on('refreshed', function() {
+                $rootScope.scroll();
+
+                offRefresh();
+            });
 
             $scope.$broadcast('focusInput');
         } catch (e) {
@@ -1358,6 +1373,26 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
                 $rootScope.scroll();
             });
         }
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | jQuery Events
+    |--------------------------------------------------------------------------
+    |
+    | Various jQuery events
+    |
+    */
+
+    $(document).on('click', '#topic', function() {
+        var oldTopic = $(this).text();
+        var topic = prompt('Channel topic:', oldTopic);
+
+        if (topic !== null && topic !== oldTopic) {
+            Ajax.send('/topic ' + topic);
+        }
+
+        topic = oldTopic = null;
     });
 
     /*

@@ -291,6 +291,8 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
 
             Data.storeRefreshResponse(response.data);
 
+            $rootScope.$broadcast('refreshed');
+
             obj.startRefresh();
         }, function (response) {
             storeResponseStatus(response.status);
