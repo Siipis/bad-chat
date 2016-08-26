@@ -180,6 +180,7 @@ return [
             'last',
             'session',
             'can',
+            'env',
         ],
 
         /*
