@@ -136,6 +136,10 @@ class System extends Message
             if ($status == 'online') {
                 $oldStatus = $this->context['old_status'];
 
+                if (empty($oldStatus)) {
+                    return "$user is now back.";
+                }
+
                 return "$user is no longer $oldStatus.";
             }
 
