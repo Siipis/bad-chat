@@ -100,6 +100,7 @@ class ChatController extends Controller
             'logout' => "/^(\/quit|\/logout|\/exit)$/i",
             'afk' => "/^(\/afk|\/away)$/i",
             'brb' => "/^(\/brb)$/i",
+            'gaming' => "/^(\/game|\/gaming)$/i",
             'back' => "/^(\/back|\/online)$/i",
         ];
     }
@@ -1496,6 +1497,18 @@ class ChatController extends Controller
     private function createBrb(Channel $channel, $message)
     {
         return $this->setStatus($channel, 'brb');
+    }
+
+    /**
+     * Sets the user status to gaming
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return null|Response
+     */
+    private function createGaming(Channel $channel, $message)
+    {
+        return $this->setStatus($channel, 'gaming');
     }
 
     /**
