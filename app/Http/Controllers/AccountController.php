@@ -302,10 +302,22 @@ class AccountController extends Controller
         if ($vouch instanceof Vouch) {
             $protegee = is_null($vouch->protegee) ? $email : $vouch->protegee->name;
 
+            if ($vouch->protegee instanceof User) {
+                return redirect()->back()->with([
+                    'alert_friend' => [
+                        'type' => 'info',
+                        'message' => "You have already vouched for $protegee!",
+                    ]
+                ]);
+            }
+
+            // Resent the email if needed
+            $this->sendInvitation($email, $protector);
+
             return redirect()->back()->with([
                 'alert_friend' => [
-                    'type' => 'info',
-                    'message' => "You have already vouched for $protegee!",
+                    'type' => 'success',
+                    'message' => "Your invite to $protegee has been resent!",
                 ]
             ]);
         }
@@ -356,9 +368,9 @@ class AccountController extends Controller
      */
     public function postUninvite(Request $request)
     {
-        $email = $request->input('email');
+        $id = $request->input('vouch_id');
 
-        $vouch = Vouch::where('user_id', Auth::id())->where('email', $email)->firstOrFail();
+        $vouch = Vouch::where('user_id', Auth::id())->where('id', $id)->firstOrFail();
         $vouch->delete();
 
         if (!is_null($vouch->protegee)) {
@@ -366,7 +378,7 @@ class AccountController extends Controller
         }
 
         $protector = Auth::user()->name;
-        $protegee = is_null($vouch->protegee) ? $email : $vouch->protegee->name;
+        $protegee = is_null($vouch->protegee) ? $vouch->email : $vouch->protegee->name;
 
         FrontLog::notice("$protector no longer vouches for $protegee.", [
             'Former protector' => $protector,
