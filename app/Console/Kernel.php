@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\ChannelExpire::class,
+        Commands\ChannelExpired::class,
     ];
 
     /**

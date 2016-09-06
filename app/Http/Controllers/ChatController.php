@@ -75,6 +75,8 @@ class ChatController extends Controller
         $any = "(.*)+";
         $alpha_dash = "([a-z_-]+)";
 
+        // TODO: add /protectors and /protegees
+
         return [
             'whisper' => "/^(\/w|\/whisper|\/msg) $nick $any$/i",
             'emote' => "/^(\/me|\/emote|\/do) $any$/i",
@@ -1569,12 +1571,12 @@ class ChatController extends Controller
             ]);
 
             Auth::user()->channels()->save($channel);
-
-            $channel->touchExpires();
         }
 
         if ($channel->trashed()) {
             $channel->restore(Auth::user());
+        } else {
+            $channel->touchExpires();
         }
 
         return $channel;
