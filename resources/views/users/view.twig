@@ -21,7 +21,7 @@ title: "{{ appName }}: View | {{ user.name }}"
 
     <tr>
         <th>Last seen</th>
-        <td>Never</td>
+        <td>{{ user.seen ? user.seen : 'Never' }}</td>
     </tr>
 
     <tr>

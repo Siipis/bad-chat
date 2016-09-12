@@ -473,6 +473,7 @@ namespace App{
  * @property string $remember_token
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * @property boolean $discouraged
  * @property-read \App\Settings $settings
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $protegees
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $protectors
@@ -481,8 +482,10 @@ namespace App{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Channel[] $channels
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Ignore[] $ignores
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Role[] $publicRoles
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Login[] $logins
  * @property-read mixed $real_name
  * @property-read mixed $joined
+ * @property-read mixed $seen
  * @property-read mixed $ban
  * @property-read mixed $expired_bans
  * @property-read mixed $ban_totals
@@ -500,6 +503,7 @@ namespace App{
  * @method static \Illuminate\Database\Query\Builder|\App\User whereRememberToken($value)
  * @method static \Illuminate\Database\Query\Builder|\App\User whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\User whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\User whereDiscouraged($value)
  * @method static \Illuminate\Database\Query\Builder|\App\User active()
  * @method static \Illuminate\Database\Query\Builder|\App\User inactive()
  */

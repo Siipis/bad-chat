@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Role');
     }
 
+    public function logins()
+    {
+        return $this->hasMany('App\Login');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Mutators
@@ -104,6 +109,11 @@ class User extends Authenticatable
     public function getJoinedAttribute()
     {
         return $this->created_at->diffForHumans();
+    }
+
+    public function getSeenAttribute()
+    {
+        return $this->logins->last()->updated_at->diffForHumans();
     }
 
     public function getTierAttribute($tier)
