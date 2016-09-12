@@ -43,8 +43,6 @@ class ChannelExpired extends Command
         foreach(Channel::expired()->get() as $channel) {
             $i++;
             $this->info("Channel $channel->name has expired.");
-
-            $channel->delete();
         }
 
         $this->info("$i channels have expired.");

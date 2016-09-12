@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\ChannelExpire::class,
+        Commands\ChannelsClean::class,
         Commands\ChannelExpired::class,
     ];
 
@@ -43,7 +43,7 @@ class Kernel extends ConsoleKernel
         });
 
         $schedule->call(function() {
-            \Artisan::call('channel:expire');
+            \Artisan::call('channel:clean');
         })->daily();
     }
 }

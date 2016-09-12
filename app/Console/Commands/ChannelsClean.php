@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use App\Channel;
 use Illuminate\Console\Command;
 
-class ChannelExpire extends Command
+class ChannelsClean extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'channels:expire';
+    protected $signature = 'channels:clean';
 
     /**
      * The console command description.
