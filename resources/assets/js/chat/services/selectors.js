@@ -5,6 +5,7 @@ app.factory('Selectors', function() {
     obj.chat = $('#chat-container');
     obj.overlay = $('#overlay');
     obj.commands = $('#commands-overlay');
+    obj.join = $('#join-overlay');
     obj.chatWindowSelector = '#chat-window';
     obj.chatWindow = $(obj.chatWindowSelector);
     obj.form = $('#chat-input form');

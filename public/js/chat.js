@@ -272,13 +272,13 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
     });
 
     /*
-    |--------------------------------------------------------------------------
-    | Timeouts and disconnects
-    |--------------------------------------------------------------------------
-    |
-    | Handlers for cancelling AJAX
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Timeouts and disconnects
+     |--------------------------------------------------------------------------
+     |
+     | Handlers for cancelling AJAX
+     |
+     */
 
     var xhrPool = [];
     $(document).ajaxSend(function (e, jqXHR, options) {
@@ -290,7 +290,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         });
     });
 
-    obj.abortRefresh = function() {
+    obj.abortRefresh = function () {
         if (refreshPromise) {
             refreshPromise.resolve();
         }
@@ -304,7 +304,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         });
     };
 
-    $(window).unload(function() {
+    $(window).unload(function () {
         obj.abortAllRequests();
     });
 
@@ -526,7 +526,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             timeout: canceller.promise
         });
 
-        var requestTimeout = $timeout(function() {
+        var requestTimeout = $timeout(function () {
             canceller.resolve();
         }, ajaxTimeout);
 
@@ -550,7 +550,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             handleError(response);
         });
 
-        request.finally(function() {
+        request.finally(function () {
             $timeout.cancel(requestTimeout);
         });
 
@@ -629,6 +629,32 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         });
     };
 
+    var returnPreviousJoinable = false;
+
+    obj.joinable = function () {
+        if (returnPreviousJoinable) {
+            return;
+        }
+
+        $http.get('/chat/joinable')
+            .then(function (response) {
+                if (response.status != 200) {
+                    handleError(response);
+
+                    return;
+                }
+
+                Data.joinable(response.data);
+
+                window.setTimeout(function () {
+                    returnPreviousJoinable = true;
+                }, 60);
+            }, function (response) {
+                handleError(response);
+            });
+    };
+
+
     return obj;
 });
 app.factory('Audio', function ($rootScope, Settings) {
@@ -672,6 +698,7 @@ app.factory('Data', function ($rootScope) {
     var config = {};
     var notifications = 0;
     var user = {};
+    var joinable = {};
     var channel = {};
     var channelList = {};
     var topicList = {};
@@ -715,6 +742,14 @@ app.factory('Data', function ($rootScope) {
         }
 
         return user;
+    };
+
+    obj.joinable = function (newJoinable) {
+        if (newJoinable !== undefined) {
+            joinable = newJoinable;
+        }
+
+        return joinable;
     };
 
     obj.channel = function (newChannel) {
@@ -873,6 +908,10 @@ app.factory('Data', function ($rootScope) {
         obj.addRows(data.channel.name, data.rows);
     };
 
+    obj.storeJoinableResponse = function(data) {
+        obj.joinable(data);
+    };
+
     return obj;
 });
 app.factory('Selectors', function() {
@@ -882,6 +921,7 @@ app.factory('Selectors', function() {
     obj.chat = $('#chat-container');
     obj.overlay = $('#overlay');
     obj.commands = $('#commands-overlay');
+    obj.join = $('#join-overlay');
     obj.chatWindowSelector = '#chat-window';
     obj.chatWindow = $(obj.chatWindowSelector);
     obj.form = $('#chat-input form');
@@ -1112,7 +1152,7 @@ app.factory('Styling', function ($rootScope, Settings) {
 
     return obj;
 });
-app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Settings) {
+app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Settings) {
     var isUnloading = false; // Track the unload event
     var isTitleBlinking = false; // Track title blinking
 
@@ -1177,6 +1217,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
 
         if ($scope.isEnabled) {
             $rootScope.disable();
+            Selectors.join.modal('hide');
 
             $scope.error.title = title;
             $scope.error.message = $sce.trustAsHtml(message);
@@ -1266,14 +1307,22 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         }
     };
 
-    $scope.joinChannel = function () {
-        $(':focus').blur();
+    $scope.joinChannel = function (channel) {
+        if (channel === undefined) {
+            Ajax.joinable();
 
-        var channel = prompt('Enter channel name:', '#');
+            Selectors.join.modal('show');
 
-        if (channel !== null && channel.length > 0) {
-            Ajax.send('/join ' + channel);
+            return;
         }
+
+        Selectors.join.modal('hide');
+
+        Ajax.send('/join ' + channel);
+    };
+
+    $scope.joinable = function() {
+        return Data.joinable();
     };
 
     $scope.channels = function () {
@@ -1395,6 +1444,21 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         topic = oldTopic = null;
     });
 
+    $(document).on('submit', '#join-form', function(e) {
+        e.preventDefault();
+
+        var input = $("input[name='channel']", this);
+        var channel = input.val();
+
+        input.val(null);
+
+        if (channel.length > 0) {
+            Ajax.send('/join ' + channel);
+        }
+
+        Selectors.join.modal('hide');
+    });
+
     /*
      |--------------------------------------------------------------------------
      | Init
@@ -1407,7 +1471,13 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     $(document).ready(function () {
         pageTitle = document.title;
 
+        Selectors.join.html(
+            $compile(Selectors.join.html())($scope)
+        );
+
         Ajax.start();
+
+        Ajax.joinable(); // pre-load available channels
     });
 
     $(window).unload(function () {

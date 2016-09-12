@@ -1,0 +1,54 @@
+<!-- Join channel -->
+<div class="modal fade" id="join-overlay" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">Create or join a channel</h5>
+            </div>
+            <div class="modal-body">
+                <form class="form-inline" id="join-form">
+                    <div class="form-group">
+                        <label for="inputChannel">Create or join</label>
+                        <input type="text" name="channel" class="form-control" id="inputChannel" placeholder="#channel" />
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-default" ng-click="joinChannel('#channel')">Join</button>
+                    </div>
+                </form>
+
+                <hr />
+
+                <table class="table table-striped table-hover table-responsive">
+                    <thead>
+                    <tr>
+                        <th>
+                            <i class="glyphicon glyphicon-lock"></i>
+                        </th>
+                        <th>Channel</th>
+                        <th>Online</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="channel in joinable()">
+                        <td>
+                            <i class="glyphicon glyphicon-lock" ng-if="channel.access == 'private'"></i>
+                        </td>
+                        <th>{{ '{{ channel.name }}' }}</th>
+                        <td>{{ '{{ channel.chatting }}' }}</td>
+                        <td class="text-right">
+                            <button class="btn btn-default" ng-click="joinChannel(channel.name)">Join</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-danger">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

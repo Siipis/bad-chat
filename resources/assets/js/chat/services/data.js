@@ -2,6 +2,7 @@ app.factory('Data', function ($rootScope) {
     var config = {};
     var notifications = 0;
     var user = {};
+    var joinable = {};
     var channel = {};
     var channelList = {};
     var topicList = {};
@@ -45,6 +46,14 @@ app.factory('Data', function ($rootScope) {
         }
 
         return user;
+    };
+
+    obj.joinable = function (newJoinable) {
+        if (newJoinable !== undefined) {
+            joinable = newJoinable;
+        }
+
+        return joinable;
     };
 
     obj.channel = function (newChannel) {
@@ -201,6 +210,10 @@ app.factory('Data', function ($rootScope) {
         obj.userList(data.users);
 
         obj.addRows(data.channel.name, data.rows);
+    };
+
+    obj.storeJoinableResponse = function(data) {
+        obj.joinable(data);
     };
 
     return obj;

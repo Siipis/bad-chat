@@ -22,13 +22,13 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
     });
 
     /*
-    |--------------------------------------------------------------------------
-    | Timeouts and disconnects
-    |--------------------------------------------------------------------------
-    |
-    | Handlers for cancelling AJAX
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Timeouts and disconnects
+     |--------------------------------------------------------------------------
+     |
+     | Handlers for cancelling AJAX
+     |
+     */
 
     var xhrPool = [];
     $(document).ajaxSend(function (e, jqXHR, options) {
@@ -40,7 +40,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         });
     });
 
-    obj.abortRefresh = function() {
+    obj.abortRefresh = function () {
         if (refreshPromise) {
             refreshPromise.resolve();
         }
@@ -54,7 +54,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         });
     };
 
-    $(window).unload(function() {
+    $(window).unload(function () {
         obj.abortAllRequests();
     });
 
@@ -276,7 +276,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             timeout: canceller.promise
         });
 
-        var requestTimeout = $timeout(function() {
+        var requestTimeout = $timeout(function () {
             canceller.resolve();
         }, ajaxTimeout);
 
@@ -300,7 +300,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             handleError(response);
         });
 
-        request.finally(function() {
+        request.finally(function () {
             $timeout.cancel(requestTimeout);
         });
 
@@ -378,6 +378,32 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             handleError(response);
         });
     };
+
+    var returnPreviousJoinable = false;
+
+    obj.joinable = function () {
+        if (returnPreviousJoinable) {
+            return;
+        }
+
+        $http.get('/chat/joinable')
+            .then(function (response) {
+                if (response.status != 200) {
+                    handleError(response);
+
+                    return;
+                }
+
+                Data.joinable(response.data);
+
+                window.setTimeout(function () {
+                    returnPreviousJoinable = true;
+                }, 60);
+            }, function (response) {
+                handleError(response);
+            });
+    };
+
 
     return obj;
 });

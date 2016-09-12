@@ -1,4 +1,4 @@
-app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Settings) {
+app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Settings) {
     var isUnloading = false; // Track the unload event
     var isTitleBlinking = false; // Track title blinking
 
@@ -63,6 +63,7 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
 
         if ($scope.isEnabled) {
             $rootScope.disable();
+            Selectors.join.modal('hide');
 
             $scope.error.title = title;
             $scope.error.message = $sce.trustAsHtml(message);
@@ -152,14 +153,22 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         }
     };
 
-    $scope.joinChannel = function () {
-        $(':focus').blur();
+    $scope.joinChannel = function (channel) {
+        if (channel === undefined) {
+            Ajax.joinable();
 
-        var channel = prompt('Enter channel name:', '#');
+            Selectors.join.modal('show');
 
-        if (channel !== null && channel.length > 0) {
-            Ajax.send('/join ' + channel);
+            return;
         }
+
+        Selectors.join.modal('hide');
+
+        Ajax.send('/join ' + channel);
+    };
+
+    $scope.joinable = function() {
+        return Data.joinable();
     };
 
     $scope.channels = function () {
@@ -281,6 +290,21 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
         topic = oldTopic = null;
     });
 
+    $(document).on('submit', '#join-form', function(e) {
+        e.preventDefault();
+
+        var input = $("input[name='channel']", this);
+        var channel = input.val();
+
+        input.val(null);
+
+        if (channel.length > 0) {
+            Ajax.send('/join ' + channel);
+        }
+
+        Selectors.join.modal('hide');
+    });
+
     /*
      |--------------------------------------------------------------------------
      | Init
@@ -293,7 +317,13 @@ app.controller('chatController', function ($scope, $rootScope, $sce, Ajax, Audio
     $(document).ready(function () {
         pageTitle = document.title;
 
+        Selectors.join.html(
+            $compile(Selectors.join.html())($scope)
+        );
+
         Ajax.start();
+
+        Ajax.joinable(); // pre-load available channels
     });
 
     $(window).unload(function () {

@@ -402,6 +402,30 @@ class ChatController extends Controller
         }
     }
 
+    public function getJoinable()
+    {
+        $auth = Auth::user();
+
+        $channels = [];
+
+        foreach (Channel::all()->sortBy('name') as $channel) {
+            if ($channel instanceof Channel) {
+                if ($channel->canJoin($auth)) {
+                    $chatting = $channel->online->map(function(Online $online) {
+                        return $online->login->user->name;
+                    });
+
+                    $channel->chatting = count($chatting) > 0 ? $chatting->implode(', ') : '--';
+                    $channel->topic = ''; // save bandwidth
+
+                    array_push($channels, $channel);
+                }
+            }
+        }
+
+        return response()->json($channels);
+    }
+
     /**
      * Attempts to delete a message
      *

@@ -96,6 +96,8 @@ title: "{{ appName }}"
     {% partial 'alert' %}
 
     <div class="container-fluid" id="chat-container" ng-controller="chatController">
+        {% partial 'commands' %}
+
         <div class="row">
             <div class="col-md-10" id="chat-frame">
                 <!-- Begin: Channels -->
@@ -229,4 +231,4 @@ title: "{{ appName }}"
     </div>
 </div>
 
-{% partial 'commands' %}
+{% partial 'join' %}
