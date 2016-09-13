@@ -113,7 +113,11 @@ class User extends Authenticatable
 
     public function getSeenAttribute()
     {
-        return $this->logins->last()->updated_at->diffForHumans();
+        if (!is_null($login = $this->logins->last())) {
+            return $login->updated_at->diffForHumans();
+
+        }
+        return null;
     }
 
     public function getTierAttribute($tier)
