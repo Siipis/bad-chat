@@ -135,6 +135,21 @@ class Info extends Message
             return "$user is not online at the moment.";
         }
 
+        if ($message == 'user_last_online') {
+            $user = $this->context['user'];
+            $seen = $this->context['seen'];
+
+            if (is_null($seen)) {
+                return "$user has never been seen.";
+            }
+
+            if ($seen == 'right now') {
+                return "$user is online right now.";
+            }
+
+            return "$user was last seen $seen.";
+        }
+
         if ($message == 'self_target') {
             return "You can't target yourself with that action.";
         }

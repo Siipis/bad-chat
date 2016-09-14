@@ -79,6 +79,7 @@ class ChatController extends Controller
 
         return [
             'whisper' => "/^(\/w|\/whisper|\/msg) $nick $any$/i",
+            'seen' => "/^(\/seen|\/online) $nick$/i",
             'emote' => "/^(\/me|\/emote|\/do) $any$/i",
             'roll' => "/^(\/roll|\/dice|\/die) ([0-9]+)d([0-9]+)$/i",
             'join' => "/^(\/join|\/enter) $channel$/i",
@@ -523,6 +524,27 @@ class ChatController extends Controller
         $this->closeConnection();
 
         return response(null, 200);
+    }
+
+    private function createSeen(Channel $channel, $message)
+    {
+        $split = explode(' ', $message);
+
+        $auth = Auth::user();
+        $user = User::findByName($split[1]);
+
+        if ($user instanceof User) {
+            if ($user == $auth) {
+             //   return $this->createInfo($channel, 'self_target');
+            }
+
+            return $this->createInfo($channel, 'user_last_online', [
+                'user' => $user->name,
+                'seen' => $user->seen,
+            ]);
+        }
+
+        return $this->createInfo($channel, 'user_not_found', $split[1]);
     }
 
     /**

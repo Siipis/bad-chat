@@ -114,6 +114,10 @@ class User extends Authenticatable
     public function getSeenAttribute()
     {
         if (!is_null($login = $this->logins->last())) {
+            if (is_null($login->logout_at)) {
+                return "right now";
+            }
+
             return $login->updated_at->diffForHumans();
 
         }
