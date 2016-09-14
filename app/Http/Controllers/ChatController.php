@@ -535,7 +535,7 @@ class ChatController extends Controller
 
         if ($user instanceof User) {
             if ($user == $auth) {
-             //   return $this->createInfo($channel, 'self_target');
+                return $this->createInfo($channel, 'self_target');
             }
 
             return $this->createInfo($channel, 'user_last_online', [
