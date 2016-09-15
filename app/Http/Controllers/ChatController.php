@@ -22,6 +22,7 @@ use App\Vouch;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Log;
 use FrontLog;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
@@ -124,12 +125,18 @@ class ChatController extends Controller
      *
      * @return mixed
      */
-    public function postLogin()
+    public function postLogin(Request $request)
     {
         try {
             $auth = Auth::user();
 
             if ($auth->isSuspended()) {
+                Log::debug('User is suspended.', [
+                    'IP' => $request->ip(),
+                    'Auth' => $auth,
+                    'URL' => $request->fullUrl(),
+                ]);
+
                 Login::logout($auth);
                 
                 return response('Logging out.', 307);
@@ -239,10 +246,22 @@ class ChatController extends Controller
             $login = Login::active($auth);
 
             if (is_null($login) || is_null($auth)) {
+                Log::debug('No login was found.', [
+                    'IP' => $request->ip(),
+                    'Auth' => $auth,
+                    'URL' => $request->fullUrl(),
+                ]);
+
                 return response('Logging out.', 307);
             }
 
             if ($login->channels->count() == 0 || $auth->isSuspended()) {
+                Log::debug('Invalid login status.', [
+                    'IP' => $request->ip(),
+                    'Auth' => $auth,
+                    'URL' => $request->fullUrl(),
+                ]);
+
                 return response('Kicked.', 409);
             }
 
@@ -369,7 +388,13 @@ class ChatController extends Controller
             $channel = $this->getChannel($request);
             $message = $this->getMessage($request);
 
-            if ($login->channels->count() == 0) {
+            if ($login->channels->count() == 0 || $auth->isSuspended()) {
+                Log::debug('Invalid login status.', [
+                    'IP' => $request->ip(),
+                    'Auth' => $auth,
+                    'URL' => $request->fullUrl(),
+                ]);
+
                 return response('Kicked.', 409);
             }
 
@@ -386,8 +411,6 @@ class ChatController extends Controller
             }
 
             if (starts_with($message, '/')) {
-                $split = explode(' ', $message);
-
                 return $this->createInfo($channel, 'unknown_command', trim($message));
             }
 
