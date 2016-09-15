@@ -181,6 +181,7 @@ return [
             'session',
             'can',
             'env',
+            'is_array',
         ],
 
         /*

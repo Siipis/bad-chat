@@ -30,7 +30,7 @@ title: "{{ appName }}: Warnings and events"
                 <td colspan="2">
                     {% if event.context is iterable %}
                         {% for key, value in event.context %}
-                            <p><strong>{{ key }}</strong>: {{ value }}</p>
+                            {% if key is not empty %}<p><strong>{{ key }}</strong>: {% endif %}{{ value|join(' ') }}</p>
                         {% endfor %}
                     {% else %}
                         <p>{{ event.context }}</p>
