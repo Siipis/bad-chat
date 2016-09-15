@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Login;
 use Closure;
 use Auth;
+use Log;
 
 class VerifyOnline
 {
@@ -45,6 +46,12 @@ class VerifyOnline
      */
     private function noAccessResponse($request)
     {
+        Log::debug('Unauthorized access.', [
+            'IP' => $request->ip(),
+            'Auth' => Auth::user(),
+            'URL' => $request->fullUrl(),
+        ]);
+
         if ($request->ajax()) {
             return response('Unauthorized.', 401);
         }

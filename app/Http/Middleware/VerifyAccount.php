@@ -44,6 +44,12 @@ class VerifyAccount
                     }
                 }
 
+                \Log::debug('Account verification failed.', [
+                    'IP' => $request->ip(),
+                    'Auth' => Auth::user(),
+                    'URL' => $request->fullUrl(),
+                ]);
+
                 // Redirects or sends a 307 response
                 if (!in_array($request->path(), $this->except)) {
                     if ($request->ajax()) {

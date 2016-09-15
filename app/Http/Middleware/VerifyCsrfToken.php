@@ -27,6 +27,12 @@ class VerifyCsrfToken extends BaseVerifier
             return $this->addCookieToResponse($request, $next($request));
         }
 
+        \Log::debug('CSRF token mismatch.', [
+            'IP' => $request->ip(),
+            'Auth' => \Auth::user(),
+            'URL' => $request->fullUrl(),
+        ]);
+
         if ($request->ajax()) {
             $request->session()->flash('request', $request->all());
 

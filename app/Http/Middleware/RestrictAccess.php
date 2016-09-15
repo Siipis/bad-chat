@@ -18,6 +18,12 @@ class RestrictAccess
     public function handle($request, Closure $next, $permission)
     {
         if (!Access::can($permission)) {
+            \Log::debug('Restricted access.', [
+                'IP' => $request->ip(),
+                'Auth' => Auth::user(),
+                'URL' => $request->fullUrl(),
+            ]);
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response('Access Denied.', 403);
             } else if (Auth::check()) {
