@@ -24,11 +24,17 @@ title: "{{ appName }}: Warnings and events"
                 <i class="glyphicon glyphicon-zoom-in"></i>
             </td>
         </tr>
-        {% if context is not empty %}
+        {% if event.context is not empty %}
             <tr data-id="{{ event.id }}">
                 <th class="text-right">Context</th>
                 <td colspan="2">
-                    <pre>{{ event.context }}</pre>
+                    {% if event.context is iterable %}
+                        {% for key, value in event.context %}
+                            <p><strong>{{ key }}</strong>: {{ value }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>{{ event.context }}</p>
+                    {% endif %}
                 </td>
             </tr>
         {% endif %}

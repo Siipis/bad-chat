@@ -141,7 +141,7 @@ class FrontLog
             'level' => $level,
             'code' => $code,
             'event' => $event,
-            'context' => json_encode($context),
+            'context' => $context,
             'url' => $url,
             'ip' => $ip,
         ]);
