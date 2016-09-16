@@ -872,6 +872,16 @@ class ChatController extends Controller
                     Invite::where('channel_id', $channel->id)->where('target_id', $user->id)->delete();
                 }
 
+                $login = Login::active($user);
+
+                if (Online::exists($channel, $login)) {
+                    $this->createSystem($channel, 'part', [
+                        'user' => $user->name
+                    ]);
+
+                    Online::where('channel_id', $channel->id)->where('login_id', $login->id)->delete();
+                }
+
                 return $this->createInfo(null, 'uninvite', $channel->name, $user, $auth);
             }
 
