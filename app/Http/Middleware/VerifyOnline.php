@@ -18,6 +18,8 @@ class VerifyOnline
      */
     public function handle($request, Closure $next)
     {
+        // TODO: figure out why this fails
+        
         if (Auth::guest()) {
             return $this->noAccessResponse($request);
         } else {
@@ -48,8 +50,8 @@ class VerifyOnline
     {
         Log::debug('Unauthorized access.', [
             'IP' => $request->ip(),
-            'Auth' => Auth::user(),
             'URL' => $request->fullUrl(),
+            'Auth' => Auth::user(),
         ]);
 
         if ($request->ajax()) {
