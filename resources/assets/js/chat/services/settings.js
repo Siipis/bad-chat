@@ -1,4 +1,6 @@
 app.factory('Settings', function ($rootScope) {
+    var default_color = 6;
+
     var obj = {};
 
     obj.get = function (key) {
@@ -6,8 +8,19 @@ app.factory('Settings', function ($rootScope) {
 
         if (!angular.isObject(obj.settings)) {
             try {
-                settings = JSON.parse(Cookies.get('settings'));
+                try {
+                    settings = localStorage.getItem('settings');
+                } catch (e) {
+                    console.log('Local storage is not available.');
+                }
+
+                if (settings === undefined) {
+                    settings = Cookies.get('settings');
+                }
+
+                settings = JSON.parse(settings);
             } catch (e) {
+                console.log('Could not parse settings!');
             }
 
             obj.settings = settings;
@@ -17,7 +30,7 @@ app.factory('Settings', function ($rootScope) {
 
         if (!angular.isObject(settings)) {
             settings = {
-                'color': 0,
+                'color': default_color,
                 'scroll': true,
                 'formatting': true,
                 'sound': true
@@ -47,6 +60,12 @@ app.factory('Settings', function ($rootScope) {
         obj.settings = settings;
 
         Cookies.set('settings', JSON.stringify(settings));
+
+        try {
+            localStorage.setItem('settings', JSON.stringify(settings));
+        } catch (e) {
+            console.log('Local storage is not available.');
+        }
 
         console.log('Settings are now ', obj.settings);
     };

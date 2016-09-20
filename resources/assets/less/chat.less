@@ -230,6 +230,8 @@ html, body, #chat-body {
     }
 
     #chat-window {
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+
       position: relative;
       overflow: auto;
 
@@ -325,7 +327,7 @@ html, body, #chat-body {
         .message {
           white-space: pre-wrap;
 
-          .generate-colors(17);
+          .generate-colors(28);
 
           .generate-colors(@n, @i: 1) when (@i =< @n) {
             &.color-@{i} {
@@ -402,7 +404,7 @@ html, body, #chat-body {
       textarea {
         width: 100%;
 
-        .generate-colors(17);
+        .generate-colors(28);
 
         .generate-colors(@n, @i: 1) when (@i =< @n) {
           &.color-@{i} {
@@ -498,8 +500,14 @@ html, body, #chat-body {
     }
 
     #colorlist {
+      .swatch-group {
+        display: inline-block;
+        width: 12%;
+      }
+
       .color-swatch {
         display: inline-block;
+        max-width: 100%;
         width: floor((@font-size-base * 2));
         height: floor((@font-size-base * 2));
         margin: 1px;
@@ -509,13 +517,14 @@ html, body, #chat-body {
           width: floor((@font-size-base * 2)) - 6px;
           height: floor((@font-size-base * 2)) - 6px;
           margin: 4px 4px;
+          max-width: ~ "calc(100% - 6px)";
         }
 
         &.color-0 {
           background: @text-color;
         }
 
-        .generate-swatches(17);
+        .generate-swatches(28);
 
         .generate-swatches(@n, @i: 1) when (@i =< @n) {
           &.color-@{i} {
@@ -528,7 +537,18 @@ html, body, #chat-body {
         }
       }
 
+      @media (min-width: @screen-lg-min) {
+        max-width: 280px;
+      }
+
       @media (max-width: @screen-md-min) {
+        min-width: 300px;
+
+        .swatch-group {
+          width: floor((@font-size-base * 2.5));
+          margin: 4px;
+        }
+
         .color-swatch {
           width: floor((@font-size-base * 2.5));
           height: floor((@font-size-base * 2.5));
