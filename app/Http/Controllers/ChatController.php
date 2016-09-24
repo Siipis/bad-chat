@@ -920,11 +920,11 @@ class ChatController extends Controller
     {
         $auth = Auth::user();
 
-        $protegees = $auth->protectors->map(function($user) {
+        $protectors = $auth->protectors->map(function($user) {
             return $user->name;
         });
 
-        return $this->createInfo($channel, 'protectors', $protegees);
+        return $this->createInfo($channel, 'protectors', $protectors);
     }
 
     /**

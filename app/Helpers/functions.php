@@ -15,9 +15,13 @@ function can($code) {
  * @param array $array
  * @return string
  */
-function str_list($array) {
+function str_list($array, $sort = false) {
     if (!is_array($array)) {
         return $array;
+    }
+
+    if ($sort) {
+        sort($array);
     }
 
     $return = '';
@@ -28,7 +32,7 @@ function str_list($array) {
             $return .= ', ';
         }
 
-        if (count($array) == $i - 1) {
+        if (count($array) == $i + 1) {
             $return .= 'and ';
         }
 

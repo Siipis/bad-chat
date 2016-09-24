@@ -318,7 +318,7 @@ class Info extends Message
             if (empty($protegees)) {
                 return "You have no protegees.";
             } else {
-                $protegees = str_list($protegees);
+                $protegees = str_list($protegees, true);
 
                 return "You vouch for $protegees.";
             }
@@ -331,7 +331,7 @@ class Info extends Message
                 return "You have no protectors.";
             } else {
                 $verb = count($protectors) == 1 ? 'vouches' : 'vouch';
-                $protectors = str_list($protectors);
+                $protectors = str_list($protectors, true);
 
                 return "$protectors $verb for you.";
             }
