@@ -76,8 +76,6 @@ class ChatController extends Controller
         $any = "(.*)+";
         $alpha_dash = "([a-z_-]+)";
 
-        // TODO: add /protectors and /protegees
-
         return [
             'whisper' => "/^(\/w|\/whisper|\/msg) $nick $any$/i",
             'seen' => "/^(\/seen|\/online) $nick$/i",
@@ -87,6 +85,8 @@ class ChatController extends Controller
             'part' => "/^(\/part|\/leave)( $channel)?$/i",
             'invite' => "/^(\/inv|\/invite) $nick( $channel)?+$/i",
             'uninvite' => "/^(\/uninv|\/uninvite) $nick( $channel)?+$/i",
+            'protegees' => "/^(\/protegees|\/vouched)$/i",
+            'protectors' => "/^(\/protectors|\/vouches)$/i",
             'vouch' => "/^(\/vouch) $nick$/i",
             'unvouch' => "/^(\/unvouch|\/devouch) $nick$/i",
             'promote' => "/^(\/promote) $nick$/i",
@@ -889,6 +889,42 @@ class ChatController extends Controller
         }
 
         return $this->createInfo($origChannel, 'not_permitted', 'uninvite');
+    }
+
+    /**
+     * Returns the user's protegees
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return Response
+     */
+    private function createProtegees(Channel $channel, $message)
+    {
+        $auth = Auth::user();
+
+        $protegees = $auth->protegees->map(function($user) {
+            return $user->name;
+        });
+
+        return $this->createInfo($channel, 'protegees', $protegees);
+    }
+
+    /**
+     * Returns the user's protectors
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return Response
+     */
+    private function createProtectors(Channel $channel, $message)
+    {
+        $auth = Auth::user();
+
+        $protegees = $auth->protectors->map(function($user) {
+            return $user->name;
+        });
+
+        return $this->createInfo($channel, 'protectors', $protegees);
     }
 
     /**

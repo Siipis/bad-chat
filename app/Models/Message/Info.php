@@ -312,6 +312,31 @@ class Info extends Message
             return "$this->context just vouched for you. Congratulations!";
         }
 
+        if ($message == 'protegees') {
+            $protegees = $this->context;
+
+            if (empty($protegees)) {
+                return "You have no protegees.";
+            } else {
+                $protegees = str_list($protegees);
+
+                return "You vouch for $protegees.";
+            }
+        }
+
+        if ($message == 'protectors') {
+            $protectors = $this->context;
+
+            if (empty($protectors)) {
+                return "You have no protectors.";
+            } else {
+                $verb = count($protectors) == 1 ? 'vouches' : 'vouch';
+                $protectors = str_list($protectors);
+
+                return "$protectors $verb for you.";
+            }
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Ignores
