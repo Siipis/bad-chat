@@ -654,6 +654,13 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             });
     };
 
+    obj.meta = function (url) {
+        return $.ajax({
+            method: 'post',
+            url: 'https://api.urlmeta.org/?url='+ url,
+            crossDomain: true
+        });
+    };
 
     return obj;
 });
@@ -704,6 +711,8 @@ app.factory('Data', function ($rootScope) {
     var topicList = {};
     var userList = {};
     var rowList = {};
+
+    var meta = {};
 
     var obj = {};
 
@@ -880,6 +889,14 @@ app.factory('Data', function ($rootScope) {
         if (addedRows > 0) {
             $rootScope.$broadcast('scroll');
         }
+    };
+
+    obj.meta = function (url, newMeta) {
+        if (newMeta === undefined) {
+            return meta[url];
+        }
+
+        meta[url] = newMeta;
     };
 
     /*
@@ -1067,13 +1084,13 @@ app.factory('Styling', function ($rootScope, Settings) {
     };
 
     var codes = {
-        '(^| )(http[s]?://[^\\\s]+)': '$1<a href="$2" target="_blank">$2</a>',
+        '(^| )(http[s]?://[^\\\s]+)': '$1<a href="$2" target="_blank" class="hoverable">$2</a>',
         '\\[b\\](.*)\\[\/b\\]': '<b>$1</b>',
         '\\[i\\](.*)\\[\/i\\]': '<em>$1</em>',
         '\\[u\\](.*)\\[\/u\\]': '<u>$1</u>',
         '\\[s\\](.*)\\[\/s\\]': '<s>$1</s>',
-        '\\[url=(.*)\\](.*)\\[\/url\\]': '<a href="$1" target="_blank">$2</a>',
-        '\\[url\\](.*)\\[\/url\\]': '<a href="$1" target="_blank">$1</a>',
+        '\\[url=(.*)\\](.*)\\[\/url\\]': '<a href="$1" target="_blank" class="hoverable">$2</a>',
+        '\\[url\\](.*)\\[\/url\\]': '<a href="$1" target="_blank" class="hoverable">$1</a>',
         '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>'
     };
 
@@ -1312,7 +1329,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
             Ajax.refresh();
 
             // Scroll after the refresh has finished
-            var offRefresh = $scope.$on('refreshed', function() {
+            var offRefresh = $scope.$on('refreshed', function () {
                 $rootScope.scroll();
 
                 offRefresh();
@@ -1340,7 +1357,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         Ajax.send('/join ' + channel);
     };
 
-    $scope.joinable = function() {
+    $scope.joinable = function () {
         return Data.joinable();
     };
 
@@ -1419,40 +1436,40 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         Audio.playDing();
     });
 
-    $scope.$on('scroll', function(e) {
+    $scope.$on('scroll', function (e) {
         $rootScope.scroll();
     });
 
     /*
-    |--------------------------------------------------------------------------
-    | Watchers
-    |--------------------------------------------------------------------------
-    |
-    | Scope watchers
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Watchers
+     |--------------------------------------------------------------------------
+     |
+     | Scope watchers
+     |
+     */
 
     // Fix faulty scrolling when image is loading
-    $scope.$watch(function() {
+    $scope.$watch(function () {
         return $(Selectors.chatWindowSelector).children().last().data('id');
-    }, function(newValue, oldValue) {
+    }, function (newValue, oldValue) {
         if (newValue !== oldValue) {
-            $('.embed-image').one('load', function() {
+            $('.embed-image').one('load', function () {
                 $rootScope.scroll();
             });
         }
     });
 
     /*
-    |--------------------------------------------------------------------------
-    | jQuery Events
-    |--------------------------------------------------------------------------
-    |
-    | Various jQuery events
-    |
-    */
+     |--------------------------------------------------------------------------
+     | jQuery Events
+     |--------------------------------------------------------------------------
+     |
+     | Various jQuery events
+     |
+     */
 
-    $(document).on('click', '#topic', function() {
+    $(document).on('click', '#topic', function () {
         var oldTopic = $(this).text();
         var topic = prompt('Channel topic:', oldTopic);
 
@@ -1463,7 +1480,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         topic = oldTopic = null;
     });
 
-    $(document).on('submit', '#join-form', function(e) {
+    $(document).on('submit', '#join-form', function (e) {
         e.preventDefault();
 
         var input = $("input[name='channel']", this);
@@ -1476,6 +1493,48 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         }
 
         Selectors.join.modal('hide');
+    });
+
+    $(document).on('mouseover', 'a.hoverable', function () {
+        if ($(window).width() < 600 || $(window).height() < 600) {
+            return;
+        }
+
+        var link = this;
+
+        function popover(meta) {
+            var template = '<div class="popover" role="tooltip">' +
+                '<div class="arrow"></div>' +
+                '<h3 class="popover-title">' + meta.title + '</h3>' +
+                '<div class="popover-content">' + meta.description + '</div>' +
+                '</div>';
+
+            $(link).webuiPopover({
+                container: Selectors.chatWindowSelector,
+                title: meta.title,
+                content: meta.description,
+                trigger: 'hover',
+                template: template
+            });
+
+           $(link).webuiPopover('show');
+        }
+
+        var url = $(link).attr('href');
+
+        var meta = Data.meta(url);
+
+        if (meta) {
+            popover(meta);
+        } else {
+            meta = Ajax.meta(url);
+
+            meta.done(function (response) {
+                Data.meta(url, response.meta);
+
+                popover(response.meta);
+            });
+        }
     });
 
     /*

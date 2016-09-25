@@ -9,6 +9,8 @@ app.factory('Data', function ($rootScope) {
     var userList = {};
     var rowList = {};
 
+    var meta = {};
+
     var obj = {};
 
     /*
@@ -184,6 +186,14 @@ app.factory('Data', function ($rootScope) {
         if (addedRows > 0) {
             $rootScope.$broadcast('scroll');
         }
+    };
+
+    obj.meta = function (url, newMeta) {
+        if (newMeta === undefined) {
+            return meta[url];
+        }
+
+        meta[url] = newMeta;
     };
 
     /*

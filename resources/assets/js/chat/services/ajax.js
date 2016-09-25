@@ -404,6 +404,13 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             });
     };
 
+    obj.meta = function (url) {
+        return $.ajax({
+            method: 'post',
+            url: 'https://api.urlmeta.org/?url='+ url,
+            crossDomain: true
+        });
+    };
 
     return obj;
 });
