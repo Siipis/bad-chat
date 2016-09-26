@@ -1503,6 +1503,14 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         var link = this;
 
         function popover(meta) {
+            if (meta.title === undefined) {
+                meta.title = '[no title found]';
+            }
+
+            if (meta.description === undefined) {
+                meta.description = '[no description found]';
+            }
+
             var template = '<div class="popover" role="tooltip">' +
                 '<div class="arrow"></div>' +
                 '<h3 class="popover-title">' + meta.title + '</h3>' +
