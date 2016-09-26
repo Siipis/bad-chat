@@ -111,6 +111,8 @@ class Settings extends Model
         
         $instance->timezone = 'UTC';
 
+        $instance->theme = 'default';
+
         return $instance;
     }
 }

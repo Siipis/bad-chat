@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Settings;
 use File;
 use View;
 use Illuminate\Support\ServiceProvider;
@@ -22,8 +23,15 @@ class ViewComposerProvider extends ServiceProvider
 
             $config = json_decode($file, true);
 
+            $theme = 'default';
+
+            if (\Auth::check()) {
+                $theme = Settings::user(\Auth::user())->theme;
+            }
+
             $view->with([
-                'appName' => $config['name']
+                'appName' => $config['name'],
+                'theme' => $theme,
             ]);
 
             return $view;

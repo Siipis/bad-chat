@@ -106,9 +106,14 @@ class AccountController extends Controller
 
         $settings = Settings::user($auth);
 
+        $themes = collect(\File::directories(public_path('css')))->map(function($path) {
+            return basename($path);
+        });
+
         return CMS::render("account.settings", [
             'settings' => $settings,
             'timezones' => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL),
+            'themes' => $themes,
         ]);
     }
 
@@ -120,11 +125,18 @@ class AccountController extends Controller
      */
     public function postSettings(Request $request)
     {
+        $this->validate($request, [
+            'maxMessages' => 'numeric',
+            'timezone' => 'required',
+            'theme' => 'required',
+        ]);
+
         $channels = $request->input('channels');
         $highlight = $request->input('highlight');
         $maxMessages = $request->input('maxMessages');
         $interval = $request->input('interval');
         $timezone = $request->input('timezone');
+        $theme = $request->input('theme');
 
         $auth = Auth::user();
 
@@ -135,6 +147,7 @@ class AccountController extends Controller
         $settings->maxMessages = trim($maxMessages);
         $settings->interval = $interval >= config('chat.interval.minimum') ? trim($interval) : null;
         $settings->timezone = $timezone;
+        $settings->theme = $theme;
 
         $auth->settings()->save($settings);
 

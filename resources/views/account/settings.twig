@@ -63,6 +63,19 @@ title: "{{ appName }}: Chat settings"
                 </select>
             </td>
         </tr>
+
+        <tr>
+            <th>
+                <label for="theme">Site theme</label>
+            </th>
+            <td>
+                <select name="theme" id="theme" class="form-control">
+                    {% for theme in themes %}
+                        <option value="{{ theme }}"{{ settings.theme == theme ? ' selected' : '' }}>{{ theme|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
         </tbody>
     </table>
 
