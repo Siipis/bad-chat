@@ -126,7 +126,15 @@ class Login extends Model
             $ip = $_SERVER['REMOTE_ADDR'];
             $agent = $_SERVER['HTTP_USER_AGENT'];
 
-            return $login->ip == $ip && $login->agent == $agent;
+            if ($login->agent == $agent) {
+                if ($login->ip != $ip) {
+                    $login->ip = $ip;
+
+                    $login->save();
+                }
+
+                return true;
+            }
         }
 
         return false;
