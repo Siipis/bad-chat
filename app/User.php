@@ -87,6 +87,16 @@ class User extends Authenticatable
         return $this->hasMany('App\Login');
     }
 
+    public function conversationPosts()
+    {
+        return $this->hasMany('App\Conversation');
+    }
+
+    public function conversations()
+    {
+        return $this->belongsToMany('App\Conversation')->withPivot(['read_at', 'deleted_at']);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Mutators
@@ -426,6 +436,47 @@ class User extends Authenticatable
         $email = $this->email;
         $app = config('chat.name');
 
+        Mail::send('emails.general', [
+            'text' => $this->formatText($text)
+        ], function ($m) use ($title, $email, $app) {
+            $m->replyTo('no-reply@varjohovi.net');
+            $m->subject("[$app] $title");
+
+            $m->to($email);
+        });
+    }
+
+    public function sendConversation($user, $conversation)
+    {
+        if (is_null($conversation->parent) && $conversation->isThrashed($this)) {
+            return;
+        } else if (!is_null($conversation->parent) && $conversation->parent->isThrashed($this)) {
+            return;
+        }
+
+        $isNew = is_null($conversation->parent);
+        $email = $this->email;
+        $title = is_null($conversation->parent) ? $conversation->title : $conversation->parent->title;
+        $text = $conversation->message;
+
+        \Mail::send('emails.conversation', [
+            'user' => $user,
+            'app' => $app = config('chat.name'),
+            'text' => $this->formatText($text),
+            'link' => url('conversations/view', $conversation->id),
+            'isNew' => $isNew,
+        ], function ($m) use ($email, $title, $app, $isNew) {
+            $subject = $isNew ? "[$app] New conversation: $title." : "[$app] New response: $title.";
+
+            $m->replyTo('no-reply@varjohovi.net');
+            $m->subject($subject);
+
+            $m->to($email);
+        });
+    }
+
+    private function formatText($text)
+    {
         $format = '';
         $paragraphs = preg_split("/\\r\\n|\\r|\\n/", trim($text));
 
@@ -437,13 +488,6 @@ class User extends Authenticatable
             $format .= "<p>$p</p>\n";
         }
 
-        Mail::send('emails.general', [
-            'text' => $format
-        ], function ($m) use ($title, $email, $app) {
-            $m->replyTo('no-reply@varjohovi.net');
-            $m->subject("[$app] $title");
-
-            $m->to($email);
-        });
+        return $format;
     }
 }

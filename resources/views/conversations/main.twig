@@ -1,0 +1,56 @@
+layout: account
+title: "{{ appName }}: Conversations"
+
+===
+
+<h3>Conversations</h3>
+
+<div class="alert alert-info" role="alert">This feature is in beta. Please report any issues you have!</div>
+
+<hr/>
+
+{% if conversations is not empty %}
+    <table class="table table-striped table-hover table-responsive">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th class="hidden-xs">Participants</th>
+            <th>Updated</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for conversation in conversations %}
+            <tr{{ conversation.hasUnread() ? ' class="active"' : '' }}>
+                <th>
+                    <a href="{{ url('conversations/view/'~ conversation.id) }}">{{ conversation.title }}</a>
+                </th>
+                <td class="hidden-xs">{{ conversation.names|join(', ') }}</td>
+                <td>{{ conversation.updated_at.diffForHumans() }}</td>
+                <td class="text-right">
+                    <form class="form-inline" action="{{ url('conversations/delete') }}" method="post">
+                        {{ csrf_field() }}
+
+                        <input type="hidden" name="conversation_id" value="{{ conversation.id }}" />
+
+                        <button class="btn btn-xs btn-default" data-confirmation="delete">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>You have not yet started any conversations.</p>
+{% endif %}
+
+{{ conversations.links()|raw }}
+
+<hr/>
+
+<a href="{{ url('conversations/create') }}" class="btn btn-default">
+    <i class="glyphicon glyphicon-envelope"></i>
+    Create new
+</a>

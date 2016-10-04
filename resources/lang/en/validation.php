@@ -91,11 +91,7 @@ return [
     |
     */
 
-    'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
-        ],
-    ],
+    'user' => "Could not find user :value.",
 
     /*
     |--------------------------------------------------------------------------

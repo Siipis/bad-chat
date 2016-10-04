@@ -368,6 +368,10 @@ class ChatController extends Controller
             $notifications += User::where('is_active', false)->count();
         }
 
+        $notifications += \App\Conversation::readable()->visible()->get()->filter(function($c) {
+            return $c->hasUnread();
+        })->count();
+
         $this->closeConnection();
 
         return response()->json($notifications);

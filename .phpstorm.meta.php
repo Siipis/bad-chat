@@ -3,7 +3,7 @@ namespace PHPSTORM_META {
 
    /**
     * PhpStorm Meta file, to provide autocomplete information for PhpStorm
-    * Generated on 2016-09-12.
+    * Generated on 2016-10-04.
     *
     * @author Barry vd. Heuvel <barryvdh@gmail.com>
     * @see https://github.com/barryvdh/laravel-ide-helper
@@ -56,6 +56,9 @@ namespace PHPSTORM_META {
             'cms.helper' instanceof \Siipis\CMS\Template\Scaffolding,
             'cms.parser' instanceof \Siipis\CMS\Parser\Parser,
             'command.make.data' instanceof \Siipis\CMS\Console\MakeDataProvider,
+            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
+            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
+            'translator' instanceof \Illuminate\Translation\Translator,
             'blade.compiler' instanceof \Illuminate\View\Compilers\BladeCompiler,
             'Illuminate\Broadcasting\BroadcastManager' instanceof \Illuminate\Broadcasting\BroadcastManager,
             'Illuminate\Bus\Dispatcher' instanceof \Illuminate\Bus\Dispatcher,
@@ -130,9 +133,6 @@ namespace PHPSTORM_META {
             'IlluminateQueueClosure' instanceof \IlluminateQueueClosure,
             'auth.password' instanceof \Illuminate\Auth\Passwords\PasswordBrokerManager,
             'auth.password.broker' instanceof \Illuminate\Auth\Passwords\PasswordBroker,
-            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
-            'translator' instanceof \Illuminate\Translation\Translator,
-            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
             'command.ide-helper.generate' instanceof \Barryvdh\LaravelIdeHelper\Console\GeneratorCommand,
             'command.ide-helper.models' instanceof \Barryvdh\LaravelIdeHelper\Console\ModelsCommand,
             'command.ide-helper.meta' instanceof \Barryvdh\LaravelIdeHelper\Console\MetaCommand,
@@ -184,6 +184,9 @@ namespace PHPSTORM_META {
             'cms.helper' instanceof \Siipis\CMS\Template\Scaffolding,
             'cms.parser' instanceof \Siipis\CMS\Parser\Parser,
             'command.make.data' instanceof \Siipis\CMS\Console\MakeDataProvider,
+            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
+            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
+            'translator' instanceof \Illuminate\Translation\Translator,
             'blade.compiler' instanceof \Illuminate\View\Compilers\BladeCompiler,
             'Illuminate\Broadcasting\BroadcastManager' instanceof \Illuminate\Broadcasting\BroadcastManager,
             'Illuminate\Bus\Dispatcher' instanceof \Illuminate\Bus\Dispatcher,
@@ -258,9 +261,6 @@ namespace PHPSTORM_META {
             'IlluminateQueueClosure' instanceof \IlluminateQueueClosure,
             'auth.password' instanceof \Illuminate\Auth\Passwords\PasswordBrokerManager,
             'auth.password.broker' instanceof \Illuminate\Auth\Passwords\PasswordBroker,
-            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
-            'translator' instanceof \Illuminate\Translation\Translator,
-            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
             'command.ide-helper.generate' instanceof \Barryvdh\LaravelIdeHelper\Console\GeneratorCommand,
             'command.ide-helper.models' instanceof \Barryvdh\LaravelIdeHelper\Console\ModelsCommand,
             'command.ide-helper.meta' instanceof \Barryvdh\LaravelIdeHelper\Console\MetaCommand,
@@ -312,6 +312,9 @@ namespace PHPSTORM_META {
             'cms.helper' instanceof \Siipis\CMS\Template\Scaffolding,
             'cms.parser' instanceof \Siipis\CMS\Parser\Parser,
             'command.make.data' instanceof \Siipis\CMS\Console\MakeDataProvider,
+            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
+            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
+            'translator' instanceof \Illuminate\Translation\Translator,
             'blade.compiler' instanceof \Illuminate\View\Compilers\BladeCompiler,
             'Illuminate\Broadcasting\BroadcastManager' instanceof \Illuminate\Broadcasting\BroadcastManager,
             'Illuminate\Bus\Dispatcher' instanceof \Illuminate\Bus\Dispatcher,
@@ -386,9 +389,6 @@ namespace PHPSTORM_META {
             'IlluminateQueueClosure' instanceof \IlluminateQueueClosure,
             'auth.password' instanceof \Illuminate\Auth\Passwords\PasswordBrokerManager,
             'auth.password.broker' instanceof \Illuminate\Auth\Passwords\PasswordBroker,
-            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
-            'translator' instanceof \Illuminate\Translation\Translator,
-            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
             'command.ide-helper.generate' instanceof \Barryvdh\LaravelIdeHelper\Console\GeneratorCommand,
             'command.ide-helper.models' instanceof \Barryvdh\LaravelIdeHelper\Console\ModelsCommand,
             'command.ide-helper.meta' instanceof \Barryvdh\LaravelIdeHelper\Console\MetaCommand,
@@ -440,6 +440,9 @@ namespace PHPSTORM_META {
             'cms.helper' instanceof \Siipis\CMS\Template\Scaffolding,
             'cms.parser' instanceof \Siipis\CMS\Parser\Parser,
             'command.make.data' instanceof \Siipis\CMS\Console\MakeDataProvider,
+            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
+            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
+            'translator' instanceof \Illuminate\Translation\Translator,
             'blade.compiler' instanceof \Illuminate\View\Compilers\BladeCompiler,
             'Illuminate\Broadcasting\BroadcastManager' instanceof \Illuminate\Broadcasting\BroadcastManager,
             'Illuminate\Bus\Dispatcher' instanceof \Illuminate\Bus\Dispatcher,
@@ -514,9 +517,6 @@ namespace PHPSTORM_META {
             'IlluminateQueueClosure' instanceof \IlluminateQueueClosure,
             'auth.password' instanceof \Illuminate\Auth\Passwords\PasswordBrokerManager,
             'auth.password.broker' instanceof \Illuminate\Auth\Passwords\PasswordBroker,
-            'translation.loader' instanceof \Illuminate\Translation\FileLoader,
-            'translator' instanceof \Illuminate\Translation\Translator,
-            'validation.presence' instanceof \Illuminate\Validation\DatabasePresenceVerifier,
             'command.ide-helper.generate' instanceof \Barryvdh\LaravelIdeHelper\Console\GeneratorCommand,
             'command.ide-helper.models' instanceof \Barryvdh\LaravelIdeHelper\Console\ModelsCommand,
             'command.ide-helper.meta' instanceof \Barryvdh\LaravelIdeHelper\Console\MetaCommand,

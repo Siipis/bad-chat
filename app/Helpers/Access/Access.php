@@ -29,6 +29,8 @@ class Access
 
     const messaging = 'moderator';
 
+    const conversations = 'member';
+
     public function __construct()
     {
         $this->user = \Auth::user();

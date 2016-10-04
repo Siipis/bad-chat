@@ -1,0 +1,62 @@
+layout: account
+title: "{{ appName }}: Conversations"
+
+===
+
+<h3>Create conversation</h3>
+
+{% partial 'alert' %}
+
+<div class="container-fluid">
+<form class="form-horizontal" action="{{ url('conversations/create') }}" method="post">
+    {{ csrf_field() }}
+
+    <div class="form-group{{ errors.has('title') ? ' has-error' : '' }}">
+        <label for="inputTitle">Title</label>
+        <input type="text" name="title" class="form-control" id="inputTitle" value="{{ old('title') }}" placeholder="Title" />
+
+        {% if errors.has('title') %}
+            <span class="help-block">
+                <strong>{{ errors.first('title') }}</strong>
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="form-group{{ errors.has('participants') ? ' has-error' : '' }}">
+        <label for="inputParticipants">Participants</label>
+        <input type="text" name="participants" class="form-control" id="inputParticipants" value="{{ old('participants') }}" placeholder="Participants"  />
+
+        {% if errors.has('participants') %}
+            <span class="help-block">
+                <strong>{{ errors.first('participants') }}</strong>
+            </span>
+        {% endif %}
+
+        <span class="help-block">Use comma or space to separate usernames.</span>
+    </div>
+
+    <div class="form-group{{ errors.has('message') ? ' has-error' : '' }}">
+        <label for="inputMessage">Message</label>
+        <textarea name="message" class="form-control" id="inputMessage" placeholder="Message" rows="10">{{ old('message') }}</textarea>
+
+        {% if errors.has('message') %}
+            <span class="help-block">
+                <strong>{{ errors.first('message') }}</strong>
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-default">
+            <i class="glyphicon glyphicon-envelope"></i>
+            Create
+        </button>
+    </div>
+</form>
+</div>
+
+<hr />
+
+<a href="{{ url('conversations') }}" class="text-larger">
+    &laquo; Previous
+</a>

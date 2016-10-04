@@ -189,14 +189,16 @@ class UsersController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            throw $e;
+            if (config('app.debug')) {
+                throw $e;
+            }
 
-/*            return redirect()->back()->with([
+            return redirect()->back()->with([
                 'alert' => [
                     'type' => 'danger',
                     'message' => 'An error occurred! Please try again later.',
                 ]
-            ]); */
+            ]);
         }
     }
 

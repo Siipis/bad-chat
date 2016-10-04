@@ -62,6 +62,18 @@ data:
                         Public roles
                     </a>
                 </li>
+                {% if can('conversations') %}
+                <li class="divider" role="separator"></li>
+                <li>
+                    <a href="{{ url('conversations') }}">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                        Conversations
+                        ({{ count.conversations.unread ? count.conversations.unread ~ ' / ' : '' }}{{ count.conversations.total }})
+
+                        <span class="text-info small">BETA</span>
+                    </a>
+                </li>
+                {% endif %}
                 <li class="divider" role="separator"></li>
                 {% if can('control.registration') %}
                     <li>

@@ -4,6 +4,7 @@
 namespace App\CMS\Data;
 
 use App\Ban;
+use App\Conversation;
 use App\Login;
 use Siipis\CMS\Data\DataProvider;
 use App\Vouch;
@@ -22,6 +23,15 @@ class Count extends DataProvider
 
         if (Auth::check()) {
             $data['vouches'] = Vouch::where('user_id', Auth::id())->count();
+
+            $unread = Conversation::readable()->visible()->get()->filter(function($c) {
+                return $c->hasUnread();
+            });
+
+            $data['conversations'] = [
+                'unread' => $unread->count(),
+                'total' => Conversation::readable()->visible()->count(),
+            ];
 
             if (Access::can('control.registration')) {
                 $data['pending'] = User::where('is_active', false)->count();

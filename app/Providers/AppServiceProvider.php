@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Helpers\Access\Access;
 use App\Helpers\Event\FrontLog;
+use App\User;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,7 +16,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        \Validator::extend('user', function($attribute, $value, $parameters, $validator) {
+            $validator->addReplacer('user', function ($message, $attribute, $rule, $parameters) use ($parameters) {
+                return str_replace(':value', $parameters[0], $message);
+            });
+
+            return User::whereName($parameters[0])->active()->count() > 0;
+        });
     }
 
     /**

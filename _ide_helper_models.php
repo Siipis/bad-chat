@@ -69,6 +69,42 @@ namespace App{
 
 namespace App{
 /**
+ * App\Conversation
+ *
+ * @property integer $id
+ * @property integer $parent_id
+ * @property integer $user_id
+ * @property string $title
+ * @property string $message
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $deleted_at
+ * @property-read \App\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $participants
+ * @property-read \App\Conversation $parent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Conversation[] $responses
+ * @property-read mixed $names
+ * @property-read mixed $read_at
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereParentId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereTitle($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereMessage($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation whereDeletedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation threads()
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation parent($conversation)
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation visible()
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation unread()
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation trashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Conversation readable()
+ */
+	class Conversation extends \Eloquent {}
+}
+
+namespace App{
+/**
  * App\Event
  *
  * @property integer $id
@@ -483,6 +519,8 @@ namespace App{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Ignore[] $ignores
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Role[] $publicRoles
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Login[] $logins
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Conversation[] $conversationPosts
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Conversation[] $conversations
  * @property-read mixed $real_name
  * @property-read mixed $joined
  * @property-read mixed $seen
