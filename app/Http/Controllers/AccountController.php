@@ -496,7 +496,7 @@ class AccountController extends Controller
                     'protegee_id' => $user->id,
                 ]);
 
-                $user->updateTier();
+                $user->updateTier(false, false);
 
                 $this->sendWelcome($user, $request->input('password'));
 
