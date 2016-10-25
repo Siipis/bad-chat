@@ -1,4 +1,4 @@
-app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Settings) {
+app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Styling, Settings) {
     var isUnloading = false; // Track the unload event
     var isTitleBlinking = false; // Track title blinking
 
@@ -180,7 +180,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
     };
 
     $scope.channelTopic = function () {
-        return Data.topic();
+        return Styling.addStyles(Data.topic());
     };
 
     $scope.rows = function () {

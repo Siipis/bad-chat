@@ -58,10 +58,6 @@ app.controller('messageController', function($rootScope, $scope, Data, Styling) 
     };
 
     $scope.stylize = function(row) {
-        if (row.type == 'post' || row.type == 'whisper' || row.type == 'emote') {
-            return Styling.addStyles(row.message);
-        }
-
-        return row.message;
+        return Styling.addStyles(row.message);
     };
 });
