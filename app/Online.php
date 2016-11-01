@@ -10,6 +10,10 @@ class Online extends Model
 
     protected $fillable = ['status'];
 
+    protected $persistStatuses = [
+        'phone', 'working', 'gaming'
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
@@ -37,6 +41,13 @@ class Online extends Model
     | Various helper methods
     |
     */
+
+    public static function getPersistStatuses()
+    {
+        $instance =  new static;
+
+        return $instance->persistStatuses;
+    }
 
     public static function exists(Channel $channel, Login $login)
     {

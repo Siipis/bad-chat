@@ -106,6 +106,7 @@ class ChatController extends Controller
             'brb' => "/^(\/brb)$/i",
             'gaming' => "/^(\/game|\/gaming)$/i",
             'working' => "/^(\/work|\/working)$/i",
+            'phone' => "/^(\/phone|\/call)$/i",
             'back' => "/^(\/back|\/online)$/i",
         ];
     }
@@ -1646,6 +1647,18 @@ class ChatController extends Controller
     }
 
     /**
+     * Sets the user status to phone
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return null|Response
+     */
+    private function createPhone(Channel $channel, $message)
+    {
+        return $this->setStatus($channel, 'phone');
+    }
+
+    /**
      * Sets the user status to online
      *
      * @param Channel $channel
@@ -1750,7 +1763,7 @@ class ChatController extends Controller
     /**
      * Sets the user status
      *
-     * @param Channel $oldChannel
+     * @param Channel $channel
      * @param $status
      * @return Response|null
      */
@@ -1761,6 +1774,13 @@ class ChatController extends Controller
 
         if (!$login->hasStatus($status)) {
             $oldStatus = $login->getStatus();
+
+            $persist = Online::getPersistStatuses();
+
+            if (in_array($oldStatus, $persist) && $status != 'online') {
+                return null;
+            }
+
             $login->setStatus($status);
 
             foreach ($login->channels as $c) {

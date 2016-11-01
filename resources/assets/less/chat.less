@@ -230,7 +230,7 @@ html, body, #chat-body {
     }
 
     #chat-window {
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 
       position: relative;
       overflow: auto;
@@ -488,14 +488,12 @@ html, body, #chat-body {
         }
       }
 
-      .status- {
-        &online {
-          display: none;
-        }
+      .status-online {
+        display: none;
+      }
 
-        &afk, &brb, &gaming, &working {
-          color: @text-muted;
-        }
+      [class^="status-"] {
+        color: @text-muted;
       }
     }
 

@@ -4,6 +4,7 @@ namespace App\Models\Message;
 
 use App\Channel;
 use App\Message;
+use App\Online;
 use App\Traits\ChannelMessage;
 use App\Traits\TargettedMessage;
 use App\Traits\UserMessage;
@@ -134,16 +135,14 @@ class System extends Message
             $status = $this->context['status'];
 
             if ($status == 'online') {
-                $oldStatus = $this->context['old_status'];
-
-                if (empty($oldStatus)) {
-                    return "$user is now back.";
-                }
-
-                return "$user is no longer $oldStatus.";
+                return "$user has returned.";
             }
 
-            return "$user has set their status to $status.";
+            $persist = Online::getPersistStatuses();
+
+            $verb = in_array($status, $persist) ? 'busy' : 'away';
+
+            return "$user is $verb: $status.";
         }
 
         /*
