@@ -404,7 +404,10 @@ class ChatController extends Controller
             }
 
             if ($login->hasStatus() && !preg_match($this->commands['back'], $message)) {
-                $this->setStatus($channel, 'online');
+                if (!in_array($login->getStatus(), Online::getPersistStatuses())) {
+                    // Only remove the status for non-sticky statuses like afk
+                    $this->setStatus($channel, 'online');
+                }
             }
 
             foreach ($this->commands as $type => $command) {
@@ -1774,12 +1777,6 @@ class ChatController extends Controller
 
         if (!$login->hasStatus($status)) {
             $oldStatus = $login->getStatus();
-
-            $persist = Online::getPersistStatuses();
-
-            if (in_array($oldStatus, $persist) && $status != 'online') {
-                return null;
-            }
 
             $login->setStatus($status);
 
