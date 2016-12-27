@@ -11,7 +11,7 @@ class Online extends Model
     protected $fillable = ['status'];
 
     protected $persistStatuses = [
-        'phone', 'working', 'gaming'
+        'phone', 'working', 'gaming', 'art'
     ];
 
     /*
