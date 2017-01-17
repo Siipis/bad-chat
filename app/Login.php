@@ -6,6 +6,7 @@ use App\Models\Message\System;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Session;
 
 class Login extends Model
 {
@@ -113,16 +114,23 @@ class Login extends Model
 
         $login->save();
 
+        Session::set('login', $login->id); // Store login instance in case of disconnects
+
         return true;
     }
 
-    public static function verify()
+    public static function verify($login = null)
     {
         $user = Auth::user();
 
         $instance = new static;
 
-        if (!is_null($login = $instance->online()->user($user)->first())) {
+        if (is_null($login)) {
+            // Default to looking for an active login
+            $login = $instance->online()->user($user)->first();
+        }
+
+        if (!is_null($login)) {
             $ip = $_SERVER['REMOTE_ADDR'];
             $agent = $_SERVER['HTTP_USER_AGENT'];
 
@@ -132,6 +140,23 @@ class Login extends Model
 
                     $login->save();
                 }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function attemptReconnect()
+    {
+        if (Auth::check() && Session::has('login')) {
+            $instance = new static;
+
+            $login = $instance->find(Session::get('login'));
+
+            if ($login->user->id == Auth::id() && $instance->verify($login)) {
+                $login->unLogout();
 
                 return true;
             }
@@ -229,6 +254,15 @@ class Login extends Model
     public function touchLogout()
     {
         $this->logout_at = $this->freshTimestamp();
+        $this->save();
+    }
+
+    /**
+     * Removes the logout timestamp
+     */
+    public function unLogout()
+    {
+        $this->logout_at = null;
         $this->save();
     }
 

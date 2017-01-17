@@ -33,6 +33,11 @@ class VerifyOnline
                 // Keep the login active
                 $login->touch();
             } else {
+                // Attempt to resume the session
+                if (Login::attemptReconnect()) {
+                    return $this->relogResponse($request);
+                }
+
                 return $this->noAccessResponse($request);
             }
         }
@@ -56,6 +61,21 @@ class VerifyOnline
 
         if ($request->ajax()) {
             return response('Unauthorized.', 401);
+        }
+
+        return redirect('/');
+    }
+
+    /**
+     * Refresh the page.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return mixed
+     */
+    private function relogResponse($request)
+    {
+        if ($request->ajax()) {
+            return response('Please refresh.', 307);
         }
 
         return redirect('/');
