@@ -34,7 +34,8 @@ app.factory('Styling', function ($rootScope, Settings) {
         ':O': ':astonished:',
         ':X': ':kissing_closed_eyes:',
         'o:)': ':innocent:',
-        ':3': ':fox:'
+        ':3': ':fox:',
+        '(y)': ':thumbsup:'
     };
 
     var codes = {
