@@ -35,6 +35,22 @@ namespace App{
 
 namespace App{
 /**
+ * App\Bounce
+ *
+ * @property integer $id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $ip
+ * @method static \Illuminate\Database\Query\Builder|\App\Bounce whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Bounce whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Bounce whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Bounce whereIp($value)
+ */
+	class Bounce extends \Eloquent {}
+}
+
+namespace App{
+/**
  * App\Channel
  *
  * @property integer $id
@@ -96,7 +112,6 @@ namespace App{
  * @method static \Illuminate\Database\Query\Builder|\App\Conversation threads()
  * @method static \Illuminate\Database\Query\Builder|\App\Conversation parent($conversation)
  * @method static \Illuminate\Database\Query\Builder|\App\Conversation visible()
- * @method static \Illuminate\Database\Query\Builder|\App\Conversation unread()
  * @method static \Illuminate\Database\Query\Builder|\App\Conversation trashed()
  * @method static \Illuminate\Database\Query\Builder|\App\Conversation readable()
  */
