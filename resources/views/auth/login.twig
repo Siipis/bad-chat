@@ -15,7 +15,7 @@ title: "{{ appName }}"
 
         <h4 class="text-center" style="line-height: 2em;">
             {% if online is empty %}
-                No one is online. Be the first!
+                Someone else was here {{ lastVisit }}!
             {% else %}
                 Currently {{ online|length }} {{ str_plural('person', online|length) }} online:
                 {% for login in online %}{{ login.user.name }}{% if not loop.last %}, {% endif %}{% endfor %}.

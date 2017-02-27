@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Bounce;
 use App\Login;
 use App\Models\Message\System;
 use App\User;
@@ -33,8 +34,13 @@ class LoginController extends Controller
             return CMS::render('chat.main');
         }
 
+        Bounce::add();
+
+        $lastVisit = Bounce::previous()->created_at->diffForHumans();
+
         return CMS::render('auth.login', [
             'online' => Login::online()->get(),
+            'lastVisit' => $lastVisit,
         ]);
     }
 
