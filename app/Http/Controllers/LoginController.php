@@ -6,6 +6,7 @@ use App\Bounce;
 use App\Login;
 use App\Models\Message\System;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use CMS;
@@ -36,7 +37,12 @@ class LoginController extends Controller
 
         Bounce::add();
 
-        $lastVisit = Bounce::previous()->created_at->diffForHumans();
+        try {
+            $lastVisit = Bounce::previous()->created_at->diffForHumans();
+        } catch (\Exception $e) {
+            // Fallback for null pointer exception
+            $lastVisit = 'a long, long time ago';
+        }
 
         return CMS::render('auth.login', [
             'online' => Login::online()->get(),
