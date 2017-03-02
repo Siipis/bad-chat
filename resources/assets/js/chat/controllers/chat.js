@@ -360,7 +360,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
 
         var channel = $(this).text();
 
-        $rootScope.joinChannel(channel);
+        $scope.joinChannel(channel);
     });
 
     /*

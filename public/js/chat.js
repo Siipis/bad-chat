@@ -1140,8 +1140,12 @@ app.factory('Styling', function ($rootScope, Settings) {
      * @returns {*}
      */
     obj.addStyles = function (input) {
-        input = parseEmoji(input);
-        input = parseCode(input);
+        try {
+            input = parseEmoji(input);
+            input = parseCode(input);
+        } catch (e) {
+            console.log(e);
+        }
 
         return input;
     };
@@ -1570,7 +1574,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
 
         var channel = $(this).text();
 
-        $rootScope.joinChannel(channel);
+        $scope.joinChannel(channel);
     });
 
     /*
