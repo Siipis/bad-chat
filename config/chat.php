@@ -18,6 +18,8 @@ return [
         'backtrack' => 20, // messages to backtrack when joining a channel
         'access' => 'private', // default access
         'expire' => 7, // days
+        'minlength' => 3, // characters
+        'maxlength' => 16, // characters
     ],
 
     'ban' => [

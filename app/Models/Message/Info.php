@@ -30,6 +30,7 @@ class Info extends Message
         'self_target',
         'channel_not_found',
         'join_error',
+        'channel_name',
         'default_channel_error',
         'cannot_leave_channel',
         'public_channel',
@@ -189,6 +190,14 @@ class Info extends Message
             $channel = $this->context;
 
             return "Could not join channel $channel.";
+        }
+
+        if ($message == 'channel_name') {
+            $channel = $this->context;
+
+            $error = $channel > 0 ? "long" : "short";
+
+            return "Channel name was too $error.";
         }
 
         if ($message == 'cannot_leave_channel') {

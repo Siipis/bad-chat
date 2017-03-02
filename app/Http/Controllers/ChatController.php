@@ -724,6 +724,14 @@ class ChatController extends Controller
 
         $name = substr($message, $cut);
 
+        if (strlen($name) > config('chat.channels.maxlength')) {
+            return $this->createInfo($origChannel, 'channel_name', 1);
+        }
+
+        if (strlen($name) < config('chat.channels.minlength')) {
+            return $this->createInfo($origChannel, 'channel_name', -1);
+        }
+
         $channel = $this->initChannel($name);
 
         if (!$channel->canJoin(Auth::user())) {
