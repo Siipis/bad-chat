@@ -264,6 +264,23 @@ html, body, #chat-body {
         margin-left: .25em;
       }
 
+      .joinable {
+        color: @brand-danger;
+        cursor: zoom-in;
+
+        &:after {
+          font: normal normal normal 0.9em/1 FontAwesome;
+          content: "\f090";
+
+          margin: 0 0.3em;
+        }
+
+        &:hover {
+          text-decoration: none;
+          color: @brand-info;
+        }
+      }
+
       .dropdown {
         display: inline-block;
         margin-right: 5px;

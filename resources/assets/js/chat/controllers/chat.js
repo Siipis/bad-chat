@@ -355,6 +355,14 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         }
     });
 
+    $(document).on('click', 'a.joinable', function(e) {
+        e.preventDefault();
+
+        var channel = $(this).text();
+
+        $rootScope.joinChannel(channel);
+    });
+
     /*
      |--------------------------------------------------------------------------
      | Init

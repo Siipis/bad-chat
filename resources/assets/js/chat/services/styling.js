@@ -46,7 +46,8 @@ app.factory('Styling', function ($rootScope, Settings) {
         '\\[s\\](.*)\\[\/s\\]': '<s>$1</s>',
         '\\[url=(.*)\\](.*)\\[\/url\\]': '<a href="$1" target="_blank" class="hoverable">$2</a>',
         '\\[url\\](.*)\\[\/url\\]': '<a href="$1" target="_blank" class="hoverable">$1</a>',
-        '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>'
+        '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>',
+        '(^| )(#[a-zA-Z_-]+)': '$1<a href="javascript:void(0);" class="joinable" title="Click to join $2!">$2</a>'
     };
 
 
