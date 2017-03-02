@@ -944,6 +944,24 @@ app.factory('Selectors', function() {
     obj.form = $('#chat-input form');
     obj.textarea = $('textarea', obj.form);
 
+    obj.image = {
+        overlay: $('#image-overlay'),
+        form: {
+            url: 'form#image-overlay-link',
+            upload: 'form#image-overlay-upload'
+        },
+        input: {
+            url: $('#image-overlay-link input'),
+            upload: $('#image-overlay-upload input')
+        }
+    };
+
+    obj.link = {
+        overlay: $('#link-overlay'),
+        form: 'form#link-overlay-form',
+        input: $('#link-overlay-form input')
+    };
+
     obj.emojilist = $('#emojilist');
     obj.emojiSelectorClass = 'emojiSelector';
 
@@ -1642,9 +1660,11 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         focus();
     };
 
-    $rootScope.addCode = function (code) {
+    $rootScope.addCode = function (code, url) {
         try {
-            var url;
+            if (url == undefined) {
+                url = false;
+            }
 
             function hasUrl(url) {
                 if (url === undefined || url == null) {
@@ -1667,9 +1687,25 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
             var selectedText = value.substring(selectionStart, selectionEnd);
             var beforeText = value.substring(0, selectionStart);
             var afterText = value.substring(selectionEnd, value.length);
+            
+            if (selectedText.length > 0) {
+                url = selectedText;
+            }
 
-            if (code === 'url' || code === 'img' && selectedText.length == 0) {
-                url = prompt('Where do you want to link to?');
+            if (code == 'url' && selectedText.length == 0 && !url) {
+                Selectors.link.overlay.modal();
+
+                Selectors.link.input.focus();
+
+                return;
+            }
+
+            if (code == 'img' && selectedText.length == 0 && !url) {
+                Selectors.image.overlay.modal();
+
+                Selectors.image.input.url.focus();
+
+                return;
             }
 
             var wrapText;
@@ -1823,6 +1859,40 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         e.preventDefault();
 
         submit();
+    });
+
+    // Modal form event handling for image URL's
+    $("body").on('submit', Selectors.image.form.url, function (e) {
+        e.preventDefault();
+
+        var input = $(this).serializeArray();
+
+        var url = input[1].value;
+
+        $rootScope.addCode('img', url);
+
+        $(this)[0].reset();
+
+        Selectors.image.overlay.modal('hide');
+
+        Selectors.textarea.focus();
+    });
+
+    // Modal form event handling for regular URL's
+    $("body").on('submit', Selectors.link.form, function (e) {
+        e.preventDefault();
+
+        var input = $(this).serializeArray();
+
+        var url = input[1].value;
+
+        $rootScope.addCode('url', url);
+
+        $(this)[0].reset();
+
+        Selectors.link.overlay.modal('hide');
+
+        Selectors.textarea.focus();
     });
 
 });

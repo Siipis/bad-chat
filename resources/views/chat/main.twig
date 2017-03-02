@@ -161,20 +161,32 @@ title: "{{ appName }}"
 
                 <!-- Begin: Emoji list -->
                 <div id="emojilist" ng-if="isEnabled && displayFormatting()">
-                    <div class="codeSelectors col-md-3">
-                        <button class="btn btn-xs btn-default" ng-click="addCode('b')">b</button>
-                        <button class="btn btn-xs btn-default" ng-click="addCode('i')">i</button>
-                        <button class="btn btn-xs btn-default" ng-click="addCode('u')">u</button>
-                        <button class="btn btn-xs btn-default" ng-click="addCode('s')">s</button>
-                        <button class="btn btn-xs btn-default" ng-click="addCode('url')">url</button>
-                        <button class="btn btn-xs btn-default" ng-click="addCode('img')">img</button>
-                    </div>
-
-                    <div class="col-md-9">
+                    <div class="col-md-8">
                         <div class="emojiSelector" ng-repeat="emoji in emojis" ng-click="addInput(emoji.code, true)"
                              title="{{ '{{  emoji.code }}' }}" ng-bind-html="emoji.img">{{ emoji.img }}</div>
 
                         <a href="http://emoji.codes/" target="_blank">More</a>
+                    </div>
+
+                    <div class="codeSelectors col-md-3 text-right">
+                        <button class="btn btn-xs btn-default" ng-click="addCode('b')">
+                            <i class="fa fa-bold"></i>
+                        </button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('i')">
+                            <i class="fa fa-italic"></i>
+                        </button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('u')">
+                            <i class="fa fa-underline"></i>
+                        </button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('s')">
+                            <i class="fa fa-strikethrough"></i>
+                        </button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('url')">
+                            <i class="fa fa-link"></i>
+                        </button>
+                        <button class="btn btn-xs btn-default" ng-click="addCode('img')">
+                            <i class="fa fa-image"></i>
+                        </button>
                     </div>
                 </div>
                 <!-- End: Emoji list -->
@@ -238,3 +250,5 @@ title: "{{ appName }}"
 </div>
 
 {% partial 'join' %}
+
+{% partial 'insert-links' %}

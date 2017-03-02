@@ -1,0 +1,71 @@
+<div class="modal fade" id="image-overlay" tabindex="-1" role="dialog" aria-labelledby="image-overlay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4>
+                    <i class="fa fa-image"></i>
+                    Image
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form" method="post" id="image-overlay-link">
+                    {{ csrf_field() }}
+
+                    <div class="form-group">
+                        <label for="inputUrl">Existing URL</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-link"></i>
+                            </span>
+                            <input type="text" name="url" id="inputUrl" class="form-control" placeholder="http://google.com/funny_image.jpg" required>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default">Insert</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="link-overlay" tabindex="-1" role="dialog" aria-labelledby="link-overlay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4>
+                    <i class="fa fa-link"></i>
+                    Link
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form" method="post" id="link-overlay-form">
+                    {{ csrf_field() }}
+
+                    <div class="form-group">
+                        <label for="inputUrl">Where do you want to link to?</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-link"></i>
+                            </span>
+                            <input type="text" name="url" id="inputUrl" class="form-control" placeholder="http://google.com" required>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default">Insert</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

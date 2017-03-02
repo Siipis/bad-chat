@@ -102,3 +102,15 @@ table {
     display: none;
   }
 }
+
+.input-group {
+  input[type="file"] {
+    height: auto;
+
+  & + .input-group-btn {
+    button {
+      height: 44px;
+    }
+  }
+  }
+}

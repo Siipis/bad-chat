@@ -273,6 +273,8 @@ html, body, #chat-body {
         max-width: 30vw;
         max-height: 30vh;
         padding: 5px;
+
+        cursor: zoom-in;
       }
 
       .identifier {
@@ -349,7 +351,7 @@ html, body, #chat-body {
         display: inline-block;
 
         button {
-          font-weight: bold;
+          padding: 3px 6px;
         }
       }
 
@@ -391,7 +393,7 @@ html, body, #chat-body {
     #chat-input {
       height: 6em;
 
-      padding: @padding-base-vertical @padding-base-vertical @padding-large-vertical @padding-base-vertical;
+      padding: 6px @padding-base-vertical 10px @padding-base-vertical;
 
       div, form, textarea {
         height: 100%;
@@ -403,6 +405,7 @@ html, body, #chat-body {
 
       textarea {
         width: 100%;
+        resize: none;
 
         .generate-colors(28);
 
