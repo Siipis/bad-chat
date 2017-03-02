@@ -240,7 +240,9 @@ class Message extends Model
     {
         $instance = new static;
 
-        $latest = $instance->channel($channel)->target(\Auth::user())->orderBy('id', 'desc');
+        $longAgo = Carbon::now()->subDays(3);
+
+        $latest = $instance->channel($channel)->target(\Auth::user())->where('created_at', '>', $longAgo)->orderBy('id', 'desc');
 
         if ($take > 0) {
             $latest = $latest->take($take + 1)->get()->last();
