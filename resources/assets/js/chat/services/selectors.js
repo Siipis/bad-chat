@@ -18,15 +18,15 @@ app.factory('Selectors', function() {
             upload: 'form#image-overlay-upload'
         },
         input: {
-            url: $('#image-overlay-link input'),
-            upload: $('#image-overlay-upload input')
+            url: $('#image-overlay-link #inputUrl'),
+            upload: $('#image-overlay-upload #inputUpload')
         }
     };
 
     obj.link = {
         overlay: $('#link-overlay'),
         form: 'form#link-overlay-form',
-        input: $('#link-overlay-form input')
+        input: $('#link-overlay-form #inputLink')
     };
 
     obj.emojilist = $('#emojilist');

@@ -951,15 +951,15 @@ app.factory('Selectors', function() {
             upload: 'form#image-overlay-upload'
         },
         input: {
-            url: $('#image-overlay-link input'),
-            upload: $('#image-overlay-upload input')
+            url: $('#image-overlay-link #inputUrl'),
+            upload: $('#image-overlay-upload #inputUpload')
         }
     };
 
     obj.link = {
         overlay: $('#link-overlay'),
         form: 'form#link-overlay-form',
-        input: $('#link-overlay-form input')
+        input: $('#link-overlay-form #inputLink')
     };
 
     obj.emojilist = $('#emojilist');
@@ -1594,6 +1594,18 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         Ajax.joinable(); // pre-load available channels
     });
 
+    // Init modals
+    $(document).ready (function() {
+        var modals = $('modal');
+
+        modals.modal('hide');
+
+        modals.on('shown.bs.modal', function() {
+            $(this).find("input:visible:first").focus();
+        });
+    });
+
+
     $(window).unload(function () {
         $rootScope.disable();
     });
@@ -1696,23 +1708,19 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
             var selectedText = value.substring(selectionStart, selectionEnd);
             var beforeText = value.substring(0, selectionStart);
             var afterText = value.substring(selectionEnd, value.length);
-            
+
             if (selectedText.length > 0) {
                 url = selectedText;
             }
 
             if (code == 'url' && selectedText.length == 0 && !url) {
-                Selectors.link.overlay.modal();
-
-                Selectors.link.input.focus();
+                Selectors.link.overlay.modal('show');
 
                 return;
             }
 
             if (code == 'img' && selectedText.length == 0 && !url) {
-                Selectors.image.overlay.modal();
-
-                Selectors.image.input.url.focus();
+                Selectors.image.overlay.modal('show');
 
                 return;
             }
@@ -1810,7 +1818,7 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
      |
      */
 
-    Selectors.textarea.keypress(function (e) {
+    Selectors.textarea.keydown(function (e) {
         try {
             // Enter
             if (e.which == 13 && !e.shiftKey || e.keyCode == 13 && !e.shiftKey) {
@@ -1871,7 +1879,7 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
     });
 
     // Modal form event handling for image URL's
-    $("body").on('submit', Selectors.image.form.url, function (e) {
+    $(document).on('submit', Selectors.image.form.url, function (e) {
         e.preventDefault();
 
         var input = $(this).serializeArray();
@@ -1888,7 +1896,7 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
     });
 
     // Modal form event handling for regular URL's
-    $("body").on('submit', Selectors.link.form, function (e) {
+    $(document).on('submit', Selectors.link.form, function (e) {
         e.preventDefault();
 
         var input = $(this).serializeArray();

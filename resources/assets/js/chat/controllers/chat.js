@@ -384,6 +384,18 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         Ajax.joinable(); // pre-load available channels
     });
 
+    // Init modals
+    $(document).ready (function() {
+        var modals = $('modal');
+
+        modals.modal('hide');
+
+        modals.on('shown.bs.modal', function() {
+            $(this).find("input:visible:first").focus();
+        });
+    });
+
+
     $(window).unload(function () {
         $rootScope.disable();
     });

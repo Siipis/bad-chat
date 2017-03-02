@@ -1,4 +1,4 @@
-<div class="modal fade" id="image-overlay" tabindex="-1" role="dialog" aria-labelledby="image-overlay">
+<div class="modal fade" id="image-overlay" role="dialog" aria-labelledby="image-overlay">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="link-overlay" tabindex="-1" role="dialog" aria-labelledby="link-overlay">
+<div class="modal fade" id="link-overlay" role="dialog" aria-labelledby="link-overlay">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -50,12 +50,12 @@
                     {{ csrf_field() }}
 
                     <div class="form-group">
-                        <label for="inputUrl">Where do you want to link to?</label>
+                        <label for="inputLink">Where do you want to link to?</label>
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i class="fa fa-link"></i>
                             </span>
-                            <input type="text" name="url" id="inputUrl" class="form-control" placeholder="http://google.com" required>
+                            <input type="text" name="url" id="inputLink" class="form-control" placeholder="http://google.com" required>
                             <div class="input-group-btn">
                                 <button class="btn btn-default">Insert</button>
                             </div>
