@@ -246,7 +246,7 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
             }
 
             // Tab
-            if (e.which == 9 || e.keyCode == 9) {
+            if (e.which == 9 && !e.ctrlKey || e.keyCode == 9 && !e.ctrlKey) {
                 e.preventDefault();
 
                 TabHelper.init(getInput());
