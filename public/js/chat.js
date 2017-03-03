@@ -1519,6 +1519,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         Selectors.join.modal('hide');
     });
 
+    // @url https://github.com/sandywalker/webui-popover
     $(document).on('mouseover', 'a.hoverable', function () {
         if ($(window).width() < 600 || $(window).height() < 600) {
             return;
@@ -1527,12 +1528,8 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         var link = this;
 
         function popover(meta) {
-            if (meta.title === undefined) {
-                meta.title = '[no title found]';
-            }
-
-            if (meta.description === undefined) {
-                meta.description = '[no description found]';
+            if (meta.title.length == 0 && meta.description.length == 0) {
+                return;
             }
 
             var template = '<div class="popover" role="tooltip">' +
@@ -1546,6 +1543,12 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
                 title: meta.title,
                 content: meta.description,
                 trigger: 'hover',
+                cache: false,
+                delay: {
+                    show: 500,
+                    hide: null
+                },
+                autoHide: 5000,
                 template: template
             });
 
