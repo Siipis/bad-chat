@@ -8,6 +8,7 @@ use App\Online;
 use App\Traits\ChannelMessage;
 use App\Traits\TargettedMessage;
 use App\Traits\UserMessage;
+use App\User;
 use Auth;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -20,6 +21,29 @@ class System extends Message
     protected $attributes = [
         'type' => 'system'
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    |
+    | Helpers for common messages
+    |
+    */
+
+    public static function announceLogout(User $user, $channels)
+    {
+        foreach ($channels as $channel) {
+            if ($channel instanceof Channel) {
+                $channel->messages()->save(new self([
+                    'message' => 'logout',
+                    'context' => [
+                        'user' => $user->name,
+                    ]
+                ]));
+            }
+        }
+    }
 
     /*
     |--------------------------------------------------------------------------

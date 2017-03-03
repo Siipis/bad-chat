@@ -193,6 +193,7 @@ namespace App{
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property string $logout_at
+ * @property boolean $closed
  * @property-read \App\User $user
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Channel[] $channels
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Online[] $onlines
@@ -204,8 +205,9 @@ namespace App{
  * @method static \Illuminate\Database\Query\Builder|\App\Login whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Login whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Login whereLogoutAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Login whereClosed($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Login online()
- * @method static \Illuminate\Database\Query\Builder|\App\Login user($user)
+ * @method static \Illuminate\Database\Query\Builder|\App\Login userId($user)
  * @method static \Illuminate\Database\Query\Builder|\App\Login expired()
  */
 	class Login extends \Eloquent {}

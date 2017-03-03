@@ -248,11 +248,7 @@ class ChatController extends Controller
             $login = Login::active($auth);
 
             if (is_null($login) || is_null($auth)) {
-                Log::debug('No login was found.', [
-                    'IP' => $request->ip(),
-                    'Auth' => $auth,
-                    'URL' => $request->fullUrl(),
-                ]);
+                Auth::logout();
 
                 return response('Logging out.', 307);
             }

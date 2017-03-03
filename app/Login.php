@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Models\Message\System;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +51,7 @@ class Login extends Model
         return $query->whereNull('logout_at');
     }
 
-    public function scopeUser($query, User $user)
+    public function scopeUserId($query, User $user)
     {
         return $query->where('user_id', $user->id);
     }
@@ -99,11 +98,8 @@ class Login extends Model
         $user = Auth::user();
 
         if (!is_null($login = self::active($user))) {
-            // TODO: log behaviour as suspicious
-
-            $login->touch();
-
-            return false;
+            // Close the previous session
+            $login->close();
         }
 
         $login = new self;
@@ -114,7 +110,7 @@ class Login extends Model
 
         $login->save();
 
-        Session::set('login', $login->id); // Store login instance in case of disconnects
+        Session::set('login', $login->id); // Store the current login instance
 
         return true;
     }
@@ -127,22 +123,39 @@ class Login extends Model
 
         if (is_null($login)) {
             // Default to looking for an active login
-            $login = $instance->online()->user($user)->first();
+            $login = $instance->online()->userId($user)->first();
         }
 
         if (!is_null($login)) {
-            $ip = $_SERVER['REMOTE_ADDR'];
-            $agent = $_SERVER['HTTP_USER_AGENT'];
+            if (config('security.verify.agent')) {
+                $agent = $_SERVER['HTTP_USER_AGENT'];
 
-            if ($login->agent == $agent) {
-                if ($login->ip != $ip) {
-                    $login->ip = $ip;
-
-                    $login->save();
+                if ($login->agent != $agent) {
+                    return false;
                 }
-
-                return true;
             }
+
+            if (config('security.verify.ip')) {
+                $ip = $_SERVER['REMOTE_ADDR'];
+
+                if ($login->ip != $ip) {
+                    if (config('security.allow.ipChange')) {
+                        $login->ip = $ip;
+
+                        $login->save();
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+            if (config('security.verify.session')) {
+                if ($login->id != Session::get('login')) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         return false;
@@ -155,12 +168,14 @@ class Login extends Model
 
             $login = $instance->find(Session::get('login'));
 
-            if ($login->user->id == Auth::id() && $instance->verify($login)) {
+            if (!$login->isClosed() && $login->user->id == Auth::id() && $instance->verify($login)) {
                 $login->unLogout();
 
                 return true;
             }
         }
+
+        Login::logout();
 
         return false;
     }
@@ -172,7 +187,7 @@ class Login extends Model
      * @return bool
      * @throws \Exception
      */
-    public static function logout(User $user = null)
+    public static function logout(User $user = null, $clearSession = true)
     {
         if (is_null($user)) {
             if (Auth::guest()) {
@@ -182,31 +197,23 @@ class Login extends Model
             $user = Auth::user();
         }
 
-        Auth::logout();
-
         $login = Login::active($user);
 
         if ($login instanceof Login) {
-            foreach ($login->channels as $channel) {
-                $channel->messages()->save(new System([
-                    'message' => 'logout',
-                    'context' => [
-                        'user' => $user->name,
-                    ]
-                ]));
-            }
-
-            foreach ($login->onlines as $online) {
-                $online->delete();
-            }
+            Online::logout($user);
 
             $login->touchLogout();
-
-            return true;
         }
 
-        return false;
+        if ($clearSession && Auth::id() == $user->id) {
+            Auth::logout();
+
+            Session::remove('login');
+        }
+
+        return true;
     }
+
 
     /**
      * Returns an active login if one exists
@@ -216,11 +223,21 @@ class Login extends Model
      */
     public static function active(User $user)
     {
-        $expires = Carbon::now()->subMinutes(config('chat.login.timeout'));
-
         $instance = new static;
 
-        return $instance->newQuery()->where('updated_at', '>', $expires)->whereNull('logout_at')->where('user_id', $user->id)->first();
+        $expires = Carbon::now()->subMinutes(config('chat.login.timeout'));
+
+        $query = $instance->newQuery()->where('updated_at', '>', $expires)->whereNull('logout_at')->where('user_id', $user->id);
+
+        // If a session key exists, use it to fetch the login instance
+        if (Session::has('login')) {
+            $session = (int) Session::get('login');
+
+            return $query->where('id', $session)->first();
+        }
+
+        // Otherwise, fetch the latest active login
+        return $query->first();
     }
 
     /**
@@ -267,6 +284,27 @@ class Login extends Model
     }
 
     /**
+     * Returns true if a login has been closed
+     *
+     * @return bool
+     */
+    public function isClosed()
+    {
+        return $this->closed;
+    }
+
+    /**
+     * Sets the login to closed
+     */
+    public function close()
+    {
+        self::logout($this->user, false);
+
+        $this->closed = true;
+        $this->save();
+    }
+
+    /**
      * Clears all channels of expired logins
      */
     public static function clearChannels()
@@ -274,26 +312,9 @@ class Login extends Model
         foreach (self::expired()->get() as $login) {
             $login->touchLogout();
 
-            foreach ($login->onlines as $online) {
-                if ($online instanceof Online) {
-                    $channel = $online->channel;
-
-                    $system = new System([
-                        'message' => 'timeout',
-                        'context' => [
-                            'user' => $login->user->name
-                        ],
-                    ]);
-
-                    $channel->messages()->save($system);
-
-                    $online->delete();
-                }
-            }
+            Online::timeout($login);
         }
     }
-
-
 
     /*
     |--------------------------------------------------------------------------

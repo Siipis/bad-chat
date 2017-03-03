@@ -18,15 +18,13 @@ class VerifyOnline
      */
     public function handle($request, Closure $next)
     {
-        // TODO: figure out why this fails
-        
         if (Auth::guest()) {
             return $this->noAccessResponse($request);
         } else {
             $user = Auth::user();
 
             if (!is_null($login = Login::active($user))) {
-                if (!Login::verify()) {
+                if ($login->isClosed() || !Login::verify()) {
                     return $this->noAccessResponse($request);
                 }
 

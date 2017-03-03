@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\Message\System;
 use Illuminate\Database\Eloquent\Model;
 
 class Online extends Model
@@ -62,6 +63,47 @@ class Online extends Model
     {
         foreach (self::all() as $online) {
             if ($online->login->isLoggedOut()) {
+                $online->delete();
+            }
+        }
+    }
+
+    public static function logout(User $user, Login $login = null)
+    {
+        $logins = collect();
+
+        if ($login instanceof Login) {
+            $logins->push($login);
+        } else {
+            $logins = Login::online()->userId($user)->get();
+        }
+
+        foreach ($logins as $login) {
+            if ($login instanceof Login) {
+                System::announceLogout($user, $login->channels);
+
+                foreach ($login->onlines as $online) {
+                    $online->delete();
+                }
+            }
+        }
+    }
+
+    public static function timeout(Login $login)
+    {
+        foreach ($login->onlines as $online) {
+            if ($online instanceof Online) {
+                $channel = $online->channel;
+
+                $system = new System([
+                    'message' => 'timeout',
+                    'context' => [
+                        'user' => $login->user->name
+                    ],
+                ]);
+
+                $channel->messages()->save($system);
+
                 $online->delete();
             }
         }
