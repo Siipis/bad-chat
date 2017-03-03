@@ -229,11 +229,13 @@ class Login extends Model
 
         $query = $instance->newQuery()->where('updated_at', '>', $expires)->whereNull('logout_at')->where('user_id', $user->id);
 
-        // If a session key exists, use it to fetch the login instance
-        if (Session::has('login')) {
-            $session = (int) Session::get('login');
+        if ($user == Auth::user()) {
+            // If a session key exists, use it to fetch the login instance
+            if (Session::has('login')) {
+                $session = (int) Session::get('login');
 
-            return $query->where('id', $session)->first();
+                return $query->where('id', $session)->first();
+            }
         }
 
         // Otherwise, fetch the latest active login
