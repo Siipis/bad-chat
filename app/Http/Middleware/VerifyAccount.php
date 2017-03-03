@@ -34,7 +34,7 @@ class VerifyAccount
                         $channel->messages()->save(new System([
                             'message' => $message,
                             'context' => [
-                                'user' => $user->name,
+                                'target' => $user->name,
                             ]
                         ]));
                     }

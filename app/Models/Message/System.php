@@ -49,209 +49,223 @@ class System extends Message
 
     public function getMessageAttribute($message)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Login messages
-        |--------------------------------------------------------------------------
-        |
-        | Login specific messages
-        |
-        */
+        try {
+            /*
+            |--------------------------------------------------------------------------
+            | Login messages
+            |--------------------------------------------------------------------------
+            |
+            | Login specific messages
+            |
+            */
 
-        if ($message == 'join') {
-            $user = $this->context['user'];
+            if ($message == 'join') {
+                $user = $this->context['user'];
 
-            return "$user joins the channel.";
-        }
-
-        if ($message == 'part') {
-            $user = $this->context['user'];
-
-            return "$user leaves the channel.";
-        }
-
-        if ($message == 'logout') {
-            $user = $this->context['user'];
-
-            return "$user logs out from chat.";
-        }
-
-        if ($message == 'force_logout') {
-            return "You have been logged out.";
-        }
-
-        if ($message == 'timeout') {
-            $user = $this->context['user'];
-
-            return "$user's connection timed out.";
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Channel
-        |--------------------------------------------------------------------------
-        |
-        | Channel specific messages
-        |
-        */
-        if ($message == 'topic') {
-            $user = $this->context['user'];
-            $topic = $this->context['topic'];
-
-            return "$user set the topic to \"$topic\".";
-        }
-
-        if ($message == 'current_topic') {
-            return $this->context;
-        }
-
-        if ($message == 'settings') {
-            $user = $this->context['user'];
-            $command = $this->context['command'];
-            $option = $this->context['option'];
-
-            if ($command == 'access') {
-                return "$user set the channel visibility to $option.";
+                return "$user joins the channel.";
             }
 
-            if ($command == 'persist') {
-                $expires = $option == 'on' ? 'never expire' : 'expire when unused';
+            if ($message == 'part') {
+                $user = $this->context['user'];
 
-                return "$user set the channel to $expires.";
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statuses
-        |--------------------------------------------------------------------------
-        |
-        | Status specific messages
-        |
-        */
-
-        if ($message == 'status') {
-            $user = $this->context['user'];
-            $status = $this->context['status'];
-
-            if ($status == 'online') {
-                return "$user has returned.";
+                return "$user leaves the channel.";
             }
 
-            $persist = Online::getPersistStatuses();
+            if ($message == 'logout') {
+                $user = $this->context['user'];
 
-            $verb = in_array($status, $persist) ? 'busy' : 'away';
-
-            return "$user is $verb: $status.";
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Staff
-        |--------------------------------------------------------------------------
-        |
-        | Staff and moderation messages
-        |
-        */
-
-        if ($message == 'promote') {
-            $user = $this->context['user'];
-            $target = $this->context['target'];
-            $role = $this->context['role'];
-
-            return "$user promoted $target to $role.";
-        }
-
-        if ($message == 'demote') {
-            $user = $this->context['user'];
-            $target = $this->context['target'];
-            $role = $this->context['role'];
-
-            return "$user demoted $target to $role.";
-        }
-
-        if ($message == 'suspended') {
-            return "$this->context has been suspended from chat.";
-        }
-
-        if ($message == 'banned') {
-            $user = $this->context['user'];
-            $target = $this->context['target'];
-
-            if (Auth::user()->isStaff() && !is_null($user)) {
-                return "$user banned $target from chat.";
+                return "$user logs out from chat.";
             }
 
-            return "$target was banned from chat.";
-        }
-
-        if ($message == 'unbanned') {
-            $user = $this->context['user'];
-            $target = $this->context['target'];
-
-            if (Auth::user()->isStaff()) {
-                return "$user revoked $target's ban.";
+            if ($message == 'force_logout') {
+                return "You have been logged out.";
             }
 
-            return "$target's ban has been revoked.";
-        }
+            if ($message == 'timeout') {
+                $user = $this->context['user'];
 
-        if ($message == 'kick') {
-            $channel = $this->context['channel'];
+                return "$user's connection timed out.";
+            }
 
-            return "You have been kicked from $channel.";
-        }
+            /*
+            |--------------------------------------------------------------------------
+            | Channel
+            |--------------------------------------------------------------------------
+            |
+            | Channel specific messages
+            |
+            */
+            if ($message == 'topic') {
+                $user = $this->context['user'];
+                $topic = $this->context['topic'];
 
-        if ($message == 'kicked') {
-            $user = $this->context['user'];
-            $target = $this->context['target'];
+                return "$user set the topic to \"$topic\".";
+            }
 
-            if ($this->channel instanceof Channel) {
-                if ($this->channel->isStaff(Auth::user())) {
-                    return "$user kicked $target from the channel.";
+            if ($message == 'current_topic') {
+                return $this->context;
+            }
+
+            if ($message == 'settings') {
+                $user = $this->context['user'];
+                $command = $this->context['command'];
+                $option = $this->context['option'];
+
+                if ($command == 'access') {
+                    return "$user set the channel visibility to $option.";
+                }
+
+                if ($command == 'persist') {
+                    $expires = $option == 'on' ? 'never expire' : 'expire when unused';
+
+                    return "$user set the channel to $expires.";
                 }
             }
 
-            return "$target was kicked from the channel.";
-        }
+            /*
+            |--------------------------------------------------------------------------
+            | Statuses
+            |--------------------------------------------------------------------------
+            |
+            | Status specific messages
+            |
+            */
 
-        /*
-        |--------------------------------------------------------------------------
-        | Actions
-        |--------------------------------------------------------------------------
-        |
-        | Action specific messages
-        |
-        */
+            if ($message == 'status') {
+                $user = $this->context['user'];
+                $status = $this->context['status'];
 
-        if ($message == 'roll') {
-            $user = $this->context['user'];
-            $roll = $this->context['roll'];
-            $result = $this->context['result'];
-            $total = $this->context['total'];
+                if ($status == 'online') {
+                    return "$user has returned.";
+                }
 
-            if (count($result) == 1) {
-                return "$user rolled $roll and got $total.";
+                $persist = Online::getPersistStatuses();
+
+                $verb = in_array($status, $persist) ? 'busy' : 'away';
+
+                return "$user is $verb: $status.";
             }
 
-            $resultList = implode(', ', $result);
+            /*
+            |--------------------------------------------------------------------------
+            | Staff
+            |--------------------------------------------------------------------------
+            |
+            | Staff and moderation messages
+            |
+            */
 
-            return "$user rolled $roll and got $total. (The rolls were $resultList.)";
+            if ($message == 'promote') {
+                $user = $this->context['user'];
+                $target = $this->context['target'];
+                $role = $this->context['role'];
+
+                return "$user promoted $target to $role.";
+            }
+
+            if ($message == 'demote') {
+                $user = $this->context['user'];
+                $target = $this->context['target'];
+                $role = $this->context['role'];
+
+                return "$user demoted $target to $role.";
+            }
+
+            if ($message == 'suspended') {
+                return "$this->context has been suspended from chat.";
+            }
+
+            if ($message == 'banned') {
+                $user = isset($this->context['user']) ? $this->context['user'] : "A staff member";
+                $target = isset($this->context['target']) ? $this->context['target'] : "someone";
+
+                if (Auth::user()->isStaff() && !is_null($user)) {
+                    return "$user banned $target from chat.";
+                }
+
+                return "$target was banned from chat.";
+            }
+
+            if ($message == 'unbanned') {
+                $user = $this->context['user'];
+                $target = $this->context['target'];
+
+                if (Auth::user()->isStaff()) {
+                    return "$user revoked $target's ban.";
+                }
+
+                return "$target's ban has been revoked.";
+            }
+
+            if ($message == 'kick') {
+                $channel = $this->context['channel'];
+
+                return "You have been kicked from $channel.";
+            }
+
+            if ($message == 'kicked') {
+                $user = $this->context['user'];
+                $target = $this->context['target'];
+
+                if ($this->channel instanceof Channel) {
+                    if ($this->channel->isStaff(Auth::user())) {
+                        return "$user kicked $target from the channel.";
+                    }
+                }
+
+                return "$target was kicked from the channel.";
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actions
+            |--------------------------------------------------------------------------
+            |
+            | Action specific messages
+            |
+            */
+
+            if ($message == 'roll') {
+                $user = $this->context['user'];
+                $roll = $this->context['roll'];
+                $result = $this->context['result'];
+                $total = $this->context['total'];
+
+                if (count($result) == 1) {
+                    return "$user rolled $roll and got $total.";
+                }
+
+                $resultList = implode(', ', $result);
+
+                return "$user rolled $roll and got $total. (The rolls were $resultList.)";
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Data
+            |--------------------------------------------------------------------------
+            |
+            | Data messages used for backend
+            |
+            */
+
+            if ($message == 'delete_row') {
+                return $this->context;
+            }
+
+        } catch (\Exception $e) {
+            return "A database error occurred. Please report this!";
         }
-
 
         /*
         |--------------------------------------------------------------------------
-        | Data
+        | Default
         |--------------------------------------------------------------------------
         |
-        | Data messages used for backend
+        | Return the unmodified message by default
         |
         */
-
-        if ($message == 'delete_row') {
-            return $this->context;
-        }
 
         return $message;
     }
