@@ -5,7 +5,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                <h5 class="modal-title">Create or join a channel</h5>
+                <h4>Create or join a channel</h4>
             </div>
             <div class="modal-body">
                 <form class="form-inline" id="join-form">
@@ -40,14 +40,16 @@
                         <th>{{ '{{ channel.name }}' }}</th>
                         <td>{{ '{{ channel.chatting }}' }}</td>
                         <td class="text-right">
-                            <button class="btn btn-default" ng-click="joinChannel(channel.name)">Join</button>
+                            <button class="btn btn-sm btn-default" ng-click="joinChannel(channel.name)">
+                                <i class="glyphicon glyphicon-ok"></i>
+                            </button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-danger">Cancel</button>
+                <button type="button" data-dismiss="modal" class="btn btn-danger">Close</button>
             </div>
         </div>
     </div>
