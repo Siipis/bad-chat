@@ -133,7 +133,7 @@ class ChatController extends Controller
             $auth = Auth::user();
 
             if ($auth->isSuspended()) {
-                Log::debug('User is suspended.', [
+                Log::debug('User is suspended in '. __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
@@ -248,13 +248,19 @@ class ChatController extends Controller
             $login = Login::active($auth);
 
             if (is_null($login) || is_null($auth)) {
+                Log::debug('No valid login was found in '. __FUNCTION__, [
+                    'IP' => $request->ip(),
+                    'Auth' => $auth,
+                    'URL' => $request->fullUrl(),
+                ]);
+
                 Auth::logout();
 
                 return response('Logging out.', 307);
             }
 
             if ($login->channels->count() == 0 || $auth->isSuspended()) {
-                Log::debug('Invalid login status.', [
+                Log::debug('Invalid login status in '. __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
@@ -391,7 +397,7 @@ class ChatController extends Controller
             $message = $this->getMessage($request);
 
             if ($login->channels->count() == 0 || $auth->isSuspended()) {
-                Log::debug('Invalid login status.', [
+                Log::debug('Invalid login status in '. __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
