@@ -96,7 +96,6 @@ title: "{{ appName }}"
     {% partial 'alert' %}
 
     <div class="container-fluid" id="chat-container" ng-controller="chatController">
-        {% partial 'commands' %}
 
         <div class="row">
             <div class="col-md-10" id="chat-frame">
@@ -116,6 +115,16 @@ title: "{{ appName }}"
                     </ul>
                 </div>
                 <!-- End: Channels -->
+
+                <!-- Begin: Error window -->
+                <div id="chat-errors" ng-if="!isEnabled">
+                    <h3>{{ '{{  error.title }}' }}</h3>
+                    <p ng-bind-html="error.message"></p>
+
+                    <br />
+                    <a href="{{ url('/') }}" class="text-info">Reload the page</a>
+                </div>
+                <!-- End: Error window -->
 
                 <!-- Begin: Chat window -->
                 <div id="chat-window" ng-if="isEnabled">
@@ -148,16 +157,6 @@ title: "{{ appName }}"
                     </div>
                 </div>
                 <!-- End: Chat window -->
-
-                <!-- Begin: Error window -->
-                <div class="text-center" ng-if="!isEnabled">
-                    <h3>{{ '{{  error.title }}' }}</h3>
-                    <p ng-bind-html="error.message"></p>
-
-                    <br />
-                    <a href="{{ url('/') }}" class="text-info">Reload the page</a>
-                </div>
-                <!-- End: Error window -->
 
                 <!-- Begin: Emoji list -->
                 <div id="emojilist" ng-if="isEnabled && displayFormatting()">
@@ -248,6 +247,8 @@ title: "{{ appName }}"
         </div>
     </div>
 </div>
+
+{% partial 'commands' %}
 
 {% partial 'join' %}
 

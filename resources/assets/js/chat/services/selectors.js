@@ -3,6 +3,7 @@ app.factory('Selectors', function() {
 
     obj.fadeIn = $('.fade-in');
     obj.chat = $('#chat-container');
+    obj.errors = $('#chat-errors');
     obj.overlay = $('#overlay');
     obj.commands = $('#commands-overlay');
     obj.join = $('#join-overlay');

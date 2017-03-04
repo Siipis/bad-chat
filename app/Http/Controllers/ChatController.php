@@ -340,7 +340,19 @@ class ChatController extends Controller
                 return $obj;
             });
 
-            $data = [
+            // If the current channel is no longer available...
+            if(!$login->channels->contains($channel)) {
+                $channel = $login->channels->first();
+
+                $request->merge([
+                    'channel' => $channel->toArray(),
+                ]);
+
+                return $this->postUpdate($request);
+            }
+
+            // Otherwise, prepare the data
+                $data = [
                 'channel' => $channel,
                 'channels' => $channels,
                 'users' => $users,

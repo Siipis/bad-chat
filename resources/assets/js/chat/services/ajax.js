@@ -18,7 +18,6 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
 
     $(window).unload(function () {
         disableAjax = true;
-        console.log('Exiting...');
     });
 
     /*
@@ -86,6 +85,8 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
      * @param {int} response
      */
     function handleError(response) {
+        console.log('HTTP error: '+ response.status);
+
         if (response.status == -1) {
             if (connectionAttempts >= maxTimeouts) {
                 $rootScope.$broadcast('reload');

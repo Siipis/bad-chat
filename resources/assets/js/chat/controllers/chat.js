@@ -35,6 +35,8 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
                 $scope.$broadcast('focusInput');
             });
 
+            Selectors.errors.hide();
+
             Selectors.overlay.fadeOut('slow');
         }
     };
@@ -43,9 +45,27 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         if ($scope.isEnabled) {
             $scope.isEnabled = false;
 
+            $('.modal').modal('hide'); // Hide all modals
+
+            Selectors.errors.hide();
+
             Selectors.overlay.fadeIn('slow');
 
             Selectors.fadeIn.fadeOut('slow');
+        }
+    };
+
+    $rootScope.stop = function () {
+        if ($scope.isEnabled) {
+            $scope.isEnabled = false;
+
+            $('.modal').modal('hide'); // Hide all modals
+
+            Selectors.overlay.fadeOut(100);
+
+            Selectors.fadeIn.fadeIn(100);
+
+            Selectors.errors.fadeIn('slow');
         }
     };
 
@@ -62,8 +82,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         }
 
         if ($scope.isEnabled) {
-            $rootScope.disable();
-            Selectors.join.modal('hide');
+            $rootScope.stop();
 
             $scope.error.title = title;
             $scope.error.message = $sce.trustAsHtml(message);
