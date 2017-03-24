@@ -1,4 +1,4 @@
-app.controller('inputController', function ($scope, $rootScope, Data, TabHelper, Selectors) {
+app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabHelper, Selectors) {
     /**
      * String to append in beginning of all inputs
      * @type {string}
@@ -267,7 +267,7 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
     });
 
     // Modal form event handling for image URL's
-    $(document).on('submit', Selectors.image.form.url, function (e) {
+    $(document).on('submit', Selectors.image.form.link, function (e) {
         e.preventDefault();
 
         var input = $(this).serializeArray();
@@ -281,6 +281,45 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         Selectors.image.overlay.modal('hide');
 
         Selectors.textarea.focus();
+    });
+
+
+    var uploadedFile; // workaround for reading the file
+
+    // Modal form event handling for image uploads
+    $(document).on('submit', Selectors.image.form.upload, function (e) {
+        e.preventDefault();
+
+        if (uploadedFile) {
+            var data = new FormData();
+            var filename = $(Selectors.image.input.upload).val();
+
+            data.append('file', uploadedFile);
+            Ajax.upload(data);
+
+            $rootScope.addCode('img', 'upload::'+ filename);
+        }
+
+        $(this)[0].reset();
+
+        Selectors.image.overlay.modal('hide');
+
+        Selectors.textarea.focus();
+    });
+
+    // Image upload preview
+    $(document).on('change', Selectors.image.input.upload, function (e) {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                uploadedFile = e.target.result;
+
+                Selectors.image.preview.attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(this.files[0]);
+        }
     });
 
     // Modal form event handling for regular URL's
@@ -300,4 +339,12 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         Selectors.textarea.focus();
     });
 
+    // Reset all modal forms on close
+    $('.modal').on('hidden.bs.modal', function (e) {
+        $('form', this).each(function() {
+            this.reset();
+        });
+
+        Selectors.image.preview.attr('src', '');
+    })
 });

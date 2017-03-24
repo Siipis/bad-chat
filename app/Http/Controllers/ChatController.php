@@ -449,28 +449,68 @@ class ChatController extends Controller
         }
     }
 
+    public function postUpload(Requests\UploadRequest $request)
+    {
+        try {
+            dd($_FILES['file']);
+
+//            $file = $request->file('file');
+
+            $upload = \Image::make($request->get('file'));
+
+            dd($upload);
+
+            $upload->fit(
+                config('image.maxWidth'),
+                config('image.maxHeight')
+            );
+
+            $storage = config('image.storage');
+            $date = Carbon::now()->toDateString();
+            $user = Auth::user()->name;
+            $name = $file->getClientOriginalName();
+
+            $filename = "$storage/$date-$user-$name";
+
+            $upload->save($filename);
+
+            $response = [
+                'exists' => \File::exists($filename),
+                'image' => $name,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response($e->getMessage(), 500);
+        }
+    }
+
     public function getJoinable()
     {
-        $auth = Auth::user();
+        try {
+            $auth = Auth::user();
 
-        $channels = [];
+            $channels = [];
 
-        foreach (Channel::all()->sortBy('name') as $channel) {
-            if ($channel instanceof Channel) {
-                if ($channel->canJoin($auth)) {
-                    $chatting = $channel->online->map(function(Online $online) {
-                        return $online->login->user->name;
-                    });
+            foreach (Channel::all()->sortBy('name') as $channel) {
+                if ($channel instanceof Channel) {
+                    if ($channel->canJoin($auth)) {
+                        $chatting = $channel->online->map(function(Online $online) {
+                            return $online->login->user->name;
+                        });
 
-                    $channel->chatting = count($chatting) > 0 ? $chatting->implode(', ') : '--';
-                    $channel->topic = ''; // save bandwidth
+                        $channel->chatting = count($chatting) > 0 ? $chatting->implode(', ') : '--';
+                        $channel->topic = ''; // save bandwidth
 
-                    array_push($channels, $channel);
+                        array_push($channels, $channel);
+                    }
                 }
             }
-        }
 
-        return response()->json($channels);
+            return response()->json($channels);
+        } catch (\Exception $e) {
+            return response('Please relog.', 408);
+        }
     }
 
     /**

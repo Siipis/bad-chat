@@ -15,19 +15,20 @@ app.factory('Selectors', function() {
     obj.image = {
         overlay: $('#image-overlay'),
         form: {
-            url: 'form#image-overlay-link',
-            upload: 'form#image-overlay-upload'
+            link: 'form#image-overlay__link',
+            upload: 'form#image-overlay__upload'
         },
         input: {
-            url: $('#image-overlay-link #inputUrl'),
-            upload: $('#image-overlay-upload #inputUpload')
-        }
+            link: 'input#inputUrl',
+            upload: 'input#inputUpload'
+        },
+        preview: $('img#image-preview')
     };
 
     obj.link = {
         overlay: $('#link-overlay'),
-        form: 'form#link-overlay-form',
-        input: $('#link-overlay-form #inputLink')
+        form: 'form#link-overlay__form',
+        input: $('input#inputLink')
     };
 
     obj.emojilist = $('#emojilist');

@@ -124,6 +124,12 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             return;
         }
 
+        if (response.status == 422) {
+            $rootScope.$broadcast('error', 'Say what?', 'The information you sent couldn\'t be read by the server.');
+
+            return;
+        }
+
         if (response.status == 500) {
             $rootScope.$broadcast('error', 'Server error', 'A server error occurred!');
 
@@ -380,6 +386,27 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             }
         }, function (response) {
             handleError(response);
+        });
+    };
+
+    obj.upload = function(data) {
+        $rootScope.$broadcast('uploading');
+
+        // TODO: post the data in a format that Laravel can read
+
+        $http({
+            url: '/chat/upload',
+            method: 'post',
+            data: data,
+            headers: { 'Content-Type': undefined }
+        }).then( function(response) {
+            if (response.status != 200) {
+               // handleError(response);
+
+                console.log(response);
+            }
+        }, function (response) {
+            //handleError(response);
         });
     };
 

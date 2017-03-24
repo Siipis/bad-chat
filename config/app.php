@@ -161,6 +161,7 @@ return [
          * Project Service Providers...
          */
         App\Providers\ViewComposerProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Siipis\CMS\ServiceProvider::class,
 
@@ -215,6 +216,7 @@ return [
          */
         'Twig'      => TwigBridge\Facade\Twig::class,
         'YAML'      => Symfony\Component\Yaml\Yaml::class,
+        'Image'     => Intervention\Image\Facades\Image::class,
 
         'CMS'       => Siipis\CMS\Facade\CMS::class,
         'CMS_Helper'=> Siipis\CMS\Facade\Scaffolding::class,

@@ -3,7 +3,11 @@ namespace PHPSTORM_META {
 
    /**
     * PhpStorm Meta file, to provide autocomplete information for PhpStorm
+<<<<<<< HEAD
     * Generated on 2017-06-03.
+=======
+    * Generated on 2017-03-23.
+>>>>>>> Added image upload. (TODO: fix data issues between Javascript and Laravel.)
     *
     * @author Barry vd. Heuvel <barryvdh@gmail.com>
     * @see https://github.com/barryvdh/laravel-ide-helper
@@ -39,6 +43,7 @@ namespace PHPSTORM_META {
             'view' instanceof \Illuminate\View\Factory,
             'access' instanceof \App\Helpers\Access\Access,
             'frontLog' instanceof \App\Helpers\Event\FrontLog,
+            'image' instanceof \Intervention\Image\ImageManager,
             'command.twig' instanceof \TwigBridge\Command\TwigBridge,
             'command.twig.clean' instanceof \TwigBridge\Command\Clean,
             'command.twig.lint' instanceof \TwigBridge\Command\Lint,
@@ -167,6 +172,7 @@ namespace PHPSTORM_META {
             'view' instanceof \Illuminate\View\Factory,
             'access' instanceof \App\Helpers\Access\Access,
             'frontLog' instanceof \App\Helpers\Event\FrontLog,
+            'image' instanceof \Intervention\Image\ImageManager,
             'command.twig' instanceof \TwigBridge\Command\TwigBridge,
             'command.twig.clean' instanceof \TwigBridge\Command\Clean,
             'command.twig.lint' instanceof \TwigBridge\Command\Lint,
@@ -295,6 +301,7 @@ namespace PHPSTORM_META {
             'view' instanceof \Illuminate\View\Factory,
             'access' instanceof \App\Helpers\Access\Access,
             'frontLog' instanceof \App\Helpers\Event\FrontLog,
+            'image' instanceof \Intervention\Image\ImageManager,
             'command.twig' instanceof \TwigBridge\Command\TwigBridge,
             'command.twig.clean' instanceof \TwigBridge\Command\Clean,
             'command.twig.lint' instanceof \TwigBridge\Command\Lint,
@@ -423,6 +430,7 @@ namespace PHPSTORM_META {
             'view' instanceof \Illuminate\View\Factory,
             'access' instanceof \App\Helpers\Access\Access,
             'frontLog' instanceof \App\Helpers\Event\FrontLog,
+            'image' instanceof \Intervention\Image\ImageManager,
             'command.twig' instanceof \TwigBridge\Command\TwigBridge,
             'command.twig.clean' instanceof \TwigBridge\Command\Clean,
             'command.twig.lint' instanceof \TwigBridge\Command\Lint,

@@ -374,6 +374,12 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             return;
         }
 
+        if (response.status == 422) {
+            $rootScope.$broadcast('error', 'Say what?', 'The information you sent couldn\'t be read by the server.');
+
+            return;
+        }
+
         if (response.status == 500) {
             $rootScope.$broadcast('error', 'Server error', 'A server error occurred!');
 
@@ -630,6 +636,25 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
             }
         }, function (response) {
             handleError(response);
+        });
+    };
+
+    obj.upload = function(data) {
+        $rootScope.$broadcast('uploading');
+
+        $http({
+            url: '/chat/upload',
+            method: 'post',
+            data: data,
+            headers: { 'Content-Type': undefined }
+        }).then( function(response) {
+            if (response.status != 200) {
+               // handleError(response);
+
+                console.log(response);
+            }
+        }, function (response) {
+            //handleError(response);
         });
     };
 
@@ -952,19 +977,20 @@ app.factory('Selectors', function() {
     obj.image = {
         overlay: $('#image-overlay'),
         form: {
-            url: 'form#image-overlay-link',
-            upload: 'form#image-overlay-upload'
+            link: 'form#image-overlay__link',
+            upload: 'form#image-overlay__upload'
         },
         input: {
-            url: $('#image-overlay-link #inputUrl'),
-            upload: $('#image-overlay-upload #inputUpload')
-        }
+            link: 'input#inputUrl',
+            upload: 'input#inputUpload'
+        },
+        preview: $('img#image-preview')
     };
 
     obj.link = {
         overlay: $('#link-overlay'),
-        form: 'form#link-overlay-form',
-        input: $('#link-overlay-form #inputLink')
+        form: 'form#link-overlay__form',
+        input: $('input#inputLink')
     };
 
     obj.emojilist = $('#emojilist');
@@ -1641,7 +1667,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         $rootScope.disable();
     });
 });
-app.controller('inputController', function ($scope, $rootScope, Data, TabHelper, Selectors) {
+app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabHelper, Selectors) {
     /**
      * String to append in beginning of all inputs
      * @type {string}
@@ -1910,7 +1936,7 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
     });
 
     // Modal form event handling for image URL's
-    $(document).on('submit', Selectors.image.form.url, function (e) {
+    $(document).on('submit', Selectors.image.form.link, function (e) {
         e.preventDefault();
 
         var input = $(this).serializeArray();
@@ -1924,6 +1950,45 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         Selectors.image.overlay.modal('hide');
 
         Selectors.textarea.focus();
+    });
+
+
+    var uploadedFile; // workaround for reading the file
+
+    // Modal form event handling for image uploads
+    $(document).on('submit', Selectors.image.form.upload, function (e) {
+        e.preventDefault();
+
+        if (uploadedFile) {
+            var data = new FormData();
+            var filename = $(Selectors.image.input.upload).val();
+
+            data.append('file', uploadedFile);
+            Ajax.upload(data);
+
+            $rootScope.addCode('img', 'upload::'+ filename);
+        }
+
+        $(this)[0].reset();
+
+        Selectors.image.overlay.modal('hide');
+
+        Selectors.textarea.focus();
+    });
+
+    // Image upload preview
+    $(document).on('change', Selectors.image.input.upload, function (e) {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                uploadedFile = e.target.result;
+
+                Selectors.image.preview.attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(this.files[0]);
+        }
     });
 
     // Modal form event handling for regular URL's
@@ -1943,6 +2008,14 @@ app.controller('inputController', function ($scope, $rootScope, Data, TabHelper,
         Selectors.textarea.focus();
     });
 
+    // Reset all modal forms on close
+    $('.modal').on('hidden.bs.modal', function (e) {
+        $('form', this).each(function() {
+            this.reset();
+        });
+
+        Selectors.image.preview.attr('src', '');
+    })
 });
 app.controller('menuController', function ($scope, Data, Selectors, Settings) {
     $scope.hasNotifications = function () {

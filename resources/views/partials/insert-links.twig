@@ -4,28 +4,75 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4>
-                    <i class="fa fa-image"></i>
-                    Image
-                </h4>
+
+                <ul class="nav nav-pills" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#image-tab" aria-controls="image-tab" role="tab" data-toggle="tab">
+                            <span class="text-larger">
+                                <i class="fa fa-link"></i>
+                                Link
+                            </span>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#upload-tab" aria-controls="upload-tab" role="tab" data-toggle="tab">
+                            <span class="text-larger">
+                                <i class="fa fa-upload"></i>
+                                Upload
+                            </span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             <div class="modal-body">
-                <form class="form" method="post" id="image-overlay-link">
-                    {{ csrf_field() }}
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="image-tab">
+                        <form class="form" method="post" id="image-overlay__link">
+                            {{ csrf_field() }}
 
-                    <div class="form-group">
-                        <label for="inputUrl">Existing URL</label>
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-link"></i>
-                            </span>
-                            <input type="text" name="url" id="inputUrl" class="form-control" placeholder="http://google.com/funny_image.jpg" required>
-                            <div class="input-group-btn">
-                                <button class="btn btn-danger">Insert</button>
+                            <div class="form-group">
+                                <label for="inputUrl">Existing URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon hidden-xs">
+                                        <i class="fa fa-link"></i>
+                                    </span>
+                                    <input type="text" name="url" id="inputUrl" class="form-control"
+                                           placeholder="http://google.com/funny_image.jpg" required>
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-danger">Insert</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                </form>
+
+                    <div role="tabpanel" class="tab-pane" id="upload-tab">
+                        <form class="form" method="post" id="image-overlay__upload">
+                            {{ csrf_field() }}
+
+                            <div class="form-group">
+                                <label for="inputUpload">Upload image</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon hidden-xs">
+                                        <i class="fa fa-upload"></i>
+                                    </span>
+                                    <input type="file" name="file" accept="image/*" id="inputUpload" capture="camera"
+                                           class="form-control" required>
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-danger">Upload</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid clearfix">
+                                <div class="col-xs-8 col-xs-offset-2 text-center">
+                                    <img id="image-preview" class="img-responsive img-thumbnail" src=""
+                                         alt="Image preview..."/>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
             </div>
@@ -45,7 +92,7 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <form class="form" method="post" id="link-overlay-form">
+                <form class="form" method="post" id="link-overlay__form">
                     {{ csrf_field() }}
 
                     <div class="form-group">
@@ -54,7 +101,8 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-link"></i>
                             </span>
-                            <input type="text" name="url" id="inputLink" class="form-control" placeholder="http://google.com" required>
+                            <input type="text" name="url" id="inputLink" class="form-control"
+                                   placeholder="http://google.com" required>
                             <div class="input-group-btn">
                                 <button class="btn btn-danger">Insert</button>
                             </div>
