@@ -14,6 +14,7 @@ class Access
         'discouragement' => 'admin',
         'users' => 'admin',
         'roles' => 'admin',
+        'topics' => 'moderator',
     ];
 
     const view = [

@@ -1163,7 +1163,7 @@ class ChatController extends Controller
      */
     private function createTopic(Channel $channel, $message)
     {
-        if ($channel->isStaff(Auth::user())) {
+        if (\Access::can('control.topics')) {
             $split = explode(' ', $message);
 
             $cut = strlen($split[0]) + 1;
