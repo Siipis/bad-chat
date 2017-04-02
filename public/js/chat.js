@@ -317,10 +317,13 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
      |
      */
 
-    function storeResponseStatus(status) {
+    function storeResponseStatus(status, disable) {
         if (status == -1) {
             connectionAttempts++;
-            $rootScope.$broadcast('disable');
+
+            if (disable || disable === undefined) {
+                $rootScope.$broadcast('disable');
+            }
         } else {
             connectionAttempts = 0;
             $rootScope.$broadcast('enable');
@@ -532,7 +535,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         }, ajaxTimeout);
 
         request.then(function (response) {
-            storeResponseStatus(response.status);
+            storeResponseStatus(response.status, false);
 
             if (response.status != 200) {
                 handleError(response);
@@ -546,7 +549,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
 
             obj.startRefresh();
         }, function (response) {
-            storeResponseStatus(response.status);
+            storeResponseStatus(response.status, false);
 
             handleError(response);
         });
@@ -564,7 +567,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         $http.post('/chat/notifications', null, {
             timeout: ajaxTimeout
         }).then(function (response) {
-            storeResponseStatus(response.status);
+            storeResponseStatus(response.status, false);
 
             if (response.status != 200) {
                 handleError(response);
