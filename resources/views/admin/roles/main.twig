@@ -17,8 +17,8 @@ title: "{{ appName }}: Public roles"
     </tr>
     </thead>
     <tbody>
-    <tr>
     {% for role in roles %}
+    <tr>
         <td>{{ role.title }}</td>
         <td>
             <i class="glyphicon glyphicon-{{ role.icon }}"></i>
@@ -29,8 +29,8 @@ title: "{{ appName }}: Public roles"
                 <i class="glyphicon glyphicon-pencil"></i>
             </a>
         </td>
-    {% endfor %}
     </tr>
+    {% endfor %}
 </tbody>
 </table>
 
