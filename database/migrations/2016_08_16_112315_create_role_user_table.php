@@ -20,7 +20,7 @@ class CreateRoleUserTable extends Migration
             $table->integer('role_id');
             $table->boolean('is_active');
 
-            $table->unique('user_id', 'role_id');
+            $table->unique([ 'role_id', 'user_id' ]);
         });
     }
 

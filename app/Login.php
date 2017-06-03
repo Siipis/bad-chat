@@ -163,6 +163,22 @@ class Login extends Model
 
     public static function attemptReconnect()
     {
+        $attempts = Session::get('login_attempts');
+
+        if (is_null($attempts)) {
+            $attempts = 1;
+        } else {
+            $attempts++;
+        }
+
+        Session::set('login_attempts', $attempts);
+
+        if ($attempts > 3) {
+            Login::logout();
+
+            return false;
+        }
+
         if (Auth::check() && Session::has('login')) {
             $instance = new static;
 
@@ -170,6 +186,8 @@ class Login extends Model
 
             if (!$login->isClosed() && $login->user->id == Auth::id() && $instance->verify($login)) {
                 $login->unLogout();
+
+                Session::set('login_attempts', 0);
 
                 return true;
             }
