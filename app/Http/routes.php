@@ -24,7 +24,11 @@ Route::group(['middleware' => ['web']], function () {
     Route::controller('chat', 'ChatController');
 
     Route::get('uploads/{date}/{user}/{image}', function($date, $user, $filename) {
-        return Image::make(config('image.storage') . "/$date/$user/$filename")->response();
+        try {
+            return Image::make(config('image.storage') . "/$date/$user/$filename")->response();
+        } catch (Exception $e) {
+            abort(404);
+        }
     });
 
     Route::get('scheduled', function() {
