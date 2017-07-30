@@ -452,17 +452,16 @@ class ChatController extends Controller
     public function postUpload(Requests\UploadRequest $request)
     {
         try {
-            dd($_FILES['file']);
+            $file = $request->file('file');
+            $upload = \Image::make($file->getRealPath());
 
-//            $file = $request->file('file');
-
-            $upload = \Image::make($request->get('file'));
-
-            dd($upload);
-
-            $upload->fit(
+            $upload->resize(
                 config('image.maxWidth'),
-                config('image.maxHeight')
+                config('image.maxHeight'),
+                function ($constraint) {
+                    $constraint->upsize();
+                    $constraint->aspectRatio();
+                }
             );
 
             $storage = config('image.storage');
@@ -470,13 +469,18 @@ class ChatController extends Controller
             $user = Auth::user()->name;
             $name = $file->getClientOriginalName();
 
-            $filename = "$storage/$date-$user-$name";
+            $directory = "$storage/$user/$date";
+            $filename = "$directory/$name";
+
+            if (\File::isDirectory($directory) == false) {
+                \File::makeDirectory($directory, 493, true);
+            }
 
             $upload->save($filename);
 
             $response = [
                 'exists' => \File::exists($filename),
-                'image' => $name,
+                'image' => url("uploads/$user/$date/$name"),
             ];
 
             return response()->json($response);

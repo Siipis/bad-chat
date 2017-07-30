@@ -291,20 +291,16 @@ app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabH
         e.preventDefault();
 
         if (uploadedFile) {
-            var data = new FormData();
-            var filename = $(Selectors.image.input.upload).val();
+            var data = new FormData($(Selectors.image.form.upload)[0]);
 
-            data.append('file', uploadedFile);
+            $(this)[0].reset();
+
+            Selectors.image.overlay.modal('hide');
+
+            Selectors.textarea.focus();
+
             Ajax.upload(data);
-
-            $rootScope.addCode('img', 'upload::'+ filename);
         }
-
-        $(this)[0].reset();
-
-        Selectors.image.overlay.modal('hide');
-
-        Selectors.textarea.focus();
     });
 
     // Image upload preview

@@ -23,8 +23,13 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::controller('chat', 'ChatController');
 
+    Route::get('uploads/{user}/{date}/{image}', function($user, $date, $filename) {
+        return Image::make(config('image.storage') . "/$user/$date/$filename")->response();
+    });
+
     Route::get('scheduled', function() {
         return Artisan::call('schedule:run');
     });
+
     Route::controller('/', 'LoginController');
 });

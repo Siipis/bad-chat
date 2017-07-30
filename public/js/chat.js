@@ -338,7 +338,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
      * @param {int} response
      */
     function handleError(response) {
-        console.log('HTTP error: '+ response.status);
+        console.log('HTTP error: ' + response.status);
 
         if (response.status == -1) {
             if (connectionAttempts >= maxTimeouts) {
@@ -639,22 +639,28 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
         });
     };
 
-    obj.upload = function(data) {
-        $rootScope.$broadcast('uploading');
+    obj.upload = function (data) {
+        $rootScope.$broadcast('disable');
 
         $http({
             url: '/chat/upload',
             method: 'post',
             data: data,
-            headers: { 'Content-Type': undefined }
-        }).then( function(response) {
+            headers: {'Content-Type': undefined}
+        }).then(function (response) {
             if (response.status != 200) {
-               // handleError(response);
+                handleError(response);
 
-                console.log(response);
+                return;
             }
+
+            $rootScope.$broadcast('enable');
+
+            $rootScope.addCode('img', response.data.image);
         }, function (response) {
-            //handleError(response);
+            $rootScope.$broadcast('enable');
+
+            handleError(response);
         });
     };
 
@@ -686,7 +692,7 @@ app.factory('Ajax', function ($q, $rootScope, $interval, $timeout, $http, Data, 
     obj.meta = function (url) {
         return $.ajax({
             method: 'post',
-            url: 'https://api.urlmeta.org/?url='+ url,
+            url: 'https://api.urlmeta.org/?url=' + url,
             crossDomain: true
         });
     };
@@ -1960,20 +1966,16 @@ app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabH
         e.preventDefault();
 
         if (uploadedFile) {
-            var data = new FormData();
-            var filename = $(Selectors.image.input.upload).val();
+            var data = new FormData($(Selectors.image.form.upload)[0]);
 
-            data.append('file', uploadedFile);
+            $(this)[0].reset();
+
+            Selectors.image.overlay.modal('hide');
+
+            Selectors.textarea.focus();
+
             Ajax.upload(data);
-
-            $rootScope.addCode('img', 'upload::'+ filename);
         }
-
-        $(this)[0].reset();
-
-        Selectors.image.overlay.modal('hide');
-
-        Selectors.textarea.focus();
     });
 
     // Image upload preview
