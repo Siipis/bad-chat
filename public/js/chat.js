@@ -1959,23 +1959,19 @@ app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabH
     });
 
 
-    var uploadedFile; // workaround for reading the file
-
     // Modal form event handling for image uploads
     $(document).on('submit', Selectors.image.form.upload, function (e) {
         e.preventDefault();
 
-        if (uploadedFile) {
-            var data = new FormData($(Selectors.image.form.upload)[0]);
+        var data = new FormData($(Selectors.image.form.upload)[0]);
 
-            $(this)[0].reset();
+        $(this)[0].reset();
 
-            Selectors.image.overlay.modal('hide');
+        Selectors.image.overlay.modal('hide');
 
-            Selectors.textarea.focus();
+        Selectors.textarea.focus();
 
-            Ajax.upload(data);
-        }
+        Ajax.upload(data);
     });
 
     // Image upload preview
@@ -1984,8 +1980,6 @@ app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabH
             var reader = new FileReader();
 
             reader.onload = function (e) {
-                uploadedFile = e.target.result;
-
                 Selectors.image.preview.attr('src', e.target.result);
             };
 
@@ -2012,7 +2006,7 @@ app.controller('inputController', function ($scope, $rootScope, Ajax, Data, TabH
 
     // Reset all modal forms on close
     $('.modal').on('hidden.bs.modal', function (e) {
-        $('form', this).each(function() {
+        $('form', this).each(function () {
             this.reset();
         });
 
