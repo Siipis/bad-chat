@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\ChannelsClean::class,
         Commands\ChannelExpired::class,
+        Commands\UploadClean::class,
     ];
 
     /**
@@ -44,6 +45,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function() {
             \Artisan::call('channel:clean');
+            \Artisan::call('upload:clean');
         })->daily();
     }
 }

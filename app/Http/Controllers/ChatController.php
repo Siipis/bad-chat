@@ -469,7 +469,7 @@ class ChatController extends Controller
             $user = Auth::user()->name;
             $name = $file->getClientOriginalName();
 
-            $directory = "$storage/$user/$date";
+            $directory = "$storage/$date/$user";
             $filename = "$directory/$name";
 
             if (\File::isDirectory($directory) == false) {
@@ -480,7 +480,7 @@ class ChatController extends Controller
 
             $response = [
                 'exists' => \File::exists($filename),
-                'image' => url("uploads/$user/$date/$name"),
+                'image' => url("uploads/$date/$user/$name"),
             ];
 
             return response()->json($response);

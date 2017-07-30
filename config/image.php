@@ -22,4 +22,5 @@ return array(
 
     'storage' => storage_path('app/public'),
 
+    'keep' => 7, // days
 );
