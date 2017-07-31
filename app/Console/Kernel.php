@@ -48,5 +48,9 @@ class Kernel extends ConsoleKernel
             \Artisan::call('channel:clean');
             \Artisan::call('upload:clean');
         })->daily();
+
+        $schedule->call(function() {
+            \Artisan::call('chat:stats');
+        })->weekly();
     }
 }
