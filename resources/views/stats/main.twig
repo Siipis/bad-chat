@@ -1,0 +1,68 @@
+layout: account
+title: Chat Statistics
+
+===
+
+<h3>Conversation Statistics</h3>
+<p>Last updated {{ stats.updated }}. Found a total of {{ stats.entries }} entries. Some data may be filtered out.</p>
+
+<hr/>
+
+<form class="form form-inline">
+    <label for="inputFilter">Filter</label>
+    <select name="user" id="inputFilter" class="form-control">
+        <option value=""{{ selected is empty ? ' selected' : '' }}>All conversations</option>
+        {% for user in users %}
+            <option value="{{ user.name }}"{{ selected == user.name ? ' selected' : '' }}>{{ user.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button class="btn btn-default">Go</button>
+</form>
+
+{% if not found %}
+    <hr />
+
+    <div class="well">
+        <h4>No statistics found.</h4>
+        <p>The data you looked for doesn't exist yet. Please try again later!</p>
+    </div>
+{% else %}
+    <canvas id="stats"></canvas>
+
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+
+    <script>
+        var ctx = document.getElementById("stats");
+        ctx.height = {{ stats.data|length * 15 }};
+        var stats = new Chart(ctx, {
+            type: 'horizontalBar',
+            data: {
+                labels: [{% for key in stats.data|keys %}'{{ key|capitalize }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Times said',
+                    data: [{% for value in stats.data %}'{{ value }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#111',
+                    borderColor: '#666',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            fontSize: 14,
+                            fontColor: 'white'
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+{% endif %}

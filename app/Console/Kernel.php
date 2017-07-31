@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\ChannelsClean::class,
         Commands\ChannelExpired::class,
         Commands\UploadClean::class,
+        Commands\Statistics::class,
     ];
 
     /**

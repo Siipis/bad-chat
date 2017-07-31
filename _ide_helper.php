@@ -1,11 +1,7 @@
 <?php
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
-<<<<<<< HEAD
- * Generated for Laravel 5.2.24 on 2017-06-03.
-=======
- * Generated for Laravel 5.2.24 on 2017-03-23.
->>>>>>> Added image upload. (TODO: fix data issues between Javascript and Laravel.)
+ * Generated for Laravel 5.2.24 on 2017-07-31.
  *
  * @author Barry vd. Heuvel <barryvdh@gmail.com>
  * @see https://github.com/barryvdh/laravel-ide-helper

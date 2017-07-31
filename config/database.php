@@ -66,16 +66,18 @@ return [
             'engine' => null,
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+        'remote' => [
+            'driver' => 'mysql',
+            'host' => env('REMOTE_DB_HOST', config('database.connections.mysql.host')),
+            'port' => env('REMOTE_DB_PORT', config('database.connections.mysql.port')),
+            'database' => env('REMOTE_DB_DATABASE', config('database.connections.mysql.database')),
+            'username' => env('REMOTE_DB_USERNAME', config('database.connections.mysql.username')),
+            'password' => env('REMOTE_DB_PASSWORD', config('database.connections.mysql.password')),
             'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => 'chat_',
+            'strict' => false,
+            'engine' => null,
         ],
 
     ],

@@ -17,6 +17,7 @@ Route::group(['middleware' => ['web']], function () {
     Route::controller('conversations', 'ConversationsController');
     Route::controller('logs', 'LogsController');
     Route::controller('roles', 'RolesController');
+    Route::controller('stats', 'StatsController');
     Route::controller('users', 'UsersController');
 
     Route::controller('password', 'Auth\PasswordController');
