@@ -215,23 +215,38 @@ class Login extends Model
             $user = Auth::user();
         }
 
-        $login = Login::active($user);
-
-        if ($login instanceof Login) {
-            Online::logout($user);
-
-            $login->touchLogout();
-        }
+        Online::logout($user);
 
         if ($clearSession && Auth::id() == $user->id) {
-            Auth::logout();
-
-            Session::remove('login');
+            Login::clean();
         }
 
         return true;
     }
 
+    /**
+     * Remove all active logins
+     *
+     * @param bool $removeSession
+     */
+    public static function clean($removeSession = true)
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            Online::logout(Auth::user());
+
+            foreach (Login::userId($user)->online()->get() as $login) {
+                $login->touchLogout();
+            }
+
+            if ($removeSession) {
+                Auth::logout();
+
+                Session::remove('login');
+            }
+        }
+    }
 
     /**
      * Returns an active login if one exists
@@ -250,7 +265,7 @@ class Login extends Model
         if ($user == Auth::user()) {
             // If a session key exists, use it to fetch the login instance
             if (Session::has('login')) {
-                $session = (int) Session::get('login');
+                $session = (int)Session::get('login');
 
                 return $query->where('id', $session)->first();
             }

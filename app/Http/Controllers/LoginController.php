@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Bounce;
 use App\Login;
 use App\Models\Message\System;
+use App\Online;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -56,6 +57,8 @@ class LoginController extends Controller
         $password = $request->input('password');
 
         if (Auth::attempt(['name' => $name, 'password' => $password, 'is_active' => true])) {
+            Login::clean(false);
+
             Login::trace();
 
             return redirect('/');
