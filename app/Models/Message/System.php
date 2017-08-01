@@ -123,7 +123,7 @@ class System extends Message
                 $user = $this->context['user'];
                 $topic = $this->context['topic'];
 
-                return "$user set the topic to \"$topic\".";
+                return "$user set the topic to: $topic";
             }
 
             if ($message == 'current_topic') {

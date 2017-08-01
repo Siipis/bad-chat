@@ -107,11 +107,11 @@ table {
   input[type="file"] {
     height: auto;
 
-  & + .input-group-btn {
-    button {
-      height: 44px;
+    & + .input-group-btn {
+      button {
+        height: 44px;
+      }
     }
-  }
   }
 }
 
@@ -119,4 +119,23 @@ table {
   font-size: 40px;
   color: @text-color;
   opacity: .4;
+}
+
+blockquote {
+  font-family: @font-family-serif;
+  color: @link-color;
+  font-size: 1.2em;
+  margin: 0.5em 0;
+
+  @media (max-width: @screen-xs-max) {
+    font-size: 1em;
+  }
+
+  @media (min-width: @screen-sm-min) and (max-width: @screen-md-max) {
+    font-size: 1.1em;
+  }
+
+  footer {
+    text-align: right;
+  }
 }

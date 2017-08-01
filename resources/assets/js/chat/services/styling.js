@@ -44,6 +44,8 @@ app.factory('Styling', function ($rootScope, Settings) {
         '\\[i\\](.*)\\[\/i\\]': '<em>$1</em>',
         '\\[u\\](.*)\\[\/u\\]': '<u>$1</u>',
         '\\[s\\](.*)\\[\/s\\]': '<s>$1</s>',
+        '\\[quote\\](.*)\\[\/quote\\]': '<blockquote>$1</blockquote>',
+        '\\[quote=(.*)\\](.*)\\[\/quote\\]': '<blockquote>$2<footer>$1</footer></blockquote>',
         '\\[url=(.*)\\](.*)\\[\/url\\]': '<a href="$1" target="_blank" class="hoverable">$2</a>',
         '\\[url\\](.*)\\[\/url\\]': '<a href="$1" target="_blank" class="hoverable">$1</a>',
         '\\[img\\](.*)\\[\/img\\]': '<a href="$1" target="_blank"><img src="$1" class="embed-image" alt="$1" /></a>',

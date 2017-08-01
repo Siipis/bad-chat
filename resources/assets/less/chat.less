@@ -90,7 +90,7 @@ html, body, #chat-body {
           }
         }
 
-        @media (max-width: @screen-md-min) {
+        @media (max-width: @screen-sm-max) {
           table {
             display: none;
           }
@@ -113,7 +113,7 @@ html, body, #chat-body {
         font-style: italic;
       }
 
-      @media (max-width: @screen-md-min) {
+      @media (max-width: @screen-sm-max) {
         td, th {
           &:nth-child(2), &:last-child {
             display: none;
@@ -175,7 +175,7 @@ html, body, #chat-body {
     display: flex;
     flex-direction: column;
 
-    @media (max-width: @screen-md-min) {
+    @media (max-width: @screen-sm-max) {
       #chat-channels {
         order: 1;
       }
@@ -207,7 +207,7 @@ html, body, #chat-body {
           }
         }
 
-        @media (max-width: @screen-md-min) {
+        @media (max-width: @screen-sm-max) {
           li {
             a {
               padding: 8px 12px;
@@ -229,7 +229,7 @@ html, body, #chat-body {
       flex: auto;
     }
 
-    @media (max-width: @screen-md-min) {
+    @media (max-width: @screen-sm-max) {
       #chat-window {
         font-size: 0.9em;
       }
@@ -386,7 +386,7 @@ html, body, #chat-body {
       }
     }
 
-    @media (max-width: @screen-md-min) {
+    @media (max-width: @screen-sm-max) {
       #emojilist {
         padding: 1em 0;
 
@@ -444,7 +444,7 @@ html, body, #chat-body {
         }
       }
 
-      @media (max-width: @screen-md-min) {
+      @media (max-width: @screen-sm-max) {
         textarea {
           height: 3em;
         }
@@ -456,14 +456,14 @@ html, body, #chat-body {
         white-space: nowrap;
       }
 
-      @media (max-width: @screen-md-min) {
+      @media (max-width: @screen-sm-max) {
         .form-group:last-child {
           line-height: 3em;
         }
       }
     }
 
-    @media (max-width: @screen-md-min) {
+    @media (max-width: @screen-sm-max) {
       #chat-input {
         height: 4em;
       }
@@ -482,6 +482,16 @@ html, body, #chat-body {
       cursor: zoom-in;
 
       padding-bottom: 1em;
+
+      blockquote {
+        font-size: @font-size-base;
+        padding: 0;
+        border: 0;
+
+        footer {
+          margin-top: .5em;
+        }
+      }
     }
 
     #userlist {
@@ -568,7 +578,7 @@ html, body, #chat-body {
         max-width: 280px;
       }
 
-      @media (max-width: @screen-md-min) {
+      @media (max-width: @screen-sm-max) {
         min-width: 300px;
 
         .swatch-group {
@@ -590,7 +600,7 @@ html, body, #chat-body {
     }
   }
 
-  @media (max-width: @screen-md-min) {
+  @media (max-width: @screen-sm-max) {
     #chat-sidebar {
       padding: 1.2em 1em;
     }
