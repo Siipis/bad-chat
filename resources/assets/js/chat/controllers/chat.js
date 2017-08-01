@@ -299,7 +299,7 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
      */
 
     $(document).on('click', '#topic', function () {
-        var oldTopic = $(this).text();
+        var oldTopic = Data.topic();
         var topic = prompt('Channel topic:', oldTopic);
 
         if (topic !== null && topic !== oldTopic) {
