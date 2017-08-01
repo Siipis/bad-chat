@@ -50,7 +50,11 @@ class Kernel extends ConsoleKernel
         })->daily();
 
         $schedule->call(function() {
-            \Artisan::call('chat:stats');
+            try {
+                \Artisan::call('chat:stats');
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage(), $e->getTrace());
+            }
         })->weekly();
     }
 }

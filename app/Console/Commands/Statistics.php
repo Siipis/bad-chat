@@ -75,6 +75,7 @@ class Statistics extends Command
      * @return bool
      */
     private function readFor($target = null) {
+        try {
         $date = $this->getUpdatedDate($target);
 
         if (!$this->option('force') && Carbon::now()->subDays($this->entries) < $date) {
@@ -85,7 +86,7 @@ class Statistics extends Command
 
         $this->info('Reading entries'. (!is_null($target) ? " for $target" : '') . '...');
 
-        $query = Message::public()->where('type', 'post');
+        $query = Message::where('type', 'post')->public();
 
         foreach (Channel::defaults()->get() as $channel) {
             $query->where('channel_id', $channel->id);
@@ -166,6 +167,10 @@ class Statistics extends Command
         $this->info("\n\nDone!\n\n");
 
         return true;
+        } catch (\Exception $e) {
+            $this->info($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -196,6 +201,7 @@ class Statistics extends Command
     {
         $message = strtolower($message);
 
+        $message = preg_replace("/\[url(\S+)\[\/url\]/", '', $message);
         $message = preg_replace("/http(\S)+/", '', $message);
         $message = preg_replace("/#[a-zA-Z0-9]+/", '', $message);
         $message = preg_replace("/\[(\/)?([a-z]+)\]/", '', $message);
