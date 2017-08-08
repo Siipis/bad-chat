@@ -238,6 +238,8 @@ class Login extends Model
 
             foreach (Login::userId($user)->online()->get() as $login) {
                 $login->touchLogout();
+
+                $login->close();
             }
 
             if ($removeSession) {
@@ -260,14 +262,18 @@ class Login extends Model
 
         $expires = Carbon::now()->subMinutes(config('chat.login.timeout'));
 
-        $query = $instance->newQuery()->where('updated_at', '>', $expires)->whereNull('logout_at')->where('user_id', $user->id);
+        $query = $instance->newQuery()
+            ->where('updated_at', '>', $expires)
+            ->whereNull('logout_at')
+            ->where('closed', false)
+            ->where('user_id', $user->id);
 
         if ($user == Auth::user()) {
             // If a session key exists, use it to fetch the login instance
             if (Session::has('login')) {
                 $session = (int)Session::get('login');
 
-                return $query->where('id', $session)->first();
+                return $query->where('id', $session)->where('closed', false)->first();
             }
         }
 
