@@ -228,8 +228,6 @@ class ChatController extends Controller
     {
         Login::logout();
 
-        Auth::logout();
-
         $this->closeConnection();
 
         return response('Logging out.', 307);
@@ -254,7 +252,7 @@ class ChatController extends Controller
                     'URL' => $request->fullUrl(),
                 ]);
 
-                Auth::logout();
+                Login::logout();
 
                 return response('Logging out.', 307);
             }

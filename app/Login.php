@@ -89,6 +89,16 @@ class Login extends Model
     */
 
     /**
+     * Generates a unique login key
+     *
+     * @return string
+     */
+    public static function key()
+    {
+        return uniqid();
+    }
+
+    /**
      * Creates a login trace
      *
      * @return bool
@@ -97,36 +107,46 @@ class Login extends Model
     {
         $user = Auth::user();
 
-        if (!is_null($login = self::active($user))) {
-            // Close the previous session
-            $login->close();
-        }
+        self::logout($user, false);
 
         $login = new self;
 
         $login->ip = $_SERVER['REMOTE_ADDR'];
         $login->agent = $_SERVER['HTTP_USER_AGENT'];
+        $login->key = self::key();
         $login->user()->associate($user);
 
         $login->save();
 
-        Session::set('login', $login->id); // Store the current login instance
+        Session::set('login_id', $login->id); // Store the current login instance
+        Session::set('login_key', $login->key);
 
         return true;
     }
 
+    public static function verifySession()
+    {
+        if (Session::has('login_id') && Session::has('login_key')) {
+            $login = self::find(Session('login_id'));
+
+            if (!$login->isClosed() && $login->key == Session('login_key')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function verify($login = null)
     {
-        $user = Auth::user();
-
         $instance = new static;
 
         if (is_null($login)) {
             // Default to looking for an active login
-            $login = $instance->online()->userId($user)->first();
+            $login = $instance->active();
         }
 
-        if (!is_null($login)) {
+        if ($login instanceof Login) {
             if (config('security.verify.agent')) {
                 $agent = $_SERVER['HTTP_USER_AGENT'];
 
@@ -150,12 +170,12 @@ class Login extends Model
             }
 
             if (config('security.verify.session')) {
-                if ($login->id != Session::get('login')) {
+                if ($login->id != Session::get('login_id')) {
                     return false;
                 }
             }
 
-            return true;
+            return $login->verifySession() && !$login->isLoggedOut();
         }
 
         return false;
@@ -179,17 +199,27 @@ class Login extends Model
             return false;
         }
 
-        if (Auth::check() && Session::has('login')) {
+        if (Auth::check() && Session::has('login_id')) {
             $instance = new static;
 
-            $login = $instance->find(Session::get('login'));
+            $login = $instance->find(Session::get('login_id'));
 
-            if (!$login->isClosed() && $login->user->id == Auth::id() && $instance->verify($login)) {
+            if ($login->isClosed()) {
+                Auth::logout();
+
+                Session::clear();
+
+                return false;
+            }
+
+            if ($login->user->id == Auth::id() && $login->key == Session::get('login_key')) {
                 $login->unLogout();
 
-                Session::set('login_attempts', 0);
+                if (Login::verify()) {
+                    Session::set('login_attempts', 0);
 
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -217,37 +247,25 @@ class Login extends Model
 
         Online::logout($user);
 
+        foreach (Login::userId($user)->online()->get() as $login) {
+            $login->close();
+        }
+
         if ($clearSession && Auth::id() == $user->id) {
-            Login::clean();
+            self::clearSession();
         }
 
         return true;
     }
 
     /**
-     * Remove all active logins
-     *
-     * @param bool $removeSession
+     * Removes the user session
      */
-    public static function clean($removeSession = true)
+    public static function clearSession()
     {
-        if (Auth::check()) {
-            $user = Auth::user();
+        Session::clear();
 
-            Online::logout(Auth::user());
-
-            foreach (Login::userId($user)->online()->get() as $login) {
-                $login->touchLogout();
-
-                $login->close();
-            }
-
-            if ($removeSession) {
-                Auth::logout();
-
-                Session::remove('login');
-            }
-        }
+        Auth::logout();
     }
 
     /**
@@ -256,8 +274,12 @@ class Login extends Model
      * @param User $user
      * @return Login|null
      */
-    public static function active(User $user)
+    public static function active(User $user = null)
     {
+        if (is_null($user)) {
+            $user = Auth::user();
+        }
+
         $instance = new static;
 
         $expires = Carbon::now()->subMinutes(config('chat.login.timeout'));
@@ -269,16 +291,17 @@ class Login extends Model
             ->where('user_id', $user->id);
 
         if ($user == Auth::user()) {
-            // If a session key exists, use it to fetch the login instance
-            if (Session::has('login')) {
-                $session = (int)Session::get('login');
+            if (Session::has('login_id') && Session::has('login_key')) {
+                $login_id = (int) Session::get('login_id');
+                $login_key = Session::get('login_key');
 
-                return $query->where('id', $session)->where('closed', false)->first();
+                return $query->where('id', $login_id)->where('key', $login_key)->first();
             }
+        } else {
+            return $query->first();
         }
 
-        // Otherwise, fetch the latest active login
-        return $query->first();
+        return null;
     }
 
     /**
@@ -320,6 +343,7 @@ class Login extends Model
      */
     public function unLogout()
     {
+        $this->updated_at = $this->freshTimestamp();
         $this->logout_at = null;
         $this->save();
     }
@@ -339,10 +363,10 @@ class Login extends Model
      */
     public function close()
     {
-        self::logout($this->user, false);
-
+        $this->key = null;
         $this->closed = true;
-        $this->save();
+
+        $this->touchLogout();
     }
 
     /**

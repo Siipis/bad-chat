@@ -34,7 +34,7 @@ class Kernel extends HttpKernel
 
         'online' => [
             'auth',
-            \App\Http\Middleware\VerifyOnline::class,
+            \App\Http\Middleware\VerifySession::class,
         ],
 
         'api' => [

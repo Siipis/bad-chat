@@ -25,7 +25,7 @@ class LoginController extends Controller
     public function getIndex()
     {
         if (Auth::check()) {
-            if (!is_null($login = Login::active(Auth::user()))) {
+            if (!is_null(Login::active())) {
                 if (!Login::verify()) {
                     Login::logout();
 
@@ -57,8 +57,6 @@ class LoginController extends Controller
         $password = $request->input('password');
 
         if (Auth::attempt(['name' => $name, 'password' => $password, 'is_active' => true])) {
-            Login::clean(false);
-
             Login::trace();
 
             return redirect('/');
@@ -72,8 +70,6 @@ class LoginController extends Controller
     public function getLogout()
     {
         Login::logout();
-
-        Auth::logout();
 
         return redirect('/');
     }
