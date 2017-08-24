@@ -264,6 +264,12 @@ class System extends Message
                 return "$user rolled $roll and got $total. (The rolls were $resultList.)";
             }
 
+            if ($message == 'tarot') {
+                $user = $this->context['user'];
+                $tarot = $this->context['tarot'];
+
+                return "$user drew a Tarot card and got $tarot.";
+            }
 
             /*
             |--------------------------------------------------------------------------
