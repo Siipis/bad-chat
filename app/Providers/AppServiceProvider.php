@@ -16,12 +16,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        \Validator::extend('user', function($attribute, $value, $parameters, $validator) {
-            $validator->addReplacer('user', function ($message, $attribute, $rule, $parameters) use ($parameters) {
-                return str_replace(':value', $parameters[0], $message);
+        \Validator::extend('user', function($attribute, $value, $params, $validator) {
+            $validator->addReplacer('user', function ($message) use ($params) {
+                return str_replace(':value', $params[0], $message);
             });
 
-            return User::whereName($parameters[0])->active()->count() > 0;
+            return User::whereName($params[0])->active()->count() > 0;
         });
     }
 

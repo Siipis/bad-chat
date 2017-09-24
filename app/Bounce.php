@@ -49,6 +49,8 @@ class Bounce extends Model
             return $transform;
         }
 
+        $bounce->updated_at->setTimezone(config('app.timezone')); // TODO: remove if dates still display wrong
+
         return $bounce;
     }
 
@@ -57,6 +59,6 @@ class Bounce extends Model
      */
     private function getUserIp()
     {
-        return $_SERVER['REMOTE_ADDR'];
+        return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
     }
 }
