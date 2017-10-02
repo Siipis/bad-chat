@@ -16,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Register custom validator
         \Validator::extend('user', function($attribute, $value, $params, $validator) {
             $validator->addReplacer('user', function ($message) use ($params) {
                 return str_replace(':value', $params[0], $message);
