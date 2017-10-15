@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Ban;
+use App\Role;
 use App\User;
 use App\Vouch;
 use Carbon\Carbon;
@@ -398,6 +399,8 @@ class UsersController extends Controller
 
     public function getPatrons()
     {
-        return CMS::render('users.patrons');
+        return CMS::render('users.patrons', [
+            'users' => Role::find(1)->users->sortBy('name')
+        ]);
     }
 }

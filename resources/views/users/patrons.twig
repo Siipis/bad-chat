@@ -15,23 +15,10 @@ title: "{{ appName }}: Patrons"
     </tr>
     </thead>
     <tbody>
+    {% for user in users %}
     <tr>
-        <td>Infinitum</td>
+        <td>{{ user.name }}</td>
     </tr>
-    <tr>
-        <td>JiSe</td>
-    </tr>
-    <tr>
-        <td>Onyx</td>
-    </tr>
-    <tr>
-        <td>Treks</td>
-    </tr>
-    <tr>
-        <td>Sunstone</td>
-    </tr>
-    <tr>
-        <td>Quaxotic</td>
-    </tr>
+    {% endfor %}
 </tbody>
 </table>
