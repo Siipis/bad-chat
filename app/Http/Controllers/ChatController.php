@@ -1436,6 +1436,10 @@ class ChatController extends Controller
             $timer = intval($split[1]);
 
             if ($timer > 0) {
+                if ($timer > config('chat.channels.maxslow')) {
+                    $timer = config('chat.channels.maxslow');
+                }
+
                 $channel->slowed = $timer;
                 $channel->save();
 
@@ -1444,7 +1448,7 @@ class ChatController extends Controller
                     'timer' => $timer,
                 ]);
             } else {
-                return $this->createInfo($channel, 'bad_slow_timer', $split[2]);
+                return $this->createUnslow($channel);
             }
 
         }
@@ -1458,7 +1462,7 @@ class ChatController extends Controller
      * @param Channel $channel
      * @param $message
      */
-    private function createUnslow(Channel $channel, $message)
+    private function createUnslow(Channel $channel, $message = null)
     {
         if ($channel->isStaff(Auth::user())) {
             $channel->slowed = null;

@@ -20,6 +20,8 @@ return [
         'expire' => 7, // days
         'minlength' => 3, // characters
         'maxlength' => 16, // characters
+
+        'maxslow' => 60, // seconds
     ],
 
     'ban' => [
