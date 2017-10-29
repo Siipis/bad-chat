@@ -42,7 +42,7 @@ class ChannelsClean extends Command
 
         foreach(Channel::expired()->get() as $channel) {
             $i++;
-            \FrontLog::debug("Channel $channel->name has expired.");
+            \Log::debug("Channel $channel->name has expired.");
             $this->info("Channel $channel->name has expired.");
 
             $channel->delete();
