@@ -109,6 +109,7 @@ class ChatController extends Controller
             'working' => "/^(\/work|\/working)$/i",
             'art' => "/^(\/art|\/writing|\/painting)$/i",
             'phone' => "/^(\/phone|\/call)$/i",
+            'tv' => "/^(\/tv|\/video)$/i",
             'back' => "/^(\/back|\/online|\/b)$/i",
         ];
     }
@@ -1835,6 +1836,18 @@ class ChatController extends Controller
     private function createPhone(Channel $channel, $message)
     {
         return $this->setStatus($channel, 'phone');
+    }
+
+    /**
+     * Sets the user status to tv
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return null|Response
+     */
+    private function createTv(Channel $channel, $message)
+    {
+        return $this->setStatus($channel, 'tv');
     }
 
     /**
