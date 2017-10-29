@@ -39,6 +39,7 @@ class Info extends Message
         'ignore_not_found',
         'ban_exists',
         'ban_not_found',
+        'slowed',
     ];
 
     /*
@@ -238,6 +239,12 @@ class Info extends Message
                 $channelList = implode(', ', $channels);
 
                 return "$user is chatting in $channelList.";
+            }
+
+            if ($message == 'slowed') {
+                $timer = $this->context;
+
+                return "The channel is slowed. Please wait $timer more seconds.";
             }
 
             /*

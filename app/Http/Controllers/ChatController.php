@@ -75,6 +75,7 @@ class ChatController extends Controller
         $channel = "($this->channelRegex)";
         $any = "(.*)+";
         $alpha_dash = "([a-z_-]+)";
+        $integer = "([0-9]+)";
 
         return [
             'whisper' => "/^(\/w|\/whisper|\/msg) $nick $any$/i",
@@ -94,6 +95,8 @@ class ChatController extends Controller
             'demote' => "/^(\/demote) $nick$/i",
             'topic' => "/^(\/topic|\/subject) $any+$/i",
             'set' => "/^(\/set|\/settings) $alpha_dash $any+$/i",
+            'slow' => "/^(\/slow|\/restrict) $integer$/i",
+            'unslow' => "/^(\/unslow|\/free)$/i",
             'about' => "/^(\/about|\/info)( $channel)?$/i",
             'ignore' => "/^(\/ignore|\/silence|\/mute) $nick$/i",
             'unignore' => "/^(\/unignore|\/unsilence|\/unmute) $nick$/i",
@@ -135,14 +138,14 @@ class ChatController extends Controller
             $auth = Auth::user();
 
             if ($auth->isSuspended()) {
-                Log::debug('User is suspended in '. __FUNCTION__, [
+                Log::debug('User is suspended in ' . __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
                 ]);
 
                 Login::logout($auth);
-                
+
                 return response('Logging out.', 307);
             }
 
@@ -248,7 +251,7 @@ class ChatController extends Controller
             $login = Login::active($auth);
 
             if (is_null($login) || is_null($auth)) {
-                Log::debug('No valid login was found in '. __FUNCTION__, [
+                Log::debug('No valid login was found in ' . __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
@@ -260,7 +263,7 @@ class ChatController extends Controller
             }
 
             if ($login->channels->count() == 0 || $auth->isSuspended()) {
-                Log::debug('Invalid login status in '. __FUNCTION__, [
+                Log::debug('Invalid login status in ' . __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
@@ -313,10 +316,25 @@ class ChatController extends Controller
                 return $user;
             });
 
-            $channels = $login->channels->map(function ($c) use ($channel, $channels, $latest, $rows) {
+            $channels = $login->channels->map(function ($c) use ($auth, $channel, $channels, $latest, $rows) {
                 $obj = new Channel; // Use a dummy to avoid excessive information
 
                 $obj->name = $c->name;
+
+                // Check if channel is slowed
+                if ($c->slowed) {
+                    $obj->slowed = $c->slowed;
+
+                    try {
+                        $previousPost = Post::target($auth)->channel($c)->orderBy('id', 'desc')->first(['created_at']);
+
+                        $timerExpired = Carbon::now()->subSecond($c->slowed);
+
+                        $obj->timer = $timerExpired < $previousPost->created_at ? true : false;
+                    } catch (\Exception $e) {
+                        $obj->timer = false;
+                    }
+                }
 
                 // Object is the current channel
                 if ($c->name == $channel->name) {
@@ -341,7 +359,7 @@ class ChatController extends Controller
             });
 
             // If the current channel is no longer available...
-            if(!$login->channels->contains($channel)) {
+            if (!$login->channels->contains($channel)) {
                 $channel = $login->channels->first();
 
                 $request->merge([
@@ -352,7 +370,7 @@ class ChatController extends Controller
             }
 
             // Otherwise, prepare the data
-                $data = [
+            $data = [
                 'channel' => $channel,
                 'channels' => $channels,
                 'users' => $users,
@@ -384,7 +402,7 @@ class ChatController extends Controller
             $notifications += User::where('is_active', false)->count();
         }
 
-        $notifications += \App\Conversation::readable()->visible()->get()->filter(function($c) {
+        $notifications += \App\Conversation::readable()->visible()->get()->filter(function ($c) {
             return $c->hasUnread();
         })->count();
 
@@ -409,7 +427,7 @@ class ChatController extends Controller
             $message = $this->getMessage($request);
 
             if ($login->channels->count() == 0 || $auth->isSuspended()) {
-                Log::debug('Invalid login status in '. __FUNCTION__, [
+                Log::debug('Invalid login status in ' . __FUNCTION__, [
                     'IP' => $request->ip(),
                     'Auth' => $auth,
                     'URL' => $request->fullUrl(),
@@ -499,7 +517,7 @@ class ChatController extends Controller
             foreach (Channel::all()->sortBy('name') as $channel) {
                 if ($channel instanceof Channel) {
                     if ($channel->canJoin($auth)) {
-                        $chatting = $channel->online->map(function(Online $online) {
+                        $chatting = $channel->online->map(function (Online $online) {
                             return $online->login->user->name;
                         });
 
@@ -561,6 +579,22 @@ class ChatController extends Controller
      */
     private function createPost(Channel $channel, $message, $color = null)
     {
+        $auth = Auth::user();
+
+        // Check if channel is slowed...
+        if ($channel->slowed > 0) {
+            $previousPost = Post::target($auth)->channel($channel)->orderBy('id', 'desc')->first(['created_at']);
+
+            if ($previousPost) {
+                $timerExpired = Carbon::now()->subSecond($channel->slowed);
+
+                if ($timerExpired < $previousPost->created_at) {
+                    return $this->createInfo($channel, 'slowed', $timerExpired->diffInSeconds($previousPost->created_at));
+                }
+            }
+        }
+
+        // ...if not, proceed as normal
         $post = new Post([
             'message' => $message,
         ]);
@@ -569,13 +603,15 @@ class ChatController extends Controller
             $post->color = $color;
         }
 
-        $post->user()->associate(Auth::user());
+        $post->user()->associate($auth);
 
         $channel->messages()->save($post);
 
         $this->closeConnection();
 
-        return response(null, 200);
+        return response()->json([
+            'timer' => $channel->slowed
+        ]);
     }
 
     /**
@@ -672,7 +708,8 @@ class ChatController extends Controller
      * @param $message
      * @return Response
      */
-    private function createRoll(Channel $channel, $message) {
+    private function createRoll(Channel $channel, $message)
+    {
         $split = explode(' ', $message);
 
         $roll = preg_split('/[Dd]/', $split[1]);
@@ -710,7 +747,8 @@ class ChatController extends Controller
      * @param Channel $channel
      * @param $message
      */
-    private function createTarot(Channel $channel, $message) {
+    private function createTarot(Channel $channel, $message)
+    {
         $cards = [
             "The Fool (0)",
             "The Magician (I)",
@@ -1075,7 +1113,7 @@ class ChatController extends Controller
     {
         $auth = Auth::user();
 
-        $protegees = $auth->protegees->map(function($user) {
+        $protegees = $auth->protegees->map(function ($user) {
             return $user->name;
         });
 
@@ -1093,7 +1131,7 @@ class ChatController extends Controller
     {
         $auth = Auth::user();
 
-        $protectors = $auth->protectors->map(function($user) {
+        $protectors = $auth->protectors->map(function ($user) {
             return $user->name;
         });
 
@@ -1382,6 +1420,56 @@ class ChatController extends Controller
         }
 
         return $this->createInfo($channel, 'not_permitted', 'settings');
+    }
+
+    /**
+     * Slows the channel down.
+     *
+     * @param Channel $channel
+     * @param $message
+     */
+    private function createSlow(Channel $channel, $message)
+    {
+        if ($channel->isStaff(Auth::user())) {
+            $split = explode(' ', $message);
+
+            $timer = intval($split[1]);
+
+            if ($timer > 0) {
+                $channel->slowed = $timer;
+                $channel->save();
+
+                return $this->createSystem($channel, 'slow_timer_on', [
+                    'user' => Auth::user()->name,
+                    'timer' => $timer,
+                ]);
+            } else {
+                return $this->createInfo($channel, 'bad_slow_timer', $split[2]);
+            }
+
+        }
+
+        return $this->createInfo($channel, 'not_permitted', 'slow_timer');
+    }
+
+    /**
+     * Removes the slow from a channel.
+     *
+     * @param Channel $channel
+     * @param $message
+     */
+    private function createUnslow(Channel $channel, $message)
+    {
+        if ($channel->isStaff(Auth::user())) {
+            $channel->slowed = null;
+            $channel->save();
+
+            return $this->createSystem($channel, 'slow_timer_off', [
+                'user' => Auth::user()->name,
+            ]);
+        }
+
+        return $this->createInfo($channel, 'not_permitted', 'slow_timer');
     }
 
     /**
@@ -1720,7 +1808,8 @@ class ChatController extends Controller
      * @param $message
      * @return Response
      */
-    private function createFind(Channel $channel, $message) {
+    private function createFind(Channel $channel, $message)
+    {
         $split = explode(' ', $message);
 
         $name = $split[1];
@@ -1980,7 +2069,11 @@ class ChatController extends Controller
             return null;
         }
 
-        return $this->createInfo($channel, 'status_exists', $status);
+        if ($status !== 'online') {
+            return $this->createInfo($channel, 'status_exists', $status);
+        }
+
+        return null;
     }
 
     /*

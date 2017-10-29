@@ -2,7 +2,19 @@
 @import "chatcolors";
 @import "../../chat";
 
-#chat-container #chat-frame #chat-input textarea {
-  color: @text-color;
-  background: darken(@body-bg, 5%);
+#chat-container #chat-frame {
+  #chat-channels {
+    .timer-icon {
+      color: @brand-primary;
+
+      &.rotating {
+        color: @brand-danger;
+      }
+    }
+  }
+
+  #chat-input textarea {
+    color: @text-color;
+    background: darken(@body-bg, 5%);
+  }
 }

@@ -63,6 +63,7 @@ namespace App{
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property string $deleted_at
+ * @property integer $slowed
  * @property-read \App\User $user
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Online[] $online
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Message[] $messages
@@ -77,6 +78,7 @@ namespace App{
  * @method static \Illuminate\Database\Query\Builder|\App\Channel whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Channel whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Channel whereDeletedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Channel whereSlowed($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Channel defaults()
  * @method static \Illuminate\Database\Query\Builder|\App\Channel expired()
  */

@@ -240,6 +240,31 @@ class System extends Message
                 return "$target was kicked from the channel.";
             }
 
+            if ($message == 'slow_timer_on') {
+                $user = $this->context['user'];
+                $timer = $this->context['timer'];
+
+                if ($this->channel instanceof Channel) {
+                    if ($this->channel->isStaff(Auth::user())) {
+                        return "$user has slowed the channel by $timer seconds.";
+                    }
+                }
+
+                return "The channel has been slowed by $timer seconds.";
+            }
+
+            if ($message == 'slow_timer_off') {
+                $user = $this->context['user'];
+
+                if ($this->channel instanceof Channel) {
+                    if ($this->channel->isStaff(Auth::user())) {
+                        return "$user removed the slow timer.";
+                    }
+                }
+
+                return "The slow timer has been removed.";
+            }
+
             /*
             |--------------------------------------------------------------------------
             | Actions

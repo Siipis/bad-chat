@@ -105,7 +105,10 @@ title: "{{ appName }}"
                         <li role="tab"
                             ng-repeat="channel in channels()" ng-click="openChannel(channel)"
                             ng-class="{ active: activeChannel() == channel.name, changed: channel.changed }">
-                            <a href="javascript:void(0);">{{ '{{ channel.name }}' }}</a>
+                            <a href="javascript:void(0);">
+                                {{ '{{ channel.name }}' }}
+                                <span ng-if="channel.slowed > 0" class="glyphicon glyphicon-hourglass timer-icon" ng-class="{ rotating: channel.timer }" title="This channel has been slowed."></span>
+                            </a>
                         </li>
                         <li role="option" ng-click="joinChannel()">
                             <a href="javascript:void(0);">

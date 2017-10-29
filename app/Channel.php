@@ -13,7 +13,8 @@ class Channel extends Model
     protected $fillable = ['name', 'access', 'expires'];
 
     protected $visible = [
-        'name', 'topic', 'access', 'latest', 'changed', 'chatting'
+        'name', 'topic', 'access', 'latest', 'changed', 'chatting',
+        'slowed', 'timer',
     ];
 
     /*
