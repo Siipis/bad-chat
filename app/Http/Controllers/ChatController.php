@@ -591,7 +591,7 @@ class ChatController extends Controller
 
         // Check if channel is slowed...
         if ($channel->slowed > 0) {
-            $previousPost = Post::target($auth)->channel($channel)->orderBy('id', 'desc')->first(['created_at']);
+            $previousPost = Post::whereUserId($auth->id)->whereChannelId($channel->id)->orderBy('id', 'desc')->first(['created_at']);
 
             if ($previousPost) {
                 $timerExpired = Carbon::now()->subSecond($channel->slowed);
