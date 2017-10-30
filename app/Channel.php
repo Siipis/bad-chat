@@ -157,9 +157,17 @@ class Channel extends Model
         $this->access = 'private';
         $this->touchExpires();
 
+        if ($this->user !== $user) {
+            Message::channel($this, false)->delete();
+
+            Invite::whereChannelId($this->id)->delete();
+        }
+
         if ($user instanceof User) {
             $user->channels()->save($this);
         }
+
+        \Log::debug("$user->name has restored $this->name.");
 
         return true;
     }
@@ -231,6 +239,23 @@ class Channel extends Model
 
         if ($invite = $this->invites()->getQuery()->where('target_id', $user->id)->count() > 0) {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if the user has joined the channel
+     *
+     * @param User $user
+     * @return bool
+     */
+    public function hasJoined(User $user)
+    {
+        if (!is_null($login = Login::active($user))) {
+            if (Online::exists($this, $login)) {
+                return true;
+            }
         }
 
         return false;

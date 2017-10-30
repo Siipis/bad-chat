@@ -38,16 +38,54 @@
                         <td>/seen Dummy</td>
                     </tr>
                     <tr>
-                        <td>/me [message]</td>
-                        <td>/emote /do</td>
-                        <td>Describe an action.</td>
-                        <td>/me dances with Dummy.</td>
+                        <td>/ignore [username]</td>
+                        <td>/mute /silence</td>
+                        <td>Filter out a user's messages.</td>
+                        <td>/ignore Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/unignore [username]</td>
+                        <td>/unmute /unsilence</td>
+                        <td>Stops filtering out a user's messages.</td>
+                        <td>/unignore Dummy</td>
+                    </tr>
+                    <tr>
+                        <td>/join [channel]</td>
+                        <td>/enter</td>
+                        <td>Joins or creates a channel.</td>
+                        <td>/join #public</td>
+                    </tr>
+                    <tr>
+                        <td>/part (channel)</td>
+                        <td>/leave</td>
+                        <td>Leaves a channel. If no channel is specified, leaves the current channel.</td>
+                        <td>/part | /part #public</td>
                     </tr>
                     <tr>
                         <td>/logout</td>
                         <td>/exit /quit</td>
                         <td>Logs out from the chat.</td>
                         <td>/logout</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h4>Status commands</h4>
+                <table class="table table-striped table-responsive">
+                    <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Alternate</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>/back</td>
+                        <td>/online</td>
+                        <td>Removes your status (if it exists).</td>
+                        <td>/back</td>
                     </tr>
                     <tr>
                         <td>/away</td>
@@ -91,30 +129,55 @@
                         <td>Sets your status to tv. Use /back to remove the status.</td>
                         <td>/tv</td>
                     </tr>
+                    </tbody>
+                </table>
+
+                <h4>Action commands</h4>
+                <table class="table table-striped table-responsive">
+                    <thead>
                     <tr>
-                        <td>/back</td>
-                        <td>/online</td>
-                        <td>Removes your status (if it exists).</td>
-                        <td>/back</td>
+                        <th>Command</th>
+                        <th>Alternate</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>/me [message]</td>
+                        <td>/emote /do</td>
+                        <td>Describe an action.</td>
+                        <td>/me dances with Dummy.</td>
                     </tr>
                     <tr>
-                        <td>/join [channel]</td>
-                        <td>/enter</td>
-                        <td>Joins or creates a channel.</td>
-                        <td>/join #public</td>
+                        <td>/roll [num]d[sides]</td>
+                        <td></td>
+                        <td>Roll a given number of dies, for example a single die with six sides.
+                        </td>
+                        <td>/roll 1d6</td>
                     </tr>
+
                     <tr>
-                        <td>/part (channel)</td>
-                        <td>/leave</td>
-                        <td>Leaves a channel. If no channel is specified, leaves the current channel.</td>
-                        <td>/part | /part #public</td>
+                        <td>/tarot</td>
+                        <td>/card</td>
+                        <td>Draw a random Tarot card.
+                        </td>
+                        <td>/tarot</td>
                     </tr>
+                    </tbody>
+                </table>
+
+                <h4>Vouching commands</h4>
+                <table class="table table-striped table-responsive">
+                    <thead>
                     <tr>
-                        <td>/info (channel)</td>
-                        <td>/about</td>
-                        <td>Displays the channel information.</td>
-                        <td>/info | /info #public</td>
+                        <th>Command</th>
+                        <th>Alternate</th>
+                        <th>Description</th>
+                        <th>Example</th>
                     </tr>
+                    </thead>
+                    <tbody>
                     <tr>
                         <td>/vouch [username]</td>
                         <td></td>
@@ -139,50 +202,8 @@
                         <td>Lists the users who vouch for you.</td>
                         <td>/protectors</td>
                     </tr>
-                    <tr>
-                        <td>/ignore [username]</td>
-                        <td>/mute /silence</td>
-                        <td>Filter out a user's messages.</td>
-                        <td>/ignore Dummy</td>
-                    </tr>
-                    <tr>
-                        <td>/unignore [username]</td>
-                        <td>/unmute /unsilence</td>
-                        <td>Stops filtering out a user's messages.</td>
-                        <td>/unignore Dummy</td>
-                    </tr>
                     </tbody>
                 </table>
-
-                <h4>Special commands</h4>
-                <table class="table table-striped table-responsive">
-                    <thead>
-                    <tr>
-                        <th>Command</th>
-                        <th>Alternate</th>
-                        <th>Description</th>
-                        <th>Example</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>/roll [num]d[sides]</td>
-                        <td></td>
-                        <td>Roll a given number of dies, for example a single die with six sides.
-                        </td>
-                        <td>/roll 1d6</td>
-                    </tr>
-
-                    <tr>
-                        <td>/tarot</td>
-                        <td>/card</td>
-                        <td>Draw a random Tarot card.
-                        </td>
-                        <td>/tarot</td>
-                    </tr>
-                    </tbody>
-                </table>
-
 
                 <h4>Channel staff commands</h4>
                 <table class="table table-striped table-responsive">
@@ -195,6 +216,12 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <tr>
+                        <td>/info (channel)</td>
+                        <td>/about</td>
+                        <td>Displays the channel information.</td>
+                        <td>/info | /info #public</td>
+                    </tr>
                     <tr>
                         <td>/invite [username] (channel)</td>
                         <td>/inv</td>
@@ -228,6 +255,12 @@
                         <td>/topic Has anyone seen Dummy?</td>
                     </tr>
                     <tr>
+                        <td>/unslow</td>
+                        <td>/free</td>
+                        <td>(Channel staff only.) Removes the enforced interval between messages.</td>
+                        <td>/kick Dummy</td>
+                    </tr>
+                    <tr>
                         <td>/settings [setting] [option]</td>
                         <td>/set</td>
                         <td>
@@ -259,7 +292,7 @@
                     </tbody>
                 </table>
 
-                <h4 class="">Chat staff commands</h4>
+                <h4 class="">Server staff commands</h4>
                 <table class="table table-striped table-responsive">
                     <thead>
                     <tr>
@@ -291,16 +324,16 @@
                         <td>/kick Dummy</td>
                     </tr>
                     <tr>
+                        <td>/move [username] [channel]</td>
+                        <td>/push</td>
+                        <td>(Channel staff only.) Moves a user to another channel.</td>
+                        <td>/move Dummy #public</td>
+                    </tr>
+                    <tr>
                         <td>/slow [seconds]</td>
                         <td>/restrict</td>
                         <td>(Channel staff only.) Enforces an interval between messages in the channel. Maximum is 60.</td>
                         <td>/slow 20</td>
-                    </tr>
-                    <tr>
-                        <td>/unslow</td>
-                        <td>/free</td>
-                        <td>(Channel staff only.) Removes the enforced interval between messages.</td>
-                        <td>/kick Dummy</td>
                     </tr>
                     <tr>
                         <td>/whois [username]</td>

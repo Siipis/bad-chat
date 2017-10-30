@@ -240,6 +240,24 @@ class System extends Message
                 return "$target was kicked from the channel.";
             }
 
+            if ($message == 'moved') {
+                $user = $this->context['user'];
+                $target = $this->context['target'];
+                $oldChannel = $this->context['old_channel'];
+                $newChannel = $this->context['new_channel'];
+
+                $from = $this->channel->name == $oldChannel ? 'this channel' : $oldChannel;
+                $to = $this->channel->name == $newChannel ? 'this channel' : $newChannel;
+
+                if ($this->channel instanceof Channel) {
+                    if ($this->channel->isStaff(Auth::user())) {
+                        return "$user moved " . ($target == Auth::user()->name ? 'you' : $target) . " from $from to $to.";
+                    }
+                }
+
+                return ($target == Auth::user()->name ? 'You were' : "$target was") . " moved from $from to $to.";
+            }
+
             if ($message == 'slow_timer_on') {
                 $user = $this->context['user'];
                 $timer = $this->context['timer'];
@@ -310,6 +328,8 @@ class System extends Message
             }
 
         } catch (\Exception $e) {
+            \Log::error($e->getTraceAsString());
+
             return "A database error occurred. Please report this!";
         }
 

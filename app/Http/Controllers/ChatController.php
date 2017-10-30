@@ -103,6 +103,7 @@ class ChatController extends Controller
             'ban' => "/^(\/ban|\/remove) $nick$/i",
             'unban' => "/^(\/unban|\/revoke) $nick$/i",
             'kick' => "/^(\/kick|\/boot) $nick$/i",
+            'move' => "/^(\/move|\/push) $nick $channel$/i",
             'whois' => "/^(\/who|\/whois|\/ip) $nick$/i",
             'find' => "/^(\/find|\/where|\/channels) $nick$/i",
             'logout' => "/^(\/quit|\/logout|\/exit)$/i",
@@ -155,44 +156,51 @@ class ChatController extends Controller
                 $settings = Settings::defaults($auth);
             }
 
-            $firstChannel = null;
-            $failedJoining = [];
+            // Use existing channels if user is online...
+            $online = Online::whereLoginId(Login::active($auth)->id);
 
-            // Attempt to auto-join channels...
-            foreach ($settings->channels as $channel) {
-                $channel = $this->initChannel($channel);
+            if ($online->exists()) {
+                $firstChannel = $online->first()->channel;
+            } else { // ...or use the default ones from settings.
+                $firstChannel = null;
+                $failedJoining = [];
 
-                if ($channel->canJoin($auth)) {
-                    if (is_null($firstChannel)) {
-                        $firstChannel = $channel;
+                // Attempt to auto-join channels...
+                foreach ($settings->channels as $channel) {
+                    $channel = $this->initChannel($channel);
+
+                    if ($channel->canJoin($auth)) {
+                        if (is_null($firstChannel)) {
+                            $firstChannel = $channel;
+                        }
+
+                        $this->enterChannel($channel);
+                    } else {
+                        array_push($failedJoining, $channel);
+                    }
+                }
+
+                // (Declare join errors)
+                if ($firstChannel instanceof Channel) {
+                    foreach ($failedJoining as $channel) {
+                        $this->createInfo($firstChannel, 'join_error', $channel->name);
+                    }
+                }
+
+                // ...or fall back to the defaults
+                if (is_null($firstChannel)) {
+                    foreach (Channel::defaults()->get() as $channel) {
+                        if (is_null($firstChannel)) {
+                            $firstChannel = $channel;
+                        }
+
+                        $this->enterChannel($channel);
                     }
 
-                    $this->enterChannel($channel);
-                } else {
-                    array_push($failedJoining, $channel);
-                }
-            }
-
-            // (Declare join errors)
-            if ($firstChannel instanceof Channel) {
-                foreach ($failedJoining as $channel) {
-                    $this->createInfo($firstChannel, 'join_error', $channel->name);
-                }
-            }
-
-            // ...or fall back to the defaults
-            if (is_null($firstChannel)) {
-                foreach (Channel::defaults()->get() as $channel) {
-                    if (is_null($firstChannel)) {
-                        $firstChannel = $channel;
+                    // Declare join errors
+                    foreach ($failedJoining as $channel) {
+                        $this->createInfo($firstChannel, 'join_error', $channel->name);
                     }
-
-                    $this->enterChannel($channel);
-                }
-
-                // Declare join errors
-                foreach ($failedJoining as $channel) {
-                    $this->createInfo($firstChannel, 'join_error', $channel->name);
                 }
             }
 
@@ -1249,6 +1257,12 @@ class ChatController extends Controller
                     return $this->createInfo($channel, 'self_target');
                 }
 
+                if ($channel->getRole($user) == 'admin') {
+                    return $this->createInfo($channel, 'not_permitted', 'promote');
+                }
+
+                $createdInvite = false;
+
                 if ($channel->getRole($auth) == 'admin') {
                     if (Invite::exists($channel, $user)) {
                         $invite = Invite::where('channel_id', $channel->id)->where('target_id', $user->id)->firstOrFail();
@@ -1259,6 +1273,8 @@ class ChatController extends Controller
                         $invite->target()->associate($user);
 
                         $channel->invites()->save($invite);
+
+                        $createdInvite = true;
                     }
 
                     if ($invite->promote()) {
@@ -1270,6 +1286,10 @@ class ChatController extends Controller
                             'role' => $channel->getRole($user),
                         ]);
                     }
+                }
+
+                if ($createdInvite && isset($invite)) { // Remove failed invites
+                    $invite->delete();
                 }
 
                 return $this->createInfo($channel, 'not_permitted', 'promote');
@@ -1302,7 +1322,9 @@ class ChatController extends Controller
                     return $this->createInfo($channel, 'self_target');
                 }
 
-                if ($channel->getRole($auth) == 'admin') {
+                $createdInvite = false;
+
+                if ($channel->getRole($auth) == 'admin' && $channel->user !== $user) {
                     if (Invite::exists($channel, $user)) {
                         $invite = Invite::where('channel_id', $channel->id)->where('target_id', $user->id)->firstOrFail();
                     } else {
@@ -1312,6 +1334,8 @@ class ChatController extends Controller
                         $invite->target()->associate($user);
 
                         $channel->invites()->save($invite);
+
+                        $createdInvite = true;
                     }
 
                     if ($invite->demote()) {
@@ -1323,6 +1347,10 @@ class ChatController extends Controller
                             'role' => $channel->getRole($user),
                         ]);
                     }
+                }
+
+                if ($createdInvite && isset($invite)) { // Remove failed invites
+                    $invite->delete();
                 }
 
                 return $this->createInfo($channel, 'not_permitted', 'demote');
@@ -1453,7 +1481,7 @@ class ChatController extends Controller
 
         }
 
-        return $this->createInfo($channel, 'not_permitted', 'slow_timer');
+        return $this->createInfo($channel, 'not_permitted', 'slow');
     }
 
     /**
@@ -1485,14 +1513,14 @@ class ChatController extends Controller
      */
     private function createAbout(Channel $origChannel, $message)
     {
-        if (Auth::user()->isStaff()) {
+        if ($origChannel->isStaff(Auth::user())) {
             $split = explode(' ', $message);
 
             if (isset($split[1])) {
                 $channel = Channel::whereName($split[1])->first();
 
                 if (is_null($channel)) {
-                    return $this->createInfo($origChannel, 'channel_not_found', $split[2]);
+                    return $this->createInfo($origChannel, 'channel_not_found', $split[1]);
                 }
             } else {
                 $channel = $origChannel;
@@ -1771,6 +1799,100 @@ class ChatController extends Controller
     }
 
     /**
+     * Moves a user to another channel
+     *
+     * @param Channel $channel
+     * @param $message
+     * @return Response
+     */
+    private function createMove(Channel $channel, $message)
+    {
+        $auth = Auth::user();
+
+        if (!$channel->isStaff($auth)) {
+            return $this->createInfo($channel, 'not_permitted', 'move');
+        }
+
+        $split = explode(' ', $message);
+
+        $name = $split[1];
+        $channelName = $split[2];
+
+        $user = User::findByName($name);
+
+        if ($user instanceof User) {
+            $login = Login::active($user);
+
+            if ($login instanceof Login) {
+                if (!$login->channels->contains($channel)) {
+                    return $this->createInfo($channel, 'user_not_found', $name);
+                }
+
+                // Initialize the channel
+                $newChannel = $this->initChannel($channelName);
+
+                // Make sure mod has rights to move people
+                if ($newChannel->isPrivate() && $newChannel->getRole($auth) == 'member') {
+                    return $this->createInfo($channel, 'not_permitted', 'move_channel');
+                }
+
+                // If the user is already on the channel, just kick them instead
+                if ($newChannel->hasJoined($user)) {
+                    return $this->createKick($channel, "/kick $name");
+                }
+
+                $invite = false;
+
+                // Create an invite for private channels
+                if ($newChannel->isPrivate() && $user !== $auth && !Invite::exists($newChannel, $user)) {
+                    $invite = new Invite();
+
+                    $invite->user()->associate($auth);
+                    $invite->target()->associate($user);
+
+                    $newChannel->invites()->save($invite);
+                }
+
+                // Make the actual move
+                if ($this->enterChannel($newChannel, $user)) {
+                    Online::where('channel_id', $channel->id)->where('login_id', $login->id)->delete();
+
+                    if ($invite instanceof Invite) { // Announce the invite only on success
+                        $this->createInfo(null, 'invite', $newChannel->name, $user, $auth);
+                    }
+
+                    $this->createSystem($channel, 'moved', [
+                        'user' => $auth->name,
+                        'target' => $user->name,
+                        'old_channel' => $channel->name,
+                        'new_channel' => $newChannel->name,
+                    ]);
+
+                    return $this->createSystem($newChannel, 'moved', [
+                        'user' => $auth->name,
+                        'target' => $user->name,
+                        'old_channel' => $channel->name,
+                        'new_channel' => $newChannel->name,
+                    ]);
+                }
+
+                if ($invite instanceof Invite) { // Delete the invite if something fails
+                    $invite->delete();
+                }
+
+                return $this->createInfo($channel, 'move_error', [
+                    'target' => $user->name,
+                    'channel' => $channelName,
+                ]);
+            }
+
+            return $this->createInfo($channel, 'user_not_found', $name);
+        }
+
+        return $this->createInfo($channel, 'user_not_found', $name);
+    }
+
+    /**
      * Attempts to read the IP of a person
      *
      * @param Channel $channel
@@ -2003,11 +2125,14 @@ class ChatController extends Controller
      * Adds the user to a channel
      *
      * @param Channel $channel
+     * @param User $user
      * @return bool
      */
-    private function enterChannel(Channel $channel)
+    private function enterChannel(Channel $channel, User $user = null)
     {
-        $user = Auth::user();
+        if (is_null($user)) {
+            $user = Auth::user();
+        }
 
         if (!is_null($login = Login::active($user))) {
             if (Online::exists($channel, $login)) {

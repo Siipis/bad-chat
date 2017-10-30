@@ -30,6 +30,7 @@ class Info extends Message
         'self_target',
         'channel_not_found',
         'join_error',
+        'move_failed',
         'channel_name',
         'default_channel_error',
         'cannot_leave_channel',
@@ -94,6 +95,12 @@ class Info extends Message
                     case 'kick':
                         $action = "kick that user here";
                         break;
+                    case 'move':
+                        $action = "move users on this channel";
+                        break;
+                    case 'move_channel':
+                        $action = "move users to that channel";
+                        break;
                     case 'vouch' :
                         $action = "vouch at the moment";
                         break;
@@ -114,6 +121,9 @@ class Info extends Message
                         break;
                     case 'topic':
                         $action = "set the topic on this channel";
+                        break;
+                    case 'slow':
+                        $action = "slow this channel";
                         break;
                     case 'settings':
                         $action = "change the settings on this channel";
@@ -206,6 +216,13 @@ class Info extends Message
                 return "Cannot leave the channel.";
             }
 
+            if ($message == 'move_error') {
+                $target = $this->context['target'];
+                $channel = $this->context['channel'];
+
+                return "Could not move $target to $channel.";
+            }
+
             if ($message == 'expires') {
                 $expires = new Carbon($this->context);
                 $diffForHumans = $expires->diffForHumans();
@@ -217,7 +234,7 @@ class Info extends Message
                 $name = $this->context['name'];
                 $user = $this->context['user'];
                 $access = $this->context['access'];
-                $expires = $this->context['expires'];
+                $expires = new Carbon($this->context['expires']);
 
                 $diffForHumans = is_null($expires) ? 'never' : $expires->diffForHumans();
 
