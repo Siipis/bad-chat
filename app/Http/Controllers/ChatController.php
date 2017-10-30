@@ -690,6 +690,22 @@ class ChatController extends Controller
      */
     private function createEmote(Channel $channel, $message)
     {
+        $auth = Auth::user();
+
+        // Check if channel is slowed...
+        if ($channel->slowed > 0) {
+            $previousPost = Post::whereUserId($auth->id)->whereChannelId($channel->id)->orderBy('id', 'desc')->first(['created_at']);
+
+            if ($previousPost) {
+                $timerExpired = Carbon::now()->subSecond($channel->slowed);
+
+                if ($timerExpired < $previousPost->created_at) {
+                    return $this->createInfo($channel, 'slowed', $timerExpired->diffInSeconds($previousPost->created_at));
+                }
+            }
+        }
+
+        // ...otherwise, post as normal.
         $split = explode(' ', $message);
 
         $cut = strlen($split[0]) + 1;
