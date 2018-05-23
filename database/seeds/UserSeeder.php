@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
                 'private_key' => bin2hex(random_bytes(15)),
             ]);
 
-            $admin->activate();
+            $admin->activate(true);
 
 
             $mod = User::create([
@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
                 'private_key' => bin2hex(random_bytes(15)),
             ]);
 
-            $mod->activate();
+            $mod->activate(true);
 
             $vouch = $admin->vouches()->create([
                 'email' => 'siipis@live.co.uk'
