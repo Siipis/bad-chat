@@ -60,7 +60,7 @@ class LogsController extends Controller
 
         $messages = $query->orderBy('id', 'desc')->paginate(50);
 
-        $messages->setPath('logs?channel='. trim($channel->name, '#'));
+        $messages->setPath('logs?channel='. trim($channel->name, '#') . (empty($search) ? '' : "&search=$search"));
 
         foreach ($messages as $key => $message) {
             $messages[$key] = $message->toModel();
