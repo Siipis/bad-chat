@@ -15,11 +15,16 @@ html {
 
     td:first-child {
       white-space: nowrap;
+      width: 8em;
     }
 
     tr.post {
       .name:after {
         content: ' : ';
+      }
+
+      td {
+        word-break: break-all;
       }
     }
 

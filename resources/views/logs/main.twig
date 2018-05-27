@@ -17,6 +17,8 @@ title: "{{ appName }}: Conversation logs"
             {% endfor %}
         </select>
 
+        <input name="search" id="inputSearch" class="form-control" value="{{ search }}" placeholder="Search (optional)" />
+
         {% if errors.has('channel') %}
             <span class="help-block">
                 <strong>{{ errors.first('channel') }}</strong>
@@ -24,10 +26,10 @@ title: "{{ appName }}: Conversation logs"
         {% endif %}
     </div>
 
-
     <div class="form-group">
         <button class="btn btn-default">Display</button>
     </div>
+
 </form>
 
 <hr />
@@ -47,7 +49,7 @@ title: "{{ appName }}: Conversation logs"
         <td>{{ m.fullTimestamp }}</td>
         <td>
             <span class="name">{{ m.name }}</span>
-            {{ m.message|join() }}
+            {{ m.message|join()|raw }}
         </td>
     </tr>
     {% endfor %}

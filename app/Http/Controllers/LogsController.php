@@ -6,6 +6,7 @@ use App\Channel;
 use App\Event;
 use App\Login;
 use App\Message;
+use App\User;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -37,6 +38,7 @@ class LogsController extends Controller
     public function getIndex(Request $request)
     {
         $channel = $request->input('channel');
+        $search = $request->input('search');
 
         if (!empty($channel)) {
             $channel = Channel::findByNameOrFail("#$channel");
@@ -44,7 +46,19 @@ class LogsController extends Controller
             $channel = Channel::defaults()->first();
         }
 
-        $messages = Message::channel($channel)->public()->orderBy('id', 'desc')->paginate(50);
+        $query = Message::channel($channel)->public();
+
+        if (!empty($search)) {
+            $query = $query->where('message', 'like', "%$search%");
+
+            $users = User::active()->where('name', 'like', "%$search%")->get(['id'])->pluck('id');
+
+            foreach ($users as $id) {
+                $query->orWhere('user_id', $id);
+            }
+        }
+
+        $messages = $query->orderBy('id', 'desc')->paginate(50);
 
         $messages->setPath('logs?channel='. trim($channel->name, '#'));
 
@@ -55,6 +69,7 @@ class LogsController extends Controller
         return CMS::render('logs.main', [
             'channel' => $channel,
             'channels' => Channel::all()->sortBy('name'),
+            'search' => $search,
             'messages' => $messages,
         ]);
     }
@@ -62,6 +77,11 @@ class LogsController extends Controller
     public function postIndex(Request $request)
     {
         $channel = $request->input('channel');
+        $search = $request->input('search');
+
+        if (!empty($search)) {
+            return redirect("logs?channel=$channel&search=$search");
+        }
 
         return redirect("logs?channel=$channel");
     }
