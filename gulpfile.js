@@ -16,7 +16,7 @@ elixir(function(mix) {
         .copy('node_modules/bootstrap/dist/js/bootstrap.min.js', 'public/js/bootstrap.js')
         .copy('node_modules/angular/angular.min.js', 'public/js/angular.js')
         .copy('node_modules/angular-sanitize/angular-sanitize.min.js', 'public/js/angular-sanitize.js')
-        .copy('node_modules/js-cookie/src/js.cookie.js', 'resources/assets/js/chat/cookies.js')
+        .copy('node_modules/js-cookie/src/js.cookie.js', 'resources/assets/js/chat/dependencies/cookies.js')
         .copy('node_modules/font-awesome/css/font-awesome.min.css', 'public/css/font-awesome.css')
         .copy('node_modules/bootstrap/dist/fonts', 'public/fonts')
         .copy('node_modules/font-awesome/fonts', 'public/fonts');

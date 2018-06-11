@@ -1,4 +1,4 @@
-app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Styling, Settings) {
+app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Notifications, Selectors, Styling, Settings) {
     var isUnloading = false; // Track the unload event
     var isTitleBlinking = false; // Track title blinking
 
@@ -263,6 +263,10 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         $rootScope.flashTitle();
 
         Audio.playDing();
+    });
+
+    $scope.$on('notify', function (e, note) {
+        Notifications.send(note);
     });
 
     $scope.$on('scroll', function (e) {

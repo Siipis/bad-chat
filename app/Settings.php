@@ -13,7 +13,11 @@ class Settings extends Model
 
     public $fillable = ['*'];
 
-    public $visible = ['highlight', 'maxMessages', 'interval', 'timezone'];
+    public $visible = ['highlight', 'maxMessages', 'interval', 'timezone', 'notify'];
+
+    protected $casts = [
+        'notify' => 'array'
+    ];
 
     public function owner()
     {
@@ -103,6 +107,12 @@ class Settings extends Model
 
         $instance->highlight = [
             $user->name
+        ];
+
+        $instance->notify = [
+            'mentions' => true,
+            'invites' => true,
+            'channel' => true,
         ];
 
         $instance->maxMessages = 0;

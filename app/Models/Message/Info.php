@@ -22,6 +22,10 @@ class Info extends Message
         'type' => 'info'
     ];
 
+    protected $notify = [
+      'invite', 'new_vouch'
+    ];
+
     protected $isError = [
         'unknown_command',
         'not_permitted',
@@ -51,6 +55,11 @@ class Info extends Message
     | Mutators and accessors
     |
     */
+
+    public function getNotificationType()
+    {
+        return $this->attributes['message'];
+    }
 
     public function getNameAttribute()
     {

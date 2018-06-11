@@ -144,6 +144,25 @@ app.factory('Data', function ($rootScope) {
 
         rowList[channelKey] = rows;
 
+        // Show notification
+        if (!row.isOwnMessage) {
+            if (row.notify !== false) {
+                $rootScope.$broadcast('notify', row.notify);
+            } else {
+                $.each(config.settings.highlight, function (key, value) {
+                    if (row.message.indexOf(value.trim()) >= 0) {
+                        $rootScope.$broadcast('notify', {
+                            type: 'highlight',
+                            name: row.name,
+                            message: row.message
+                        });
+
+                        return false;
+                    }
+                });
+            }
+        }
+
         rows = null; // free up memory
     };
 

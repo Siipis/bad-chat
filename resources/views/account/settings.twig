@@ -30,6 +30,36 @@ title: "{{ appName }}: Chat settings"
                 <p class="help-block">One highlight entry per line (case sensitive).</p>
             </td>
         </tr>
+        <tr>
+            <th>
+                <label for="notifications">Browser notifications</label>
+            </th>
+            <td>
+                Receive notifications on the following events:
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="notify_mentions" {% if settings.notify.mentions %}checked{% endif %}>
+                        Whispers and highlights
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="notify_invites" {% if settings.notify.invites %}checked{% endif %}>
+                        Invites and vouches
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="notify_channel" {% if settings.notify.channel %}checked{% endif %}>
+                        Joins, status updates, etc
+                    </label>
+                </div>
+
+                <p class="help-block">NOTE! Notifications still need to be separately enabled in the browser.</p>
+            </td>
+        </tr>
 
         <tr>
             <th>

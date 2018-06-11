@@ -14,16 +14,18 @@ class Message extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['type', 'message', 'context', 'color'];
+    protected $fillable = [
+        'type', 'message', 'context', 'color'
+    ];
 
     protected $require = [];
 
     protected $visible = [
-        'id', 'timestamp', 'type', 'name', 'receiver', 'message', 'color', 'whisperDirection', 'isOwnMessage'
+        'id', 'timestamp', 'type', 'name', 'receiver', 'message', 'color', 'whisperDirection', 'isOwnMessage', 'notify'
     ];
 
     protected $appends = [
-        'timestamp', 'name', 'receiver', 'isOwnMessage'
+        'timestamp', 'name', 'receiver', 'isOwnMessage', 'notify'
     ];
 
     protected $casts = [
@@ -95,6 +97,26 @@ class Message extends Model
 
     public function getIsOwnMessageAttribute() {
         return !is_null($this->user) && $this->user->id == Auth::id();
+    }
+
+    public function getNotifyAttribute()
+    {
+        if (property_exists($this, 'notify')) {
+            if ($this->notify === true || in_array($this->attributes['message'], $this->notify)) {
+                return [
+                    'type' => $this->getNotificationType(),
+                    'name' => $this->name,
+                    'message' => $this->message,
+                ];
+            }
+        }
+
+        return false;
+    }
+
+    public function getNotificationType()
+    {
+        return 'message';
     }
 
     /*

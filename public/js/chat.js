@@ -4,18 +4,23 @@ $(document).ready(function() {
     }, 10000);
 });
 /*!
- * JavaScript Cookie v2.1.1
+ * JavaScript Cookie v2.2.0
  * https://github.com/js-cookie/js-cookie
  *
  * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
  * Released under the MIT license
  */
 ;(function (factory) {
+	var registeredInModuleLoader = false;
 	if (typeof define === 'function' && define.amd) {
 		define(factory);
-	} else if (typeof exports === 'object') {
+		registeredInModuleLoader = true;
+	}
+	if (typeof exports === 'object') {
 		module.exports = factory();
-	} else {
+		registeredInModuleLoader = true;
+	}
+	if (!registeredInModuleLoader) {
 		var OldCookies = window.Cookies;
 		var api = window.Cookies = factory();
 		api.noConflict = function () {
@@ -56,6 +61,9 @@ $(document).ready(function() {
 					attributes.expires = expires;
 				}
 
+				// We're using "expires" because "max-age" is not supported by IE
+				attributes.expires = attributes.expires ? attributes.expires.toUTCString() : '';
+
 				try {
 					result = JSON.stringify(value);
 					if (/^[\{\[]/.test(result)) {
@@ -74,13 +82,19 @@ $(document).ready(function() {
 				key = key.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent);
 				key = key.replace(/[\(\)]/g, escape);
 
-				return (document.cookie = [
-					key, '=', value,
-					attributes.expires && '; expires=' + attributes.expires.toUTCString(), // use expires attribute, max-age is not supported by IE
-					attributes.path    && '; path=' + attributes.path,
-					attributes.domain  && '; domain=' + attributes.domain,
-					attributes.secure ? '; secure' : ''
-				].join(''));
+				var stringifiedAttributes = '';
+
+				for (var attributeName in attributes) {
+					if (!attributes[attributeName]) {
+						continue;
+					}
+					stringifiedAttributes += '; ' + attributeName;
+					if (attributes[attributeName] === true) {
+						continue;
+					}
+					stringifiedAttributes += '=' + attributes[attributeName];
+				}
+				return (document.cookie = key + '=' + value + stringifiedAttributes);
 			}
 
 			// Read
@@ -98,14 +112,14 @@ $(document).ready(function() {
 
 			for (; i < cookies.length; i++) {
 				var parts = cookies[i].split('=');
-				var name = parts[0].replace(rdecode, decodeURIComponent);
 				var cookie = parts.slice(1).join('=');
 
-				if (cookie.charAt(0) === '"') {
+				if (!this.json && cookie.charAt(0) === '"') {
 					cookie = cookie.slice(1, -1);
 				}
 
 				try {
+					var name = parts[0].replace(rdecode, decodeURIComponent);
 					cookie = converter.read ?
 						converter.read(cookie, name) : converter(cookie, name) ||
 						cookie.replace(rdecode, decodeURIComponent);
@@ -132,7 +146,7 @@ $(document).ready(function() {
 
 		api.set = api;
 		api.get = function (key) {
-			return api(key);
+			return api.call(api, key);
 		};
 		api.getJSON = function () {
 			return api.apply({
@@ -882,6 +896,25 @@ app.factory('Data', function ($rootScope) {
 
         rowList[channelKey] = rows;
 
+        // Show notification
+        if (!row.isOwnMessage) {
+            if (row.notify !== false) {
+                $rootScope.$broadcast('notify', row.notify);
+            } else {
+                $.each(config.settings.highlight, function (key, value) {
+                    if (row.message.indexOf(value.trim()) >= 0) {
+                        $rootScope.$broadcast('notify', {
+                            type: 'highlight',
+                            name: row.name,
+                            message: row.message
+                        });
+
+                        return false;
+                    }
+                });
+            }
+        }
+
         rows = null; // free up memory
     };
 
@@ -962,6 +995,66 @@ app.factory('Data', function ($rootScope) {
 
     obj.storeJoinableResponse = function(data) {
         obj.joinable(data);
+    };
+
+    return obj;
+});
+app.factory('Notifications', function (Data) {
+    var obj = {};
+
+    function shouldNotify(note) {
+        var config = Data.config();
+        var notify = config.settings.notify;
+
+        if (note.type == 'whisper' || note.type == 'highlight') {
+            return notify.mentions == 'on';
+        }
+
+        if (note.type == 'invite' || note.type == 'new_vouch') {
+            return notify.invites == 'on';
+        }
+
+        return notify.channel == 'on';
+    }
+
+    obj.send = function(note) {
+        if (shouldNotify(note) === false) return;
+
+        var title = "New event:";
+        var message = note.message;
+        var timeout = 4;
+
+        if (note.type == 'whisper') {
+            title = "New whisper:";
+            message = note.name + ' whispers: "' + message + '"';
+            timeout = 10;
+        }
+
+        if (note.type == 'highlight') {
+            title = "You were mentioned!";
+            message = note.name + ' says: "' + message + '"';
+            timeout = 10;
+        }
+
+        if (note.type == 'invite') {
+            title = "You have a new invite!";
+            timeout = 10;
+        }
+
+        if (note.type == 'new_vouch') {
+            title = "New vouch!";
+            timeout = 10;
+        }
+
+        Push.create(title, {
+            body: message,
+            icon: 'icon.jpg',
+            timeout: timeout * 1000,
+            onClick: function() {
+                window.focus();
+                this.close();
+            }
+        });
     };
 
     return obj;
@@ -1251,7 +1344,7 @@ app.factory('Styling', function ($rootScope, Settings) {
 
     return obj;
 });
-app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Selectors, Styling, Settings) {
+app.controller('chatController', function ($compile, $scope, $rootScope, $sce, Ajax, Audio, Data, Notifications, Selectors, Styling, Settings) {
     var isUnloading = false; // Track the unload event
     var isTitleBlinking = false; // Track title blinking
 
@@ -1516,6 +1609,10 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
         $rootScope.flashTitle();
 
         Audio.playDing();
+    });
+
+    $scope.$on('notify', function (e, note) {
+        Notifications.send(note);
     });
 
     $scope.$on('scroll', function (e) {

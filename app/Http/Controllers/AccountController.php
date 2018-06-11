@@ -133,6 +133,11 @@ class AccountController extends Controller
 
         $channels = $request->input('channels');
         $highlight = $request->input('highlight');
+        $notify = [
+            'mentions' => $request->input('notify_mentions'),
+            'invites' => $request->input('notify_invites'),
+            'channel' => $request->input('notify_channel'),
+        ];
         $maxMessages = $request->input('maxMessages');
         $interval = $request->input('interval');
         $timezone = $request->input('timezone');
@@ -144,6 +149,7 @@ class AccountController extends Controller
 
         $settings->channels = trim($channels);
         $settings->highlight = trim($highlight);
+        $settings->notify = $notify;
         $settings->maxMessages = trim($maxMessages);
         $settings->interval = $interval >= config('chat.interval.minimum') ? trim($interval) : null;
         $settings->timezone = $timezone;

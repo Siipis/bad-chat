@@ -16,18 +16,25 @@ class Whisper extends Message
     protected $require = ['user_id', 'target_id'];
 
     protected $appends = [
-        'timestamp', 'name', 'receiver', 'isOwnMessage', 'whisperDirection'
+        'timestamp', 'name', 'receiver', 'isOwnMessage', 'whisperDirection', 'notify'
     ];
 
     protected $attributes = [
         'type' => 'whisper'
     ];
 
+    protected $notify = true;
 
     public function getWhisperDirectionAttribute()
     {
         return $this->user->id == \Auth::id() ? 'from' : 'to';
     }
+
+    public function getNotificationType()
+    {
+        return 'whisper';
+    }
+
 
     /*
     |--------------------------------------------------------------------------

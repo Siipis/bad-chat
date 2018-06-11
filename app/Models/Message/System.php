@@ -22,6 +22,13 @@ class System extends Message
         'type' => 'system'
     ];
 
+    protected $notify = [
+        'join', 'part', 'logout', 'timeout',
+        'settings', 'status',
+        'promote', 'demote', 'banned', 'unbanned', 'kicked', 'moved',
+        'slow_timer_on', 'slow_timer_off'
+    ];
+
     private $strings = [
 
         // Login messages
@@ -41,6 +48,7 @@ class System extends Message
         'status.back' => ":user has returned.",
 
         // Staff
+        'suspended' => ":user's account has been suspended.",
         'promote' => ":user promoted :target to :role.",
         'demote' => ":user demoted :target to :role.",
         'banned.staff' => ":user banned :target from chat.",
@@ -61,6 +69,7 @@ class System extends Message
         'roll.single' => ":user rolled :roll and got :total.",
         'roll.many' => ":user rolled :roll and got :total. (The rolls were :rolls.)",
         'tarot' => ":user drew a Tarot card and got :card.",
+
     ];
 
     /*
@@ -105,9 +114,9 @@ class System extends Message
     |
     */
 
-    public function getNotifyAttribute()
+    public function getNotificationType()
     {
-        return false;
+        return $this->attributes['message'];
     }
 
     public function getNameAttribute()
@@ -244,6 +253,12 @@ class System extends Message
             | Staff and moderation messages
             |
             */
+
+            if ($message == 'suspended') {
+                return $this->trans('suspended', [
+                    ':user' => $this->context['target'],
+                ]);
+            }
 
             if ($message == 'promote') {
                 return $this->trans('promote', [
