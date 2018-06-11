@@ -119,6 +119,16 @@ class System extends Message
         return $this->attributes['message'];
     }
 
+    public function getIsOwnMessageAttribute() {
+        if (isset($this->context['user'])) {
+            if ($this->context['user'] === Auth::user()->name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getNameAttribute()
     {
         if ($this->attributes['message'] == 'current_topic') {
