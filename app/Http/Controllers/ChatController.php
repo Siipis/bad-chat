@@ -1424,23 +1424,30 @@ class ChatController extends Controller
             $opt = substr($message, $cut);
 
             $allow = [
-                'access' => ['public', 'private'],
-                'persist' => ['on', 'off'],
+                'public' => ['yes', 'no'],
+                'private' => ['yes', 'no'],
+                'expire' => ['yes', 'no'],
             ];
 
             if (!isset($allow[$command]) || !in_array($opt, $allow[$command]) && $allow[$command] != ['*']) {
                 return $this->createInfo($channel, 'unknown_command', trim($message));
             }
 
-            if ($command == 'access') {
-                $channel->access = $opt;
+            if ($command == 'public') {
+                $channel->access = $opt == 'yes' ? 'public' : 'private';
 
                 $channel->save();
             }
 
-            if ($command == 'persist') {
+            if ($command == 'private') {
+                $channel->access = $opt == 'yes' ? 'private' : 'public';
+
+                $channel->save();
+            }
+
+            if ($command == 'expire') {
                 if (Auth::user()->isStaff()) {
-                    if ($opt == 'on') {
+                    if ($opt == 'no') {
                         $channel->expires = null;
 
                         $channel->save();
