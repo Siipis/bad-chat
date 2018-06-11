@@ -22,6 +22,47 @@ class System extends Message
         'type' => 'system'
     ];
 
+    private $strings = [
+
+        // Login messages
+        'join' => ":user joins the channel.",
+        'part' => ":user leaves the channel.",
+        'logout' => ":user logs out from chat.",
+        'force_logout' => "You have been logged out.",
+        'timeout' => ":user's connection timed out.",
+
+        // Channel
+        'topic' => ":user set the topic to: :topic",
+        'settings.access' => ":user set the channel visibility to :option.",
+        'settings.persist' => ":user set the channel to :expires.",
+
+        // Statuses
+        'status.is' => ":user is :verb: :status.",
+        'status.back' => ":user has returned.",
+
+        // Staff
+        'promote' => ":user promoted :target to :role.",
+        'demote' => ":user demoted :target to :role.",
+        'banned.staff' => ":user banned :target from chat.",
+        'banned.others' => ":target was banned from chat.",
+        'unbanned.staff' => ":user revoked :target's ban.",
+        'unbanned.others' => ":target's ban was revoked.",
+        'kick' => "You have been kicked from :channel.",
+        'kicked.staff' => ":user kicked :target from the channel.",
+        'kicked.others' => ":target was kicked from the channel.",
+        'moved.staff' => ":user moved :target from :here to :there.",
+        'moved.others' => ":target was moved from :here to :there.",
+        'slow_timer_on.staff' => ":user has slowed the channel by :timer seconds.",
+        'slow_timer_on.others' => "The channel has been slowed by :timer seconds.",
+        'slow_timer_off.staff' => ":user removed the slow timer.",
+        'slow_timer_off.others' => "The slow timer was removed.",
+
+        // Actions
+        'roll.single' => ":user rolled :roll and got :total.",
+        'roll.many' => ":user rolled :roll and got :total. (The rolls were :rolls.)",
+        'tarot' => ":user drew a Tarot card and got :card.",
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Helpers
@@ -45,6 +86,16 @@ class System extends Message
         }
     }
 
+    /**
+     * @param string $key
+     * @param array $replacements
+     * @return string
+     */
+    private function trans($key, $replacements = [])
+    {
+        return strtr($this->strings[$key], $replacements);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessors
@@ -53,6 +104,11 @@ class System extends Message
     | Mutators and accessors
     |
     */
+
+    public function getNotifyAttribute()
+    {
+        return false;
+    }
 
     public function getNameAttribute()
     {
@@ -84,31 +140,31 @@ class System extends Message
             */
 
             if ($message == 'join') {
-                $user = $this->context['user'];
-
-                return "$user joins the channel.";
+                return $this->trans('join', [
+                    ':user' => $this->context['user']
+                ]);
             }
 
             if ($message == 'part') {
-                $user = $this->context['user'];
-
-                return "$user leaves the channel.";
+                return $this->trans('part', [
+                    ':user' => $this->context['user']
+                ]);
             }
 
             if ($message == 'logout') {
-                $user = $this->context['user'];
-
-                return "$user logs out from chat.";
+                return $this->trans('logout', [
+                    ':user' => $this->context['user']
+                ]);
             }
 
             if ($message == 'force_logout') {
-                return "You have been logged out.";
+                return $this->trans('force_logout');
             }
 
             if ($message == 'timeout') {
-                $user = $this->context['user'];
-
-                return "$user's connection timed out.";
+                return $this->trans('timeout', [
+                    ':user' => $this->context['user']
+                ]);
             }
 
             /*
@@ -120,10 +176,10 @@ class System extends Message
             |
             */
             if ($message == 'topic') {
-                $user = $this->context['user'];
-                $topic = $this->context['topic'];
-
-                return "$user set the topic to: $topic";
+                return $this->trans('topic', [
+                    ':user' => $this->context['user'],
+                    ':topic' => $this->context['topic'],
+                ]);
             }
 
             if ($message == 'current_topic') {
@@ -131,18 +187,25 @@ class System extends Message
             }
 
             if ($message == 'settings') {
-                $user = $this->context['user'];
-                $command = $this->context['command'];
-                $option = $this->context['option'];
-
-                if ($command == 'access') {
-                    return "$user set the channel visibility to $option.";
+                if ($this->context['command'] == 'public') {
+                    return $this->trans('settings.access', [
+                        ':user' => $this->context['user'],
+                        ':option' => $this->context['option'] == 'yes' ? 'public' : 'private',
+                    ]);
                 }
 
-                if ($command == 'persist') {
-                    $expires = $option == 'on' ? 'never expire' : 'expire when unused';
+                if ($this->context['command'] == 'private') {
+                    return $this->trans('settings.access', [
+                        ':user' => $this->context['user'],
+                        ':option' => $this->context['option'] == 'yes' ? 'private' : 'public',
+                    ]);
+                }
 
-                    return "$user set the channel to $expires.";
+                if ($this->context['command'] == 'expire') {
+                    return $this->trans('settings.persist', [
+                        ':user' => $this->context['user'],
+                        ':expires' => $this->context['option'] == 'no' ? 'never expire' : 'expire when unused',
+                    ]);
                 }
             }
 
@@ -156,18 +219,21 @@ class System extends Message
             */
 
             if ($message == 'status') {
-                $user = $this->context['user'];
                 $status = $this->context['status'];
 
                 if ($status == 'online') {
-                    return "$user has returned.";
+                    return $this->trans('status.back', [
+                        ':user' => $this->context['user'],
+                    ]);
                 }
 
                 $persist = Online::getPersistStatuses();
 
-                $verb = in_array($status, $persist) ? 'busy' : 'away';
-
-                return "$user is $verb: $status.";
+                return $this->trans('status.is', [
+                    ':user' => $this->context['user'],
+                    ':verb' => in_array($status, $persist) ? 'busy' : 'away',
+                    ':status' => $status,
+                ]);
             }
 
             /*
@@ -180,64 +246,66 @@ class System extends Message
             */
 
             if ($message == 'promote') {
-                $user = $this->context['user'];
-                $target = $this->context['target'];
-                $role = $this->context['role'];
-
-                return "$user promoted $target to $role.";
+                return $this->trans('promote', [
+                    ':user' => $this->context['user'],
+                    ':target' => $this->context['target'],
+                    ':role' => $this->context['role'],
+                ]);
             }
 
             if ($message == 'demote') {
-                $user = $this->context['user'];
-                $target = $this->context['target'];
-                $role = $this->context['role'];
-
-                return "$user demoted $target to $role.";
-            }
-
-            if ($message == 'suspended') {
-                return "$this->context has been suspended from chat.";
+                return $this->trans('demote', [
+                    ':user' => $this->context['user'],
+                    ':target' => $this->context['target'],
+                    ':role' => $this->context['role'],
+                ]);
             }
 
             if ($message == 'banned') {
-                $user = isset($this->context['user']) ? $this->context['user'] : "A staff member";
-                $target = isset($this->context['target']) ? $this->context['target'] : "someone";
-
-                if (Auth::user()->isStaff() && !is_null($user)) {
-                    return "$user banned $target from chat.";
+                if (Auth::user()->isStaff() && !is_null($this->context['user'])) {
+                    return $this->trans('banned.staff', [
+                        ':user' => $this->context['user'],
+                        ':target' => $this->context['target'],
+                    ]);
                 }
 
-                return "$target was banned from chat.";
+                return $this->trans('banned.others', [
+                    ':target' => $this->context['target'],
+                ]);
             }
 
             if ($message == 'unbanned') {
-                $user = $this->context['user'];
-                $target = $this->context['target'];
-
                 if (Auth::user()->isStaff()) {
-                    return "$user revoked $target's ban.";
+                    return $this->trans('unbanned.staff', [
+                        ':user' => $this->context['user'],
+                        ':target' => $this->context['target'],
+                    ]);
                 }
 
-                return "$target's ban has been revoked.";
+                return $this->trans('unbanned.others', [
+                    ':target' => $this->context['target'],
+                ]);
             }
 
             if ($message == 'kick') {
-                $channel = $this->context['channel'];
-
-                return "You have been kicked from $channel.";
+                return $this->trans('kick', [
+                    ':channel' => $this->context['channel'],
+                ]);
             }
 
             if ($message == 'kicked') {
-                $user = $this->context['user'];
-                $target = $this->context['target'];
-
                 if ($this->channel instanceof Channel) {
                     if ($this->channel->isStaff(Auth::user())) {
-                        return "$user kicked $target from the channel.";
+                        return $this->trans('kicked.staff', [
+                            ':user' => $this->context['user'],
+                            ':target' => $this->context['target'],
+                        ]);
                     }
                 }
 
-                return "$target was kicked from the channel.";
+                return $this->trans('kicked.others', [
+                    ':target' => $this->context['target'],
+                ]);
             }
 
             if ($message == 'moved') {
@@ -246,29 +314,40 @@ class System extends Message
                 $oldChannel = $this->context['old_channel'];
                 $newChannel = $this->context['new_channel'];
 
-                $from = $this->channel->name == $oldChannel ? 'this channel' : $oldChannel;
-                $to = $this->channel->name == $newChannel ? 'this channel' : $newChannel;
+                $here = $this->channel->name == $oldChannel ? 'this channel' : $oldChannel;
+                $there = $this->channel->name == $newChannel ? 'this channel' : $newChannel;
 
                 if ($this->channel instanceof Channel) {
                     if ($this->channel->isStaff(Auth::user())) {
-                        return "$user moved " . ($target == Auth::user()->name ? 'you' : $target) . " from $from to $to.";
+                        return $this->trans('moved.staff', [
+                            ':user' => $user,
+                            ':target' => ($target == Auth::user()->name ? 'you' : $target),
+                            ':here' => $here,
+                            ':there' => $there,
+                        ]);
                     }
                 }
 
-                return ($target == Auth::user()->name ? 'You were' : "$target was") . " moved from $from to $to.";
+                return $this->trans('moved.others', [
+                    ':target' => ($target == Auth::user()->name ? 'You were' : "$target was"),
+                    ':here' => $here,
+                    ':there' => $there,
+                ]);
             }
 
             if ($message == 'slow_timer_on') {
-                $user = $this->context['user'];
-                $timer = $this->context['timer'];
-
                 if ($this->channel instanceof Channel) {
                     if ($this->channel->isStaff(Auth::user())) {
-                        return "$user has slowed the channel by $timer seconds.";
+                        return $this->trans('slow_timer_on.staff', [
+                            ':user' => $this->context['user'],
+                            ':timer' => $this->context['timer'],
+                        ]);
                     }
                 }
 
-                return "The channel has been slowed by $timer seconds.";
+                return $this->trans('slow_timer_on.others', [
+                    ':timer' => $this->context['timer'],
+                ]);
             }
 
             if ($message == 'slow_timer_off') {
@@ -276,11 +355,13 @@ class System extends Message
 
                 if ($this->channel instanceof Channel) {
                     if ($this->channel->isStaff(Auth::user())) {
-                        return "$user removed the slow timer.";
+                        return $this->trans('slow_timer_off.staff', [
+                            ':user' => $this->context['user'],
+                        ]);
                     }
                 }
 
-                return "The slow timer has been removed.";
+                return $this->trans('slow_timer_off.others');
             }
 
             /*
@@ -293,25 +374,27 @@ class System extends Message
             */
 
             if ($message == 'roll') {
-                $user = $this->context['user'];
-                $roll = $this->context['roll'];
-                $result = $this->context['result'];
-                $total = $this->context['total'];
-
-                if (count($result) == 1) {
-                    return "$user rolled $roll and got $total.";
+                if (count($this->context['result']) == 1) {
+                    return $this->trans('roll.single', [
+                        ':user' => $this->context['user'],
+                        ':roll' => $this->context['roll'],
+                        ':total' => $this->context['total'],
+                    ]);
                 }
 
-                $resultList = implode(', ', $result);
-
-                return "$user rolled $roll and got $total. (The rolls were $resultList.)";
+                return $this->trans('roll.many', [
+                    ':user' => $this->context['user'],
+                    ':roll' => $this->context['roll'],
+                    ':total' => $this->context['total'],
+                    ':rolls' => implode(', ', $this->context['result']),
+                ]);
             }
 
             if ($message == 'tarot') {
-                $user = $this->context['user'];
-                $tarot = $this->context['tarot'];
-
-                return "$user drew a Tarot card and got $tarot.";
+                return $this->trans('tarot', [
+                    ':user' => $this->context['user'],
+                    ':card' => $this->context['tarot'],
+                ]);
             }
 
             /*
