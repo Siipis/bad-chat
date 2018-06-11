@@ -1648,7 +1648,9 @@ app.controller('chatController', function ($compile, $scope, $rootScope, $sce, A
      |
      */
 
-    $(document).on('click', '#topic', function () {
+    $(document).on('click', '#topic', function (e) {
+        if (e.target !== this) return; // ignore topic children
+
         var oldTopic = Data.topic();
         var topic = prompt('Channel topic:', oldTopic);
 
