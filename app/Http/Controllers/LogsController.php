@@ -49,13 +49,17 @@ class LogsController extends Controller
         $query = Message::channel($channel)->public();
 
         if (!empty($search)) {
-            $query->where('message', 'like', "%$search%");
+            $query->where(function($query) use ($search) {
+                $query->where('message', 'like', "%$search%");
 
-            $users = User::active()->where('name', 'like', "%$search%")->get(['id'])->pluck('id');
+                $users = User::active()->where('name', 'like', "%$search%")->get(['id'])->pluck('id');
 
-            foreach ($users as $id) {
-                $query->orWhere('user_id', $id);
-            }
+                foreach ($users as $id) {
+                    $query->orWhere('user_id', $id);
+                }
+            });
+
+          //  dd($query->toSql());
         }
 
         $messages = $query->orderBy('id', 'desc')->paginate(50);
