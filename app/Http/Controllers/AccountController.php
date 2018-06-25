@@ -32,6 +32,7 @@ class AccountController extends Controller
                 'postSave',
                 'postInvite',
                 'postUninvite',
+                'getEmail',
             ]
         ]);
     }
@@ -521,6 +522,15 @@ class AccountController extends Controller
     }
 
     /**
+     * Used to test that emails arrive to the user
+     */
+    public function getEmail() {
+        $this->sendTestEmail(Auth::user());
+
+        return "An email was sent!";
+    }
+
+    /**
      * Returns bool or redirects an existing user
      *
      * @param Request $request
@@ -618,5 +628,18 @@ class AccountController extends Controller
 
             $m->to($user->email);
         });
+    }
+
+    private function sendTestEmail(User $user)
+    {
+        try {
+            Mail::raw("This is the test email you requested. Yay!", function ($m) use ($user) {
+                $m->subject('This is a test email!');
+
+                $m->to($user->email);
+            });
+        } catch (Exception $e) {
+            dd($e);
+        }
     }
 }

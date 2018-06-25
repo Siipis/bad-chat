@@ -58,8 +58,6 @@ class LogsController extends Controller
                     $query->orWhere('user_id', $id);
                 }
             });
-
-          //  dd($query->toSql());
         }
 
         $messages = $query->orderBy('id', 'desc')->paginate(50);
