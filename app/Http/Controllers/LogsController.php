@@ -49,7 +49,7 @@ class LogsController extends Controller
         $query = Message::channel($channel)->public();
 
         if (!empty($search)) {
-            $query = $query->where('message', 'like', "%$search%");
+            $query->where('message', 'like', "%$search%");
 
             $users = User::active()->where('name', 'like', "%$search%")->get(['id'])->pluck('id');
 
