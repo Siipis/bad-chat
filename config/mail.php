@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'from' => ['address' => 'outgoing@varjohov.dev', 'name' => 'Bad Chat'],
+    'from' => ['address' => 'outgoing@varjohov.net', 'name' => 'Shadow Chat'],
 
     /*
     |--------------------------------------------------------------------------
