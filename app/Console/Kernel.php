@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Channel;
+use App\Console\Commands\LogsClean;
 use App\Login;
 use App\Online;
 use Illuminate\Console\Scheduling\Schedule;
@@ -20,6 +21,7 @@ class Kernel extends ConsoleKernel
         Commands\ChannelExpired::class,
         Commands\UploadClean::class,
         Commands\Statistics::class,
+        Commands\LogsClean::class,
     ];
 
     /**
@@ -50,11 +52,17 @@ class Kernel extends ConsoleKernel
         })->daily();
 
         $schedule->call(function() {
+            \Artisan::call('logs:clean');
+        })->monthly();
+
+        /*
+        $schedule->call(function() {
             try {
                 \Artisan::call('chat:stats');
             } catch (\Exception $e) {
                 \Log::error($e->getMessage(), $e->getTrace());
             }
         })->weekly();
+        */
     }
 }
