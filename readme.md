@@ -1,6 +1,5 @@
 # Bad Chat
-*Public arcive
-Operational 2016-2019*
+*Public arcive | Operational 2016-2019*
 
 Bad Chat was home to a vibrant small online community for three years before the popularity of Discord. The chat functioned on an invite only policy, where each user had the ability to vouch for their friends. The vouching system allowed the chat to run with a mostly hands off approach moderation wise, as users with no vouches were unable to enter the room unless vouched by someone else.
 
