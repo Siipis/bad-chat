@@ -1,27 +1,11 @@
-# Laravel PHP Framework
+# Bad Chat
+*Public arcive
+Operational 2016-2019*
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+Bad Chat was home to a vibrant small online community for three years before the popularity of Discord. The chat functioned on an invite only policy, where each user had the ability to vouch for their friends. The vouching system allowed the chat to run with a mostly hands off approach moderation wise, as users with no vouches were unable to enter the room unless vouched by someone else.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+## Some notable features
+Revokable invitation system (vouches) coupled with moderation tools. Users were able to create their own channels and moderate them freely. The chat took inspiration from the old IRC slash commands to provide a broad list of available actions, as well as more modern utilities such as emojis and individual colors for each chatter.
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
-
-## Official Documentation
-
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+## The stack
+The chat was built on top of the Laravel 5.2 using the Twig templating engine on the backend and AngularJS in the front-end. 
